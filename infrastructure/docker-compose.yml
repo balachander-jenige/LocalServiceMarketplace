@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  # Redis for caching / Redis 缓存服务
+  freelancer-redis:
+    image: redis:7.2-alpine
+    container_name: freelancer-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - microservices-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # RabbitMQ for event bus / RabbitMQ 事件总线
+  freelancer-rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: freelancer-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - microservices-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # MySQL (如果不使用 AWS RDS) / MySQL (if not using AWS RDS)
+  freelancer-mysql:
+    image: mysql:8.0
+    container_name: freelancer-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_USER: freelancer
+      MYSQL_PASSWORD: password123
+      MYSQL_DATABASE: freelancer_marketplace
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init-mysql.sql:/docker-entrypoint-initdb.d/init-mysql.sql
+    networks:
+      - microservices-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "freelancer", "-ppassword123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB (如果不使用 MongoDB Atlas) / MongoDB (if not using MongoDB Atlas)
+  freelancer-mongodb:
+    image: mongo:7.0
+    container_name: freelancer-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: freelancer
+      MONGO_INITDB_ROOT_PASSWORD: Password123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+      - ./init-mongodb.js:/docker-entrypoint-initdb.d/init-mongodb.js
+    networks:
+      - microservices-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis-data:
+    driver: local
+  rabbitmq-data:
+    driver: local
+  mysql-data:
+    driver: local
+  mongodb-data:
+    driver: local
+
+networks:
+  microservices-net:
+    driver: bridge
