@@ -103,6 +103,7 @@ async def get_order_detail(
     
     return OrderDetail(
         id=order.id,
+        customer_id=order.customer_id,
         title=order.title,
         description=order.description,
         status=order.status.value,

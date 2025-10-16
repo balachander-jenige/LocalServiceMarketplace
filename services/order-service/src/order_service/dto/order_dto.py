@@ -46,6 +46,7 @@ class OrderSummary(BaseModel):
 class OrderDetail(BaseModel):
     """订单详情"""
     id: int
+    customer_id: int
     title: str
     description: Optional[str]
     status: str
