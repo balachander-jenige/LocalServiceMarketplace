@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "notification-service"
+version = "1.0.0"
+description = "Notification microservice for freelancer marketplace"
+authors = ["Your Name <your.email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.104.0"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+motor = "^3.3.2"
+redis = "^5.0.1"
+pydantic = "^2.5.0"
+pydantic-settings = "^2.1.0"
+aio-pika = "^9.3.0"
+httpx = "^0.25.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
