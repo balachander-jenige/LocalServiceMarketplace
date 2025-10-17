@@ -61,14 +61,15 @@ Gateway Service 是整个微服务系统的**统一入口**，提供：
 
 #### 📦 订单模块 - Customer（Order Service）
 - `POST /customer/orders/publish` - 发布订单（需认证 + 限流）
-- `GET /customer/orders` - 获取订单列表（需认证 + 限流）
+- `GET /customer/orders` - 获取订单列表-进行中（需认证 + 限流）
+- `GET /customer/orders/history` - 获取订单历史（需认证 + 限流）
 - `POST /customer/orders/cancel/{order_id}` - 取消订单（需认证 + 限流）
 
 #### 📦 订单模块 - Provider（Order Service）
 - `GET /provider/orders/available` - 获取可接单列表（需认证 + 限流）
 - `POST /provider/orders/accept/{order_id}` - 接受订单（需认证 + 限流）
 - `POST /provider/orders/status/{order_id}` - 更新订单状态（需认证 + 限流）
-- `GET /provider/orders` - 获取服务商订单列表（需认证 + 限流）
+- `GET /provider/orders/history` - 获取服务商订单历史（需认证 + 限流）
 
 #### 💰 支付模块（Payment Service）
 - `POST /customer/payments/recharge` - 充值余额（需认证 + 限流）
@@ -479,7 +480,7 @@ Content-Type: application/json
 - ✅ 订单创建成功
 - ✅ 统一响应格式正确
 
-#### 3.3 通过 Gateway 获取客户订单列表
+#### 3.3 通过 Gateway 获取客户订单列表（进行中）
 
 **请求**
 ```
@@ -505,6 +506,40 @@ Authorization: Bearer <customer_token>
   "error": null
 }
 ```
+
+**验证点**
+- ✅ 返回当前进行中的订单（pending, accepted, in_progress 状态）
+
+#### 3.4 通过 Gateway 获取客户订单历史
+
+**请求**
+```
+GET http://localhost:8080/api/v1/customer/orders/history
+Authorization: Bearer <customer_token>
+```
+
+**预期响应 200**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Need cleaning service (Gateway Test)",
+      "status": "completed",
+      "price": 100.0,
+      "location": "NORTH",
+      "created_at": "2025-10-17T..."
+    }
+  ],
+  "message": "Success",
+  "error": null
+}
+```
+
+**验证点**
+- ✅ 返回所有历史订单（包括已完成、已取消等状态）
+- ✅ Gateway 正确路由到 Order Service 的 `/customer/orders/history`
 
 ---
 
@@ -591,11 +626,11 @@ Content-Type: application/json
 }
 ```
 
-#### 4.4 通过 Gateway 获取服务商订单列表
+#### 4.4 通过 Gateway 获取服务商订单历史
 
 **请求**
 ```
-GET http://localhost:8080/api/v1/provider/orders
+GET http://localhost:8080/api/v1/provider/orders/history
 Authorization: Bearer <provider_token>
 ```
 
@@ -617,6 +652,10 @@ Authorization: Bearer <provider_token>
   "error": null
 }
 ```
+
+**验证点**
+- ✅ 返回服务商的所有历史订单
+- ✅ Gateway 正确路由到 Order Service 的 `/provider/orders/history`
 
 ---
 
@@ -1067,16 +1106,19 @@ Authorization: Bearer <customer_token>
 4. **Provider 创建 Profile** → Gateway `/api/v1/provider/profile`
 5. **Customer 充值余额** → Gateway `/api/v1/customer/payments/recharge`
 6. **Customer 发布订单** → Gateway `/api/v1/customer/orders/publish`
-7. **Provider 查看可接单** → Gateway `/api/v1/provider/orders/available`
-8. **Provider 接受订单** → Gateway `/api/v1/provider/orders/accept/{id}`
-9. **Provider 完成订单** → Gateway `/api/v1/provider/orders/status/{id}`
-10. **Customer 支付订单** → Gateway `/api/v1/customer/payments/pay`
-11. **Customer 创建评价** → Gateway `/api/v1/reviews`
-12. **Provider 查看自己评分** → Gateway `/api/v1/reviews/provider/me/rating`
-13. **Provider 查看自己评价** → Gateway `/api/v1/reviews/provider/me/reviews`
-14. **查看服务商评分** → Gateway `/api/v1/reviews/provider/{id}/rating`
-15. **Customer 查看通知** → Gateway `/api/v1/customer/inbox`
-16. **Provider 查看通知** → Gateway `/api/v1/provider/inbox`
+7. **Customer 查看订单列表** → Gateway `/api/v1/customer/orders`
+8. **Provider 查看可接单** → Gateway `/api/v1/provider/orders/available`
+9. **Provider 接受订单** → Gateway `/api/v1/provider/orders/accept/{id}`
+10. **Provider 完成订单** → Gateway `/api/v1/provider/orders/status/{id}`
+11. **Customer 支付订单** → Gateway `/api/v1/customer/payments/pay`
+12. **Customer 创建评价** → Gateway `/api/v1/reviews`
+13. **Provider 查看自己评分** → Gateway `/api/v1/reviews/provider/me/rating`
+14. **Provider 查看自己评价** → Gateway `/api/v1/reviews/provider/me/reviews`
+15. **Customer 查看订单历史** → Gateway `/api/v1/customer/orders/history`
+16. **Provider 查看订单历史** → Gateway `/api/v1/provider/orders/history`
+17. **查看服务商评分** → Gateway `/api/v1/reviews/provider/{id}/rating`
+18. **Customer 查看通知** → Gateway `/api/v1/customer/inbox`
+19. **Provider 查看通知** → Gateway `/api/v1/provider/inbox`
 
 **预期结果**
 - ✅ 所有步骤都能通过 Gateway 完成
@@ -1110,14 +1152,15 @@ Authorization: Bearer <customer_token>
 
 ### 订单功能 - Customer
 - [ ] 发布订单（通过 Gateway）
-- [ ] 获取订单列表（通过 Gateway）
+- [ ] 获取订单列表-进行中（通过 Gateway）
+- [ ] 获取订单历史（通过 Gateway）
 - [ ] 取消订单（通过 Gateway）
 
 ### 订单功能 - Provider
 - [ ] 获取可接单列表（通过 Gateway）
 - [ ] 接受订单（通过 Gateway）
 - [ ] 更新订单状态（通过 Gateway）
-- [ ] 获取服务商订单列表（通过 Gateway）
+- [ ] 获取服务商订单历史（通过 Gateway）
 
 ### 评价功能
 - [ ] 创建评价（通过 Gateway）
@@ -1374,14 +1417,14 @@ Gateway Service 现已提供完整的业务功能支持：
 
 ### 📊 端点统计
 
-- **总端点数**: 25 个
-- **需认证**: 20 个
+- **总端点数**: 27 个
+- **需认证**: 22 个
 - **公开接口**: 5 个
 - **主要端点分类**:
   - 认证: 3 个
   - Customer Profile: 3 个（创建、获取、更新）
   - Provider Profile: 3 个（创建、获取、更新）
-  - 订单管理: 7 个
+  - 订单管理: 9 个（Customer 4个 + Provider 4个 + 公开 1个）
   - 支付功能: 2 个（充值、支付）
   - 评价功能: 5 个
   - 通知功能: 2 个
@@ -1526,7 +1569,7 @@ ab -n 1000 -c 10 -H "Authorization: Bearer ${TOKEN}" \
 - 未认证请求被正确拒绝
 
 ✅ **请求路由**
-- 所有 25 个端点正确路由到对应后端服务
+- 所有 27 个端点正确路由到对应后端服务
 - Token 正确传递到后端
 - 请求参数正确传递
 

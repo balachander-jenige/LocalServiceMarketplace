@@ -9,6 +9,11 @@ lsof -i :8000 :8002 :8003 :8004 :8005 :8006
 # 2. 启动 Gateway
 cd gateway-service
 uvicorn gateway_service.main:app --reload --host 0.0.0.0 --port 8080 --app-dir src
+12. Provider 查看自己评分 → /api/v1/reviews/provider/me/rating
+13. Provider 查看自己评价 → /api/v1/reviews/provider/me/reviews
+14. 查看服务商评分 → /api/v1/reviews/provider/{id}/rating
+15. Customer 查看通知 → /api/v1/customer/inbox
+16. Provider 查看通知 → /api/v1/provider/inboxload --host 0.0.0.0 --port 8080 --app-dir src
 
 # 3. 健康检查
 curl http://localhost:8080/health
@@ -34,7 +39,6 @@ curl http://localhost:8080/health
 | | `/customer/inbox` | GET | ✅ | ✅ | 收件箱 |
 | | `/customer/payments/recharge` | POST | ✅ | ✅ | 充值余额 |
 | | `/customer/payments/pay` | POST | ✅ | ✅ | 支付订单 |
-| | `/customer/payments/transactions` | GET | ✅ | ✅ | 交易记录 |
 | **Provider** | `/provider/profile` | POST | ✅ | ✅ | 创建资料 |
 | | `/provider/profile` | GET | ✅ | ✅ | 获取资料 |
 | | `/provider/profile` | PUT | ✅ | ✅ | 更新资料 |

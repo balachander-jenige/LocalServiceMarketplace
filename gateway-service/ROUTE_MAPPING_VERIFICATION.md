@@ -4,7 +4,7 @@
 
 ## ✅ 验证结果总览
 
-**总计 25 个端点，全部验证通过** ✅
+**总计 27 个端点，全部验证通过** ✅
 
 ## 📊 详细路由映射
 
@@ -55,7 +55,8 @@
 | Gateway 端点 | 后端服务端点 | 状态 | 修复 | 备注 |
 |-------------|-------------|------|------|------|
 | `POST /api/v1/customer/orders/publish` | `POST /customer/orders/publish` | ✅ | - | 发布订单 |
-| `GET /api/v1/customer/orders` | `GET /customer/orders/my` | ✅ | ✅ | 获取订单列表（已修复） |
+| `GET /api/v1/customer/orders` | `GET /customer/orders/my` | ✅ | ✅ | 获取订单列表-进行中（已修复） |
+| `GET /api/v1/customer/orders/history` | `GET /customer/orders/history` | ✅ | ✅ | 获取订单历史（新增） |
 | `POST /api/v1/customer/orders/cancel/{id}` | `POST /customer/orders/cancel/{order_id}` | ✅ | - | 取消订单 |
 
 #### Provider Orders
@@ -65,7 +66,7 @@
 | `GET /api/v1/provider/orders/available` | `GET /provider/orders/available` | ✅ | - | 可接单列表 |
 | `POST /api/v1/provider/orders/accept/{id}` | `POST /provider/orders/accept/{order_id}` | ✅ | - | 接受订单 |
 | `POST /api/v1/provider/orders/status/{id}` | `POST /provider/orders/status/{order_id}` | ✅ | - | 更新订单状态 |
-| `GET /api/v1/provider/orders` | `GET /provider/orders/history` | ✅ | ✅ | 订单历史（已修复） |
+| `GET /api/v1/provider/orders/history` | `GET /provider/orders/history` | ✅ | ✅ | 订单历史（已修复） |
 
 **修复说明**：
 - ❌ 旧路由：`GET /customer/orders` → 404 错误
@@ -183,16 +184,17 @@ Provider Profile（3个端点）
   ├─ GET /api/v1/provider/profile → GET /provider/profile/me
   └─ PUT /api/v1/provider/profile → PUT /provider/profile/me
 
-Customer Orders（3个端点）
+Customer Orders（4个端点）
   ├─ POST /api/v1/customer/orders/publish → POST /customer/orders/publish
   ├─ GET /api/v1/customer/orders → GET /customer/orders/my ✅ 已修复
+  ├─ GET /api/v1/customer/orders/history → GET /customer/orders/history ✅ 新增
   └─ POST /api/v1/customer/orders/cancel/{id} → POST /customer/orders/cancel/{order_id}
 
 Provider Orders（4个端点）
   ├─ GET /api/v1/provider/orders/available → GET /provider/orders/available
   ├─ POST /api/v1/provider/orders/accept/{id} → POST /provider/orders/accept/{order_id}
   ├─ POST /api/v1/provider/orders/status/{id} → POST /provider/orders/status/{order_id}
-  └─ GET /api/v1/provider/orders → GET /provider/orders/history ✅ 已修复
+  └─ GET /api/v1/provider/orders/history → GET /provider/orders/history ✅ 已修复
 
 支付模块（2个端点）
   ├─ POST /api/v1/customer/payments/recharge → POST /customer/payments/recharge

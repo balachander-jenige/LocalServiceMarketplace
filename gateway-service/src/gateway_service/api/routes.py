@@ -103,9 +103,16 @@ async def publish_order(
 
 @router.get("/customer/orders", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
 async def get_customer_orders(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """获取客户订单列表"""
+    """获取客户订单列表（进行中）"""
     await verify_auth_token(credentials)
     result = await order_client.get_customer_orders(credentials.credentials)
+    return ApiResponse(success=True, data=result)
+
+@router.get("/customer/orders/history", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def get_customer_order_history(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """获取客户订单历史"""
+    await verify_auth_token(credentials)
+    result = await order_client.get_customer_order_history(credentials.credentials)
     return ApiResponse(success=True, data=result)
 
 @router.post("/customer/orders/cancel/{order_id}", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
@@ -147,11 +154,11 @@ async def update_order_status(
     result = await order_client.update_order_status(order_id, credentials.credentials, data)
     return ApiResponse(success=True, data=result, message="Order status updated")
 
-@router.get("/provider/orders", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
-async def get_provider_orders(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """获取服务商订单列表"""
+@router.get("/provider/orders/history", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def get_provider_order_history(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """获取服务商订单历史"""
     await verify_auth_token(credentials)
-    result = await order_client.get_provider_orders(credentials.credentials)
+    result = await order_client.get_provider_order_history(credentials.credentials)
     return ApiResponse(success=True, data=result)
 
 # ==================== Payment Routes ====================
