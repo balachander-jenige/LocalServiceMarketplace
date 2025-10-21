@@ -25,7 +25,7 @@ class ProviderProfileResponse(BaseModel):
     hourly_rate: float
     availability: Optional[str]
     portfolio: List[str]
-    total_earnings: float
+    # total_earnings 字段已删除 - 第三阶段修改
     rating: float
     total_reviews: int
     created_at: datetime

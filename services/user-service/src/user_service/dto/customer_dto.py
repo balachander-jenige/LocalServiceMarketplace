@@ -13,7 +13,7 @@ class CustomerProfileUpdate(BaseModel):
     location: Optional[str] = None
     address: Optional[str] = None
     budget_preference: Optional[float] = None
-    balance: Optional[float] = None
+    # balance 字段已删除 - 第三阶段修改
 
 class CustomerProfileResponse(BaseModel):
     """客户资料响应"""
@@ -21,7 +21,7 @@ class CustomerProfileResponse(BaseModel):
     location: str
     address: Optional[str]
     budget_preference: float
-    balance: float
+    # balance 字段已删除 - 第三阶段修改
     created_at: datetime
     updated_at: datetime
     

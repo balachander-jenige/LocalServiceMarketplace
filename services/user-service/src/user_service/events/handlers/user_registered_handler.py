@@ -29,8 +29,8 @@ async def handle_user_registered(message: IncomingMessage):
                     user_id=user_id,
                     location=LocationEnum.NORTH,
                     address=None,
-                    budget_preference=0.0,
-                    balance=0.0
+                    budget_preference=0.0
+                    # balance 字段已删除 - 第三阶段修改
                 )
                 await customer_dao.create(profile)
                 print(f"✅ Created customer profile for user {user_id}")
@@ -48,7 +48,7 @@ async def handle_user_registered(message: IncomingMessage):
                     hourly_rate=0.0,
                     availability=None,
                     portfolio=[],
-                    total_earnings=0.0,
+                    # total_earnings 字段已删除 - 第三阶段修改
                     rating=5.0,
                     total_reviews=0
                 )

@@ -1,24 +1,26 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
-class UserResponse(BaseModel):
-    """用户响应"""
-    id: int
-    username: str
-    email: str
-    role_id: int
-    created_at: datetime
-    
-    class Config:
-        from_attributes = True
-
-class TokenVerifyResponse(BaseModel):
-    """Token 验证响应"""
+class UserSummary(BaseModel):
+    """用户摘要（管理员视图）"""
     user_id: int
-    role_id: int
     username: str
     email: str
+    role_id: int
+    role_name: str
+    has_profile: bool
+    created_at: datetime
+
+class UserDetailAdmin(BaseModel):
+    """用户详情（管理员视图）"""
+    user_id: int
+    username: str
+    email: str
+    role_id: int
+    role_name: str
+    profile: Optional[dict] = None  # 客户或服务商资料
+    created_at: datetime
 
 class UpdateUserRequest(BaseModel):
     """管理员更新用户请求"""

@@ -65,3 +65,67 @@ class UserDAO:
             await db.commit()
             return True
         return False
+    
+    @staticmethod
+    async def get_all_users(
+        db: AsyncSession,
+        role_id: int = None
+    ) -> list[User]:
+        """获取所有用户（管理员）"""
+        query = select(User)
+        
+        if role_id is not None:
+            query = query.where(User.role_id == role_id)
+        
+        query = query.order_by(User.created_at.desc())
+        result = await db.execute(query)
+        return list(result.scalars().all())
+    
+    @staticmethod
+    async def update_user(
+        db: AsyncSession,
+        user_id: int,
+        username: str = None,
+        email: str = None,
+        role_id: int = None
+    ) -> User | None:
+        """更新用户信息（管理员）"""
+        from datetime import datetime, UTC
+        
+        user = await db.get(User, user_id)
+        if not user:
+            return None
+        
+        if username is not None:
+            user.username = username
+        if email is not None:
+            user.email = email
+        if role_id is not None:
+            user.role_id = role_id
+        
+        user.updated_at = datetime.now(UTC)
+        
+        try:
+            await db.commit()
+            await db.refresh(user)
+        except IntegrityError:
+            await db.rollback()
+            raise HTTPException(
+                status_code=400,
+                detail="用户名或邮箱已存在 / Username or email already exists"
+            )
+        
+        return user
+    
+    @staticmethod
+    async def delete_user(db: AsyncSession, user_id: int) -> bool:
+        """删除用户（管理员）"""
+        from sqlalchemy import delete as sql_delete
+        
+        user = await db.get(User, user_id)
+        if not user:
+            return False
+        
+        await db.execute(sql_delete(User).where(User.id == user_id))
+        await db.commit()
+        return True

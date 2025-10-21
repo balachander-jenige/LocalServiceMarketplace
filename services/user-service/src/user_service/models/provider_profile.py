@@ -10,7 +10,7 @@ class ProviderProfile(BaseModel):
     hourly_rate: float = Field(default=0.0)
     availability: Optional[str] = None
     portfolio: List[str] = Field(default_factory=list, description="作品集 URLs")
-    total_earnings: float = Field(default=0.0, description="总收入")
+    # total_earnings 字段已删除 - 第三阶段修改
     rating: float = Field(default=5.0, description="平均评分")
     total_reviews: int = Field(default=0, description="评价总数")
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -25,7 +25,6 @@ class ProviderProfile(BaseModel):
                 "hourly_rate": 50.0,
                 "availability": "Full-time",
                 "portfolio": ["https://example.com/project1"],
-                "total_earnings": 5000.0,
                 "rating": 4.8,
                 "total_reviews": 20
             }
