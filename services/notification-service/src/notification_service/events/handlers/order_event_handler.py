@@ -80,3 +80,31 @@ async def handle_order_cancelled(message: IncomingMessage):
                 order_id=data["order_id"],
                 message=f"Order {data['order_id']} has been cancelled by customer."
             )
+
+async def handle_order_approved(message: IncomingMessage):
+    """处理订单审核通过事件"""
+    async with message.process():
+        data = json.loads(message.body.decode())
+        db = get_database()
+        service = NotificationService(db)
+        
+        # 通知客户订单审核通过
+        await service.send_customer_notification(
+            customer_id=data["customer_id"],
+            order_id=data["order_id"],
+            message=f"Your order {data['order_id']} has been approved by admin. It is now available for providers to accept."
+        )
+
+async def handle_order_rejected(message: IncomingMessage):
+    """处理订单审核拒绝事件"""
+    async with message.process():
+        data = json.loads(message.body.decode())
+        db = get_database()
+        service = NotificationService(db)
+        
+        # 通知客户订单审核被拒绝，包含拒绝原因
+        await service.send_customer_notification(
+            customer_id=data["customer_id"],
+            order_id=data["order_id"],
+            message=f"Your order {data['order_id']} has been rejected by admin. Reason: {data['reject_reason']}"
+        )
