@@ -9,9 +9,7 @@ class PaymentStatus(enum.Enum):
     failed = "failed"
 
 class PaymentMethod(enum.Enum):
-    balance = "balance"          # 余额支付
-    credit_card = "credit_card"  # 信用卡（未实现）
-    paypal = "paypal"            # PayPal（未实现）
+    simulated = "simulated"  # 模拟支付（简化后的支付方式）
 
 class Payment(Base):
     __tablename__ = "payments"
@@ -21,8 +19,16 @@ class Payment(Base):
     customer_id = Column(BigInteger, nullable=False, index=True)
     provider_id = Column(BigInteger, nullable=True)
     amount = Column(DECIMAL(10, 2), nullable=False)
-    payment_method = Column(Enum(PaymentMethod), default=PaymentMethod.balance, nullable=False)
-    status = Column(Enum(PaymentStatus), default=PaymentStatus.pending, nullable=False)
+    payment_method = Column(
+        Enum(PaymentMethod, values_callable=lambda obj: [e.value for e in obj]),
+        default=PaymentMethod.simulated,
+        nullable=False
+    )
+    status = Column(
+        Enum(PaymentStatus, values_callable=lambda obj: [e.value for e in obj]),
+        default=PaymentStatus.pending,
+        nullable=False
+    )
     transaction_id = Column(String(255), unique=True)  # 交易流水号
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(UTC))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))

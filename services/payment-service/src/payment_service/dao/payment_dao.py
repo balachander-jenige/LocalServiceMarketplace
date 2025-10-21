@@ -16,7 +16,7 @@ class PaymentDAO:
         customer_id: int,
         provider_id: Optional[int],
         amount: float,
-        payment_method: PaymentMethod = PaymentMethod.balance
+        payment_method: PaymentMethod = PaymentMethod.simulated
     ) -> Payment:
         """创建支付记录"""
         payment = Payment(
