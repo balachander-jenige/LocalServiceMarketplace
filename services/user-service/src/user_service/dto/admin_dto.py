@@ -24,9 +24,22 @@ class UserDetailAdmin(BaseModel):
 
 class UpdateUserRequest(BaseModel):
     """管理员更新用户请求"""
+    # Auth Service 字段
     username: Optional[str] = None
     email: Optional[str] = None
     role_id: Optional[int] = None
+    
+    # Customer Profile 字段
+    location: Optional[str] = None  # NORTH, SOUTH, EAST, WEST, MID
+    address: Optional[str] = None
+    budget_preference: Optional[float] = None
+    
+    # Provider Profile 字段
+    skills: Optional[List[str]] = None
+    experience_years: Optional[int] = None
+    hourly_rate: Optional[float] = None
+    availability: Optional[str] = None
+    portfolio: Optional[List[str]] = None
 
 class DeleteUserResponse(BaseModel):
     """删除用户响应"""
