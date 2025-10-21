@@ -270,22 +270,12 @@ async def admin_delete_user(
     return ApiResponse(success=True, data=result, message="User deleted")
 
 # ==================== Payment Routes ====================
-@router.post("/customer/payments/recharge", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
-async def recharge_balance(
-    data: Dict[str, Any] = Body(...),
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-):
-    """客户充值"""
-    await verify_auth_token(credentials)
-    result = await payment_client.recharge_balance(credentials.credentials, data)
-    return ApiResponse(success=True, data=result, message="Recharge successful")
-
 @router.post("/customer/payments/pay", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
 async def pay_order(
     data: Dict[str, Any] = Body(...),
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    """客户支付订单"""
+    """客户支付订单（模拟支付）"""
     await verify_auth_token(credentials)
     result = await payment_client.pay_order(credentials.credentials, data)
     return ApiResponse(success=True, data=result, message="Payment successful")

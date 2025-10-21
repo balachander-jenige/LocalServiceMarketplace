@@ -15,18 +15,14 @@ class TransactionDAO:
         user_id: int,
         transaction_type: TransactionType,
         amount: float,
-        balance_before: float,
-        balance_after: float,
         reference_id: Optional[int] = None,
         description: Optional[str] = None
     ) -> Transaction:
-        """创建交易记录"""
+        """创建交易记录（简化版，不含余额信息）"""
         transaction = Transaction(
             user_id=user_id,
             transaction_type=transaction_type,
             amount=Decimal(str(amount)),
-            balance_before=Decimal(str(balance_before)),
-            balance_after=Decimal(str(balance_after)),
             reference_id=reference_id,
             description=description,
             created_at=datetime.now(UTC)
