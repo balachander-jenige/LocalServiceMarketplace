@@ -14,6 +14,10 @@ class AuthClient(BaseClient):
         """用户登录"""
         return await self._make_request("POST", "/auth/login", json_data=data)
     
+    async def register_admin(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """管理员注册"""
+        return await self._make_request("POST", "/auth/admin/register", json_data=data)
+    
     async def get_current_user(self, token: str) -> Dict[str, Any]:
         """获取当前用户信息"""
         return await self._make_request("GET", "/users/me", token=token)

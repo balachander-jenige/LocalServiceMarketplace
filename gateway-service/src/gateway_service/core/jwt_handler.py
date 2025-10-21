@@ -32,3 +32,16 @@ def verify_token(token: str) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid token: {str(e)}"
         )
+
+def verify_admin_role(token: str) -> dict:
+    """验证 Token 并确保用户是 admin 角色"""
+    payload = verify_token(token)
+    role_id = payload.get("role")
+    
+    if role_id != 3:  # 3 是 admin 角色 ID
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: Admin role required"
+        )
+    
+    return payload
