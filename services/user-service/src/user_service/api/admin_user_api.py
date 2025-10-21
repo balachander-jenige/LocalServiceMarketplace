@@ -45,16 +45,9 @@ async def update_user(
     current_user_id: int = Depends(get_current_user_id),
     db = Depends(get_database)
 ):
-    """更新用户信息（管理员）"""
+    """更新用户信息（管理员），包括 Profile 字段"""
     service = AdminUserService(db)
-    await service.update_user(
-        user_id,
-        username=request.username,
-        email=request.email,
-        role_id=request.role_id
-    )
-    # 更新后重新获取用户详情
-    user = await service.get_user_detail(user_id)
+    user = await service.update_user(user_id, request)
     return user
 
 
