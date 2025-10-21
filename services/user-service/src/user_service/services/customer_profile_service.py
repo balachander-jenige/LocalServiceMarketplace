@@ -29,8 +29,8 @@ class CustomerProfileService:
             user_id=user_id,
             location=LocationEnum(location),
             address=address,
-            budget_preference=budget_preference,
-            balance=0.0
+            budget_preference=budget_preference
+            # balance 字段已删除 - 第三阶段修改
         )
         
         created_profile = await self.dao.create(profile)

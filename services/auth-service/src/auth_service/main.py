@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from .core.config import settings
 from .core.database import engine, Base
 from .messaging.rabbitmq_client import rabbitmq_client
-from .api import auth_api, user_api
+from .api import auth_api, user_api, admin_user_api
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -41,6 +41,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(auth_api.router)
 app.include_router(user_api.router)
+app.include_router(admin_user_api.router)
 
 @app.get("/health")
 async def health_check():

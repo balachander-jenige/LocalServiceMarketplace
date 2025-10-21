@@ -16,7 +16,7 @@ class CustomerProfile(BaseModel):
     location: LocationEnum = Field(default=LocationEnum.NORTH)
     address: Optional[str] = None
     budget_preference: float = Field(default=0.0)
-    balance: float = Field(default=0.0)
+    # balance 字段已删除 - 第三阶段修改
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     
@@ -26,7 +26,6 @@ class CustomerProfile(BaseModel):
                 "user_id": 1,
                 "location": "NORTH",
                 "address": "123 Main St",
-                "budget_preference": 1000.0,
-                "balance": 500.0
+                "budget_preference": 1000.0
             }
         }

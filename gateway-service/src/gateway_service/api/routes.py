@@ -227,6 +227,48 @@ async def admin_delete_order(
     result = await order_client.delete_order_admin(order_id, credentials.credentials)
     return ApiResponse(success=True, data=result, message="Order deleted")
 
+# ==================== Admin User Routes ====================
+@router.get("/admin/users", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_get_all_users(
+    role_id: Optional[int] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """管理员获取所有用户（可按角色过滤）"""
+    await verify_admin_token(credentials)
+    result = await user_client.get_all_users(credentials.credentials, role_id)
+    return ApiResponse(success=True, data=result)
+
+@router.get("/admin/users/{user_id}", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_get_user_detail(
+    user_id: int,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """管理员获取用户详情"""
+    await verify_admin_token(credentials)
+    result = await user_client.get_user_detail_admin(user_id, credentials.credentials)
+    return ApiResponse(success=True, data=result)
+
+@router.put("/admin/users/{user_id}", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_update_user(
+    user_id: int,
+    data: Dict[str, Any] = Body(...),
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """管理员更新用户信息"""
+    await verify_admin_token(credentials)
+    result = await user_client.update_user_admin(user_id, credentials.credentials, data)
+    return ApiResponse(success=True, data=result, message="User updated")
+
+@router.delete("/admin/users/{user_id}", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_delete_user(
+    user_id: int,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """管理员删除用户"""
+    await verify_admin_token(credentials)
+    result = await user_client.delete_user_admin(user_id, credentials.credentials)
+    return ApiResponse(success=True, data=result, message="User deleted")
+
 # ==================== Payment Routes ====================
 @router.post("/customer/payments/recharge", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
 async def recharge_balance(

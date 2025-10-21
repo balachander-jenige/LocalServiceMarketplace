@@ -7,7 +7,7 @@ from .core.config import settings
 from .core.mongodb import connect_to_mongo, close_mongo_connection
 from .messaging.rabbitmq_client import rabbitmq_client
 from .events.consumers.event_consumer import start_consuming
-from .api import customer_profile_api, provider_profile_api
+from .api import customer_profile_api, provider_profile_api, admin_user_api
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -43,6 +43,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(customer_profile_api.router)
 app.include_router(provider_profile_api.router)
+app.include_router(admin_user_api.router)
 
 @app.get("/health")
 async def health_check():

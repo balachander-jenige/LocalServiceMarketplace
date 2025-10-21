@@ -38,7 +38,7 @@ class ProviderProfileService:
             hourly_rate=hourly_rate,
             availability=availability,
             portfolio=[],
-            total_earnings=0.0,
+            # total_earnings 字段已删除 - 第三阶段修改
             rating=5.0,
             total_reviews=0
         )
