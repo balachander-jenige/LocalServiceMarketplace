@@ -21,6 +21,12 @@ async def register(data: Dict[str, Any] = Body(...)):
     result = await auth_client.register(data)
     return ApiResponse(success=True, data=result, message="Registration successful")
 
+@router.post("/auth/admin/register", response_model=ApiResponse)
+async def register_admin(data: Dict[str, Any] = Body(...)):
+    """管理员注册"""
+    result = await auth_client.register_admin(data)
+    return ApiResponse(success=True, data=result, message="Admin registration successful")
+
 @router.post("/auth/login", response_model=ApiResponse)
 async def login(data: Dict[str, Any] = Body(...)):
     """用户登录"""

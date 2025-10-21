@@ -11,3 +11,10 @@ class UserResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+class TokenVerifyResponse(BaseModel):
+    """Token 验证响应"""
+    user_id: int
+    role_id: int
+    username: str
+    email: str

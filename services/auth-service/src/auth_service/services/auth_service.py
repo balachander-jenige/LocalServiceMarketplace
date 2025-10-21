@@ -49,6 +49,10 @@ class AuthService:
                 detail="Invalid credentials"
             )
         
-        # 生成 Token
-        token = create_access_token({"sub": str(user.id)})
+        # 生成 Token,包含 user_id 和 role_id
+        token_data = {
+            "sub": str(user.id),
+            "role": user.role_id  # 添加角色信息
+        }
+        token = create_access_token(token_data)
         return token

@@ -35,3 +35,26 @@ async def login(
 async def logout():
     """用户登出"""
     return {"msg": "Logout successful"}
+
+@router.post("/admin/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
+async def register_admin(
+    data: RegisterRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """管理员注册 (role_id 必须为 3)"""
+    # 强制设置 role_id 为 3 (admin)
+    if data.role_id != 3:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Admin registration requires role_id=3"
+        )
+    
+    user = await AuthService.register(
+        db=db,
+        username=data.username,
+        email=data.email,
+        password=data.password,
+        role_id=3  # Admin role
+    )
+    return RegisterResponse(id=user.id, username=user.username, email=user.email)
