@@ -1,10 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import or_
-from typing import List, Optional
+from typing import List, Optional, Any, Dict
 from datetime import datetime, UTC
 
-from ..models.order import Order, OrderStatus, PaymentStatus, LocationEnum
+from ..models.order import Order, OrderStatus, PaymentStatus, LocationEnum, ServiceType
 
 class OrderDAO:
     """订单数据访问对象"""
@@ -15,19 +15,25 @@ class OrderDAO:
         customer_id: int,
         title: str,
         description: Optional[str],
+        service_type: ServiceType,
         price: float,
         location: LocationEnum,
-        address: Optional[str]
+        address: Optional[str],
+        service_start_time: Optional[datetime] = None,
+        service_end_time: Optional[datetime] = None
     ) -> Order:
         """创建订单"""
         order = Order(
             customer_id=customer_id,
             title=title,
             description=description,
+            service_type=service_type,
             price=price,
             location=location,
             address=address,
-            status=OrderStatus.pending,
+            service_start_time=service_start_time,
+            service_end_time=service_end_time,
+            status=OrderStatus.pending_review,  # 新订单默认为待审核状态
             payment_status=PaymentStatus.unpaid,
             created_at=datetime.now(UTC),
             updated_at=datetime.now(UTC)
@@ -144,3 +150,51 @@ class OrderDAO:
             await db.commit()
             await db.refresh(order)
         return order
+    
+    @staticmethod
+    async def get_all_orders(db: AsyncSession) -> List[Order]:
+        """获取所有订单（管理员）"""
+        result = await db.execute(
+            select(Order).order_by(Order.created_at.desc())
+        )
+        return list(result.scalars().all())
+    
+    @staticmethod
+    async def get_orders_by_status(
+        db: AsyncSession,
+        status: OrderStatus
+    ) -> List[Order]:
+        """根据状态获取订单列表（管理员）"""
+        result = await db.execute(
+            select(Order)
+            .where(Order.status == status)
+            .order_by(Order.created_at.desc())
+        )
+        return list(result.scalars().all())
+    
+    @staticmethod
+    async def update_order(
+        db: AsyncSession,
+        order_id: int,
+        **kwargs: Any
+    ) -> Optional[Order]:
+        """更新订单字段（管理员）"""
+        order = await db.get(Order, order_id)
+        if order:
+            for key, value in kwargs.items():
+                if hasattr(order, key):
+                    setattr(order, key, value)
+            order.updated_at = datetime.now(UTC)
+            await db.commit()
+            await db.refresh(order)
+        return order
+    
+    @staticmethod
+    async def delete_order(db: AsyncSession, order_id: int) -> bool:
+        """删除订单（管理员）"""
+        order = await db.get(Order, order_id)
+        if order:
+            await db.delete(order)
+            await db.commit()
+            return True
+        return False

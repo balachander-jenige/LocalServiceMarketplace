@@ -1,10 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
-from typing import List
+from typing import List, Optional
 from datetime import datetime, UTC
 
 from ..dao.order_dao import OrderDAO
-from ..models.order import Order, OrderStatus, LocationEnum
+from ..models.order import Order, OrderStatus, LocationEnum, ServiceType
 from ..domain.events.order_created import OrderCreatedEvent
 from ..domain.events.order_cancelled import OrderCancelledEvent
 from ..events.publishers.event_publisher import EventPublisher
@@ -18,20 +18,26 @@ class CustomerOrderService:
         customer_id: int,
         title: str,
         description: str,
+        service_type: str,
         price: float,
         location: str,
-        address: str
+        address: str,
+        service_start_time: Optional[datetime] = None,
+        service_end_time: Optional[datetime] = None
     ) -> Order:
-        """发布订单"""
+        """发布订单 - 状态为 pending_review,等待管理员审核"""
         # 创建订单
         order = await OrderDAO.create_order(
             db=db,
             customer_id=customer_id,
             title=title,
             description=description,
+            service_type=ServiceType(service_type),
             price=price,
             location=LocationEnum(location),
-            address=address
+            address=address,
+            service_start_time=service_start_time,
+            service_end_time=service_end_time
         )
         
         # 发布订单创建事件
@@ -68,8 +74,8 @@ class CustomerOrderService:
                 detail="Permission denied"
             )
         
-        # 只有 pending 或 accepted 状态可取消
-        if order.status not in [OrderStatus.pending, OrderStatus.accepted]:
+        # 只有 pending_review, pending 或 accepted 状态可取消
+        if order.status not in [OrderStatus.pending_review, OrderStatus.pending, OrderStatus.accepted]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="The order cannot be cancelled!"
@@ -101,6 +107,7 @@ class CustomerOrderService:
             db,
             customer_id,
             statuses=[
+                OrderStatus.pending_review,
                 OrderStatus.pending,
                 OrderStatus.accepted,
                 OrderStatus.in_progress
