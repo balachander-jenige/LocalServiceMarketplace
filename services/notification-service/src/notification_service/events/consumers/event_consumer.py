@@ -3,7 +3,9 @@ from ..handlers.order_event_handler import (
     handle_order_created,
     handle_order_accepted,
     handle_order_status_changed,
-    handle_order_cancelled
+    handle_order_cancelled,
+    handle_order_approved,
+    handle_order_rejected
 )
 from ..handlers.payment_event_handler import handle_payment_completed, handle_payment_failed
 from ..handlers.review_event_handler import handle_review_created
@@ -32,6 +34,16 @@ async def start_consuming():
         exchange_name="order_events",
         routing_key="order.cancelled",
         callback=handle_order_cancelled
+    )
+    await rabbitmq_client.consume_events(
+        exchange_name="order_events",
+        routing_key="order.approved",
+        callback=handle_order_approved
+    )
+    await rabbitmq_client.consume_events(
+        exchange_name="order_events",
+        routing_key="order.rejected",
+        callback=handle_order_rejected
     )
     
     # 监听支付事件
