@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, Body
 from fastapi.security import HTTPAuthorizationCredentials
-from typing import Dict, Any
-from .middleware import security, verify_auth_token, apply_rate_limit, get_token_from_request
+from typing import Dict, Any, Optional
+from .middleware import security, verify_auth_token, verify_admin_token, apply_rate_limit, get_token_from_request
 from ..clients import (
     auth_client,
     user_client,
@@ -166,6 +166,66 @@ async def get_provider_order_history(credentials: HTTPAuthorizationCredentials =
     await verify_auth_token(credentials)
     result = await order_client.get_provider_order_history(credentials.credentials)
     return ApiResponse(success=True, data=result)
+
+# ==================== Admin Order Routes ====================
+@router.get("/admin/orders", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_get_all_orders(
+    status: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """管理员获取所有订单（可按状态过滤）"""
+    await verify_admin_token(credentials)
+    result = await order_client.get_all_orders(credentials.credentials, status)
+    return ApiResponse(success=True, data=result)
+
+@router.get("/admin/orders/pending-review", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_get_pending_review_orders(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """管理员获取待审核订单列表"""
+    await verify_admin_token(credentials)
+    result = await order_client.get_pending_review_orders(credentials.credentials)
+    return ApiResponse(success=True, data=result)
+
+@router.get("/admin/orders/{order_id}", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_get_order_detail(
+    order_id: int,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """管理员获取订单详情"""
+    await verify_admin_token(credentials)
+    result = await order_client.get_order_detail_admin(order_id, credentials.credentials)
+    return ApiResponse(success=True, data=result)
+
+@router.post("/admin/orders/{order_id}/approve", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_approve_order(
+    order_id: int,
+    data: Dict[str, Any] = Body(...),
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """管理员审批订单（批准/拒绝）"""
+    await verify_admin_token(credentials)
+    result = await order_client.approve_order(order_id, credentials.credentials, data)
+    return ApiResponse(success=True, data=result, message="Order approval processed")
+
+@router.put("/admin/orders/{order_id}", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_update_order(
+    order_id: int,
+    data: Dict[str, Any] = Body(...),
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """管理员更新订单信息"""
+    await verify_admin_token(credentials)
+    result = await order_client.update_order_admin(order_id, credentials.credentials, data)
+    return ApiResponse(success=True, data=result, message="Order updated")
+
+@router.delete("/admin/orders/{order_id}", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_delete_order(
+    order_id: int,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """管理员删除订单"""
+    await verify_admin_token(credentials)
+    result = await order_client.delete_order_admin(order_id, credentials.credentials)
+    return ApiResponse(success=True, data=result, message="Order deleted")
 
 # ==================== Payment Routes ====================
 @router.post("/customer/payments/recharge", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])

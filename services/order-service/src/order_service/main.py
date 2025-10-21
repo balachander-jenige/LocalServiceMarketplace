@@ -7,7 +7,7 @@ from .core.config import settings
 from .core.database import engine, Base
 from .messaging.rabbitmq_client import rabbitmq_client
 from .events.consumers.event_consumer import start_consuming
-from .api import customer_order_api, provider_order_api
+from .api import customer_order_api, provider_order_api, admin_order_api
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,6 +44,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(customer_order_api.router)
 app.include_router(provider_order_api.router)
+app.include_router(admin_order_api.router)
 
 @app.get("/health")
 async def health_check():

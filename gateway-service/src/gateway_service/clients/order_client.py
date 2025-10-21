@@ -39,5 +39,31 @@ class OrderClient(BaseClient):
     async def get_provider_order_history(self, token: str) -> List[Dict[str, Any]]:
         """获取服务商订单历史"""
         return await self._make_request("GET", "/provider/orders/history", token=token)
+    
+    # Admin endpoints
+    async def get_all_orders(self, token: str, status: str = None) -> List[Dict[str, Any]]:
+        """管理员获取所有订单"""
+        params = {"status": status} if status else {}
+        return await self._make_request("GET", "/admin/orders", token=token, params=params)
+    
+    async def get_pending_review_orders(self, token: str) -> List[Dict[str, Any]]:
+        """管理员获取待审核订单"""
+        return await self._make_request("GET", "/admin/orders/pending-review", token=token)
+    
+    async def get_order_detail_admin(self, order_id: int, token: str) -> Dict[str, Any]:
+        """管理员获取订单详情"""
+        return await self._make_request("GET", f"/admin/orders/{order_id}", token=token)
+    
+    async def approve_order(self, order_id: int, token: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """管理员审批订单"""
+        return await self._make_request("POST", f"/admin/orders/{order_id}/approve", token=token, json_data=data)
+    
+    async def update_order_admin(self, order_id: int, token: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """管理员更新订单"""
+        return await self._make_request("PUT", f"/admin/orders/{order_id}", token=token, json_data=data)
+    
+    async def delete_order_admin(self, order_id: int, token: str) -> Dict[str, Any]:
+        """管理员删除订单"""
+        return await self._make_request("DELETE", f"/admin/orders/{order_id}", token=token)
 
 order_client = OrderClient()

@@ -21,15 +21,18 @@ async def publish_order(
     user_id: int = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db)
 ):
-    """发布订单"""
+    """发布订单 - 状态为 pending_review,需等待管理员审核"""
     order = await CustomerOrderService.publish_order(
         db=db,
         customer_id=user_id,
         title=data.title,
         description=data.description,
+        service_type=data.service_type,
         price=data.price,
         location=data.location,
-        address=data.address
+        address=data.address,
+        service_start_time=data.service_start_time,
+        service_end_time=data.service_end_time
     )
     
     return PublishOrderResponse(
@@ -65,6 +68,7 @@ async def get_my_orders(
         OrderSummary(
             id=o.id,
             title=o.title,
+            service_type=o.service_type.value,
             status=o.status.value,
             price=float(o.price),
             location=o.location.value,
@@ -87,10 +91,13 @@ async def get_order_detail(
         customer_id=order.customer_id,
         title=order.title,
         description=order.description,
+        service_type=order.service_type.value,
         status=order.status.value,
         price=float(order.price),
         location=order.location.value,
         address=order.address,
+        service_start_time=order.service_start_time.isoformat() if order.service_start_time else None,
+        service_end_time=order.service_end_time.isoformat() if order.service_end_time else None,
         created_at=str(order.created_at),
         updated_at=str(order.updated_at),
         provider_id=order.provider_id,
@@ -109,6 +116,7 @@ async def get_order_history(
         OrderSummary(
             id=o.id,
             title=o.title,
+            service_type=o.service_type.value,
             status=o.status.value,
             price=float(o.price),
             location=o.location.value,
