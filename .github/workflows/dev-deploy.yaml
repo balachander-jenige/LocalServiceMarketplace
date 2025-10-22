@@ -23,8 +23,7 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      services: ${{ steps.filter.outputs.services }}
-      gateway: ${{ steps.filter.outputs.gateway }}
+      matrix: ${{ steps.filter.outputs.matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -41,105 +40,76 @@ jobs:
           echo "Changed files:"
           git diff --name-only $COMPARE HEAD
 
-          # Detect changed services - build JSON array
-          SERVICES_ARRAY="["
+          # Build matrix JSON array with all service details
+          MATRIX='{"include":['
           FIRST=true
 
+          # Check gateway
+          if git diff --name-only $COMPARE HEAD | grep -q "^gateway-service/"; then
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"gateway-service","ecr_repo":"freelancer-gateway","path":"gateway-service"}'
+            FIRST=false
+            echo "✓ gateway-service changed"
+          fi
+
+          # Check all microservices
           if git diff --name-only $COMPARE HEAD | grep -q "^services/auth-service/"; then
-            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
-            SERVICES_ARRAY+="\"auth-service\""
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"auth-service","ecr_repo":"freelancer-auth","path":"services/auth-service"}'
             FIRST=false
             echo "✓ auth-service changed"
           fi
+
           if git diff --name-only $COMPARE HEAD | grep -q "^services/user-service/"; then
-            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
-            SERVICES_ARRAY+="\"user-service\""
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"user-service","ecr_repo":"freelancer-user","path":"services/user-service"}'
             FIRST=false
             echo "✓ user-service changed"
           fi
+
           if git diff --name-only $COMPARE HEAD | grep -q "^services/order-service/"; then
-            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
-            SERVICES_ARRAY+="\"order-service\""
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"order-service","ecr_repo":"freelancer-order","path":"services/order-service"}'
             FIRST=false
             echo "✓ order-service changed"
           fi
+
           if git diff --name-only $COMPARE HEAD | grep -q "^services/payment-service/"; then
-            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
-            SERVICES_ARRAY+="\"payment-service\""
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"payment-service","ecr_repo":"freelancer-payment","path":"services/payment-service"}'
             FIRST=false
             echo "✓ payment-service changed"
           fi
+
           if git diff --name-only $COMPARE HEAD | grep -q "^services/notification-service/"; then
-            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
-            SERVICES_ARRAY+="\"notification-service\""
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"notification-service","ecr_repo":"freelancer-notification","path":"services/notification-service"}'
             FIRST=false
             echo "✓ notification-service changed"
           fi
+
           if git diff --name-only $COMPARE HEAD | grep -q "^services/review-service/"; then
-            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
-            SERVICES_ARRAY+="\"review-service\""
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"review-service","ecr_repo":"freelancer-review","path":"services/review-service"}'
             FIRST=false
             echo "✓ review-service changed"
           fi
 
-          SERVICES_ARRAY+="]"
-
-          # Detect gateway changes
-          GATEWAY="false"
-          if git diff --name-only $COMPARE HEAD | grep -q "^gateway-service/"; then
-            GATEWAY="true"
-            echo "✓ gateway-service changed"
-          fi
+          MATRIX+=']}'
 
           echo ""
-          echo "Summary:"
-          echo "Changed services JSON: $SERVICES_ARRAY"
-          echo "Gateway changed: $GATEWAY"
-          echo "services=$SERVICES_ARRAY" >> $GITHUB_OUTPUT
-          echo "gateway=$GATEWAY" >> $GITHUB_OUTPUT
+          echo "Matrix JSON:"
+          echo "$MATRIX" | jq '.'
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
 
-  build-gateway:
+  build-and-deploy:
     needs: detect-changes
-    if: needs.detect-changes.outputs.gateway == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/github-actions-role
-
-      - name: Login to ECR
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and push Gateway Service
-        run: |
-          IMAGE_NAME=freelancer-gateway
-          IMAGE_URI=${{ env.ECR_REGISTRY }}/$IMAGE_NAME:latest
-
-          echo "Building Gateway Service..."
-          docker build -t $IMAGE_URI gateway-service/
-          docker push $IMAGE_URI
-
-      - name: Deploy to EKS
-        run: |
-          IMAGE_URI=${{ env.ECR_REGISTRY }}/freelancer-gateway:latest
-
-          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
-          kubectl rollout restart deployment gateway-service
-          kubectl rollout status deployment gateway-service --timeout=5m
-
-  build-services:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.services != '[]'
+    if: needs.detect-changes.outputs.matrix != '{"include":[]}'
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        service: ${{ fromJson(needs.detect-changes.outputs.services) }}
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
       fail-fast: false
+      max-parallel: 5
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -153,54 +123,19 @@ jobs:
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Set service details
-        id: details
+      - name: Build and push ${{ matrix.service }}
         run: |
-          SERVICE="${{ matrix.service }}"
+          IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:latest
 
-          # Map service names to ECR repo names
-          case $SERVICE in
-            auth-service)
-              ECR_REPO="freelancer-auth"
-              ;;
-            user-service)
-              ECR_REPO="freelancer-user"
-              ;;
-            order-service)
-              ECR_REPO="freelancer-order"
-              ;;
-            payment-service)
-              ECR_REPO="freelancer-payment"
-              ;;
-            notification-service)
-              ECR_REPO="freelancer-notification"
-              ;;
-            review-service)
-              ECR_REPO="freelancer-review"
-              ;;
-            *)
-              echo "Unknown service: $SERVICE"
-              exit 1
-              ;;
-          esac
-
-          echo "ecr_repo=$ECR_REPO" >> $GITHUB_OUTPUT
-          echo "service_path=services/$SERVICE" >> $GITHUB_OUTPUT
-
-      - name: Build and push service
-        run: |
-          SERVICE_PATH="${{ steps.details.outputs.service_path }}"
-          ECR_REPO="${{ steps.details.outputs.ecr_repo }}"
-          IMAGE_URI=${{ env.ECR_REGISTRY }}/$ECR_REPO:latest
-
-          echo "Building $SERVICE_PATH..."
-          docker build -t $IMAGE_URI $SERVICE_PATH/
+          echo "Building ${{ matrix.service }}..."
+          docker build -t $IMAGE_URI ${{ matrix.path }}/
           docker push $IMAGE_URI
+          echo "✓ Pushed $IMAGE_URI"
 
-      - name: Deploy to EKS
+      - name: Deploy ${{ matrix.service }} to EKS
         run: |
-          SERVICE="${{ matrix.service }}"
-
+          echo "Deploying ${{ matrix.service }}..."
           aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
-          kubectl rollout restart deployment $SERVICE
-          kubectl rollout status deployment $SERVICE --timeout=5m
+          kubectl rollout restart deployment ${{ matrix.service }}
+          kubectl rollout status deployment ${{ matrix.service }} --timeout=5m
+          echo "✓ ${{ matrix.service }} deployed successfully"
