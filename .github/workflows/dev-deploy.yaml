@@ -4,18 +4,104 @@ on:
   push:
     branches:
       - githubworkflows
+    paths:
+      - "gateway-service/**"
+      - "services/**"
+      - ".github/workflows/dev-deploy.yaml"
+
 permissions:
   id-token: write
   contents: read
+
 env:
   AWS_REGION: ap-southeast-1
   CLUSTER_NAME: freelancer-marketplace-eks
   ACCOUNT_ID: 539827877726
+  ECR_REGISTRY: 539827877726.dkr.ecr.ap-southeast-1.amazonaws.com
 
 jobs:
-  build-deploy:
+  detect-changes:
     runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.filter.outputs.services }}
+      gateway: ${{ steps.filter.outputs.gateway }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      - name: Detect changed services
+        id: filter
+        run: |
+          # Compare with previous commit
+          COMPARE="HEAD^"
+
+          echo "Comparing with: $COMPARE"
+          echo "Changed files:"
+          git diff --name-only $COMPARE HEAD
+
+          # Detect changed services - build JSON array
+          SERVICES_ARRAY="["
+          FIRST=true
+
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/auth-service/"; then
+            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
+            SERVICES_ARRAY+="\"auth-service\""
+            FIRST=false
+            echo "✓ auth-service changed"
+          fi
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/user-service/"; then
+            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
+            SERVICES_ARRAY+="\"user-service\""
+            FIRST=false
+            echo "✓ user-service changed"
+          fi
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/order-service/"; then
+            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
+            SERVICES_ARRAY+="\"order-service\""
+            FIRST=false
+            echo "✓ order-service changed"
+          fi
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/payment-service/"; then
+            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
+            SERVICES_ARRAY+="\"payment-service\""
+            FIRST=false
+            echo "✓ payment-service changed"
+          fi
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/notification-service/"; then
+            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
+            SERVICES_ARRAY+="\"notification-service\""
+            FIRST=false
+            echo "✓ notification-service changed"
+          fi
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/review-service/"; then
+            [[ "$FIRST" == "false" ]] && SERVICES_ARRAY+=","
+            SERVICES_ARRAY+="\"review-service\""
+            FIRST=false
+            echo "✓ review-service changed"
+          fi
+
+          SERVICES_ARRAY+="]"
+
+          # Detect gateway changes
+          GATEWAY="false"
+          if git diff --name-only $COMPARE HEAD | grep -q "^gateway-service/"; then
+            GATEWAY="true"
+            echo "✓ gateway-service changed"
+          fi
+
+          echo ""
+          echo "Summary:"
+          echo "Changed services JSON: $SERVICES_ARRAY"
+          echo "Gateway changed: $GATEWAY"
+          echo "services=$SERVICES_ARRAY" >> $GITHUB_OUTPUT
+          echo "gateway=$GATEWAY" >> $GITHUB_OUTPUT
+
+  build-gateway:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.gateway == 'true'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,59 +113,96 @@ jobs:
           role-to-assume: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/github-actions-role
 
       - name: Login to ECR
-        id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Detect changed services
-        id: changes
+      - name: Build and push Gateway Service
         run: |
-          echo "Detecting changed folders..."
-          git fetch origin dev
-          CHANGED=$(git diff --name-only origin/dev HEAD | cut -d'/' -f1,2 | sort -u)
-          echo "Changed: $CHANGED"
-          echo "changed=$CHANGED" >> $GITHUB_OUTPUT
+          IMAGE_NAME=freelancer-gateway
+          IMAGE_URI=${{ env.ECR_REGISTRY }}/$IMAGE_NAME:latest
 
-      - name: Build and Push Docker images
-        if: ${{ steps.changes.outputs.changed != '' }}
+          echo "Building Gateway Service..."
+          docker build -t $IMAGE_URI gateway-service/
+          docker push $IMAGE_URI
+
+      - name: Deploy to EKS
         run: |
-          REGISTRY=${{ steps.ecr.outputs.registry }}
-          
-          declare -A ECR_MAP=(
-            ["gateway-service"]="freelancer-gateway"
-            ["services/auth"]="freelancer-auth"
-            ["services/order"]="freelancer-order"
-            ["services/payment"]="freelancer-payment"
-            ["services/notification"]="freelancer-notification"
-            ["services/review"]="freelancer-review"
-            ["services/user"]="freelancer-user"
-            ["services/rabbitmq"]="freelancer-rabbitmq"
-            ["services/redis"]="freelancer-redis"
-          )
+          IMAGE_URI=${{ env.ECR_REGISTRY }}/freelancer-gateway:latest
 
-          for dir in ${{ steps.changes.outputs.changed }}; do
-            if [[ -n "${ECR_MAP[$dir]}" && -f "$dir/Dockerfile" ]]; then
-              IMAGE_NAME=${ECR_MAP[$dir]}
-              IMAGE_URI="$REGISTRY/$IMAGE_NAME:latest"
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
+          kubectl set image deployment/gateway-service gateway-service=$IMAGE_URI -n default
+          kubectl rollout status deployment/gateway-service -n default --timeout=5m
 
-              echo "Building image for $dir -> $IMAGE_URI"
-              docker build -t $IMAGE_URI $dir
-              docker push $IMAGE_URI
+  build-services:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.services != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.services) }}
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-              # Update EKS deployment
-              DEPLOYMENT=$(basename $dir)
-              if [[ "$dir" == "services/auth" ]]; then DEPLOYMENT="auth-service"; fi
-              if [[ "$dir" == "services/order" ]]; then DEPLOYMENT="order-service"; fi
-              if [[ "$dir" == "services/payment" ]]; then DEPLOYMENT="payment-service"; fi
-              if [[ "$dir" == "services/notification" ]]; then DEPLOYMENT="notification-service"; fi
-              if [[ "$dir" == "services/review" ]]; then DEPLOYMENT="review-service"; fi
-              if [[ "$dir" == "services/user" ]]; then DEPLOYMENT="user-service"; fi
-              if [[ "$dir" == "services/rabbitmq" ]]; then DEPLOYMENT="rabbitmq"; fi
-              if [[ "$dir" == "services/redis" ]]; then DEPLOYMENT="redis"; fi
-              
-              echo "Updating deployment $DEPLOYMENT in EKS..."
-              aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-              kubectl rollout status deployment/$DEPLOYMENT
-            else
-              echo "Skipping $dir (no Dockerfile or not mapped)"
-            fi
-          done
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/github-actions-role
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set service details
+        id: details
+        run: |
+          SERVICE="${{ matrix.service }}"
+
+          # Map service names to ECR repo names
+          case $SERVICE in
+            auth-service)
+              ECR_REPO="freelancer-auth"
+              ;;
+            user-service)
+              ECR_REPO="freelancer-user"
+              ;;
+            order-service)
+              ECR_REPO="freelancer-order"
+              ;;
+            payment-service)
+              ECR_REPO="freelancer-payment"
+              ;;
+            notification-service)
+              ECR_REPO="freelancer-notification"
+              ;;
+            review-service)
+              ECR_REPO="freelancer-review"
+              ;;
+            *)
+              echo "Unknown service: $SERVICE"
+              exit 1
+              ;;
+          esac
+
+          echo "ecr_repo=$ECR_REPO" >> $GITHUB_OUTPUT
+          echo "service_path=services/$SERVICE" >> $GITHUB_OUTPUT
+
+      - name: Build and push service
+        run: |
+          SERVICE_PATH="${{ steps.details.outputs.service_path }}"
+          ECR_REPO="${{ steps.details.outputs.ecr_repo }}"
+          IMAGE_URI=${{ env.ECR_REGISTRY }}/$ECR_REPO:latest
+
+          echo "Building $SERVICE_PATH..."
+          docker build -t $IMAGE_URI $SERVICE_PATH/
+          docker push $IMAGE_URI
+
+      - name: Deploy to EKS
+        run: |
+          SERVICE="${{ matrix.service }}"
+          ECR_REPO="${{ steps.details.outputs.ecr_repo }}"
+          IMAGE_URI=${{ env.ECR_REGISTRY }}/$ECR_REPO:latest
+
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
+          kubectl set image deployment/$SERVICE $SERVICE=$IMAGE_URI -n default
+          kubectl rollout status deployment/$SERVICE -n default --timeout=5m
