@@ -129,8 +129,8 @@ jobs:
           IMAGE_URI=${{ env.ECR_REGISTRY }}/freelancer-gateway:latest
 
           aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
-          kubectl set image deployment/gateway-service gateway-service=$IMAGE_URI -n default
-          kubectl rollout status deployment/gateway-service -n default --timeout=5m
+          kubectl rollout restart deployment gateway-service
+          kubectl rollout status deployment gateway-service --timeout=5m
 
   build-services:
     needs: detect-changes
@@ -200,9 +200,7 @@ jobs:
       - name: Deploy to EKS
         run: |
           SERVICE="${{ matrix.service }}"
-          ECR_REPO="${{ steps.details.outputs.ecr_repo }}"
-          IMAGE_URI=${{ env.ECR_REGISTRY }}/$ECR_REPO:latest
 
           aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
-          kubectl set image deployment/$SERVICE $SERVICE=$IMAGE_URI -n default
-          kubectl rollout status deployment/$SERVICE -n default --timeout=5m
+          kubectl rollout restart deployment $SERVICE
+          kubectl rollout status deployment $SERVICE --timeout=5m
