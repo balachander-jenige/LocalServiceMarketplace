@@ -56,7 +56,7 @@ async def cancel_order(
         message=f"You have successfully cancelled the order: {order.id}."
     )
 
-@router.get("/my", response_model=List[OrderSummary])
+@router.get("/my", response_model=List[OrderDetail])
 async def get_my_orders(
     user_id: int = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db)
@@ -65,14 +65,22 @@ async def get_my_orders(
     orders = await CustomerOrderService.get_my_orders(db, user_id)
     
     return [
-        OrderSummary(
+        OrderDetail(
             id=o.id,
+            customer_id=o.customer_id,
             title=o.title,
+            description=o.description,
             service_type=o.service_type.value,
             status=o.status.value,
             price=float(o.price),
             location=o.location.value,
-            created_at=str(o.created_at)
+            address=o.address,
+            service_start_time=o.service_start_time.isoformat() if o.service_start_time else None,
+            service_end_time=o.service_end_time.isoformat() if o.service_end_time else None,
+            created_at=str(o.created_at),
+            updated_at=str(o.updated_at),
+            provider_id=o.provider_id,
+            payment_status=o.payment_status.value
         )
         for o in orders
     ]
@@ -104,7 +112,7 @@ async def get_order_detail(
         payment_status=order.payment_status.value
     )
 
-@router.get("/history", response_model=List[OrderSummary])
+@router.get("/history", response_model=List[OrderDetail])
 async def get_order_history(
     user_id: int = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db)
@@ -113,14 +121,22 @@ async def get_order_history(
     orders = await CustomerOrderService.get_order_history(db, user_id)
     
     return [
-        OrderSummary(
+        OrderDetail(
             id=o.id,
+            customer_id=o.customer_id,
             title=o.title,
+            description=o.description,
             service_type=o.service_type.value,
             status=o.status.value,
             price=float(o.price),
             location=o.location.value,
-            created_at=str(o.created_at)
+            address=o.address,
+            service_start_time=o.service_start_time.isoformat() if o.service_start_time else None,
+            service_end_time=o.service_end_time.isoformat() if o.service_end_time else None,
+            created_at=str(o.created_at),
+            updated_at=str(o.updated_at),
+            provider_id=o.provider_id,
+            payment_status=o.payment_status.value
         )
         for o in orders
     ]

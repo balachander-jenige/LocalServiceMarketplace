@@ -17,7 +17,7 @@ from ..dto.order_dto import (
 router = APIRouter(prefix="/admin/orders", tags=["admin-orders"])
 
 
-@router.get("", response_model=List[OrderSummary])
+@router.get("", response_model=List[OrderDetail])
 async def get_all_orders(
     status: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
@@ -28,20 +28,28 @@ async def get_all_orders(
     orders = await AdminOrderService.get_all_orders(db, status)
     
     return [
-        OrderSummary(
+        OrderDetail(
             id=order.id,
+            customer_id=order.customer_id,
             title=order.title,
+            description=order.description,
             service_type=order.service_type.value,
             status=order.status.value,
             price=float(order.price),
             location=order.location.value,
-            created_at=order.created_at.isoformat()
+            address=order.address,
+            service_start_time=order.service_start_time.isoformat() if order.service_start_time else None,
+            service_end_time=order.service_end_time.isoformat() if order.service_end_time else None,
+            created_at=order.created_at.isoformat(),
+            updated_at=order.updated_at.isoformat(),
+            provider_id=order.provider_id,
+            payment_status=order.payment_status.value
         )
         for order in orders
     ]
 
 
-@router.get("/pending-review", response_model=List[OrderSummary])
+@router.get("/pending-review", response_model=List[OrderDetail])
 async def get_pending_review_orders(
     db: AsyncSession = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id)
@@ -50,14 +58,22 @@ async def get_pending_review_orders(
     orders = await AdminOrderService.get_pending_review_orders(db)
     
     return [
-        OrderSummary(
+        OrderDetail(
             id=order.id,
+            customer_id=order.customer_id,
             title=order.title,
+            description=order.description,
             service_type=order.service_type.value,
             status=order.status.value,
             price=float(order.price),
             location=order.location.value,
-            created_at=order.created_at.isoformat()
+            address=order.address,
+            service_start_time=order.service_start_time.isoformat() if order.service_start_time else None,
+            service_end_time=order.service_end_time.isoformat() if order.service_end_time else None,
+            created_at=order.created_at.isoformat(),
+            updated_at=order.updated_at.isoformat(),
+            provider_id=order.provider_id,
+            payment_status=order.payment_status.value
         )
         for order in orders
     ]
