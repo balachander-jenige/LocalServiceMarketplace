@@ -1,0 +1,83 @@
+name: Build and Deploy Services to EKS
+
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  AWS_REGION: ap-southeast-1
+  CLUSTER_NAME: freelancer-marketplace-eks
+  ACCOUNT_ID: 539827877726
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/github-actions-role
+
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Detect changed services
+        id: changes
+        run: |
+          echo "Detecting changed folders..."
+          git fetch origin dev
+          CHANGED=$(git diff --name-only origin/dev HEAD | cut -d'/' -f1,2 | sort -u)
+          echo "Changed: $CHANGED"
+          echo "changed=$CHANGED" >> $GITHUB_OUTPUT
+
+      - name: Build and Push Docker images
+        if: ${{ steps.changes.outputs.changed != '' }}
+        run: |
+          REGISTRY=${{ steps.ecr.outputs.registry }}
+          
+          declare -A ECR_MAP=(
+            ["gateway-service"]="freelancer-gateway"
+            ["services/auth"]="freelancer-auth"
+            ["services/order"]="freelancer-order"
+            ["services/payment"]="freelancer-payment"
+            ["services/notification"]="freelancer-notification"
+            ["services/review"]="freelancer-review"
+            ["services/user"]="freelancer-user"
+            ["services/rabbitmq"]="freelancer-rabbitmq"
+            ["services/redis"]="freelancer-redis"
+          )
+
+          for dir in ${{ steps.changes.outputs.changed }}; do
+            if [[ -n "${ECR_MAP[$dir]}" && -f "$dir/Dockerfile" ]]; then
+              IMAGE_NAME=${ECR_MAP[$dir]}
+              IMAGE_URI="$REGISTRY/$IMAGE_NAME:latest"
+
+              echo "Building image for $dir -> $IMAGE_URI"
+              docker build -t $IMAGE_URI $dir
+              docker push $IMAGE_URI
+
+              # Update EKS deployment
+              DEPLOYMENT=$(basename $dir)
+              if [[ "$dir" == "services/auth" ]]; then DEPLOYMENT="auth-service"; fi
+              if [[ "$dir" == "services/order" ]]; then DEPLOYMENT="order-service"; fi
+              if [[ "$dir" == "services/payment" ]]; then DEPLOYMENT="payment-service"; fi
+              if [[ "$dir" == "services/notification" ]]; then DEPLOYMENT="notification-service"; fi
+              if [[ "$dir" == "services/review" ]]; then DEPLOYMENT="review-service"; fi
+              if [[ "$dir" == "services/user" ]]; then DEPLOYMENT="user-service"; fi
+              if [[ "$dir" == "services/rabbitmq" ]]; then DEPLOYMENT="rabbitmq"; fi
+              if [[ "$dir" == "services/redis" ]]; then DEPLOYMENT="redis"; fi
+              
+              echo "Updating deployment $DEPLOYMENT in EKS..."
+              aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+              kubectl rollout status deployment/$DEPLOYMENT
+            else
+              echo "Skipping $dir (no Dockerfile or not mapped)"
+            fi
+          done
