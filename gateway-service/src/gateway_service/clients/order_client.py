@@ -15,6 +15,10 @@ class OrderClient(BaseClient):
         """获取客户订单列表（进行中）"""
         return await self._make_request("GET", "/customer/orders/my", token=token)
     
+    async def get_customer_order_detail(self, order_id: int, token: str) -> Dict[str, Any]:
+        """获取客户订单详情"""
+        return await self._make_request("GET", f"/customer/orders/my/{order_id}", token=token)
+    
     async def get_customer_order_history(self, token: str) -> List[Dict[str, Any]]:
         """获取客户订单历史"""
         return await self._make_request("GET", "/customer/orders/history", token=token)
@@ -35,6 +39,10 @@ class OrderClient(BaseClient):
     async def update_order_status(self, order_id: int, token: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """更新订单状态"""
         return await self._make_request("POST", f"/provider/orders/status/{order_id}", token=token, json_data=data)
+    
+    async def get_provider_order_detail(self, order_id: int, token: str) -> Dict[str, Any]:
+        """获取服务商订单详情"""
+        return await self._make_request("GET", f"/provider/orders/my/{order_id}", token=token)
     
     async def get_provider_order_history(self, token: str) -> List[Dict[str, Any]]:
         """获取服务商订单历史"""
