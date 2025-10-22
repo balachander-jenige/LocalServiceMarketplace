@@ -584,19 +584,37 @@ Authorization: Bearer <your_token>
   "data": [
     {
       "id": 1,
+      "customer_id": 1,
       "title": "家庭清洁服务",
+      "description": "需要对100平米的房屋进行深度清洁",
+      "service_type": "cleaning_repair",
       "status": "accepted",
       "price": 200.0,
       "location": "NORTH",
-      "created_at": "2025-10-17T10:00:00"
+      "address": "123 Main Street, Apt 5",
+      "service_start_time": "2025-10-25T09:00:00",
+      "service_end_time": "2025-10-25T12:00:00",
+      "created_at": "2025-10-17T10:00:00",
+      "updated_at": "2025-10-17T11:00:00",
+      "provider_id": 2,
+      "payment_status": "pending"
     },
     {
       "id": 2,
+      "customer_id": 1,
       "title": "空调维修",
+      "description": "客厅空调不制冷",
+      "service_type": "cleaning_repair",
       "status": "pending",
       "price": 150.0,
       "location": "NORTH",
-      "created_at": "2025-10-17T11:00:00"
+      "address": "123 Main Street, Apt 5",
+      "service_start_time": null,
+      "service_end_time": null,
+      "created_at": "2025-10-17T11:00:00",
+      "updated_at": "2025-10-17T11:00:00",
+      "provider_id": null,
+      "payment_status": "pending"
     }
   ],
   "message": "Success",
@@ -618,7 +636,54 @@ Authorization: Bearer <your_token>
 
 ---
 
-#### 4.3 获取订单历史
+#### 4.3 获取订单详情
+
+**接口地址**: `GET /customer/orders/my/{order_id}`  
+**认证要求**: ✅ 需要认证（Customer 角色）  
+**接口说明**: 获取指定订单的详细信息
+
+**路径参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| order_id | integer | ✅ | 订单 ID |
+
+**请求示例**:
+
+```
+GET /customer/orders/my/1
+```
+
+**响应示例**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "customer_id": 1,
+    "title": "家庭清洁服务",
+    "description": "需要对100平米的房屋进行深度清洁",
+    "service_type": "cleaning_repair",
+    "status": "accepted",
+    "price": 200.0,
+    "location": "NORTH",
+    "address": "123 Main Street, Apt 5",
+    "service_start_time": "2025-10-25T09:00:00",
+    "service_end_time": "2025-10-25T12:00:00",
+    "created_at": "2025-10-17T10:00:00",
+    "updated_at": "2025-10-17T11:00:00",
+    "provider_id": 2,
+    "payment_status": "pending"
+  },
+  "message": "Success",
+  "error": null
+}
+```
+
+---
+
+#### 4.4 获取订单历史
 
 **接口地址**: `GET /customer/orders/history`  
 **认证要求**: ✅ 需要认证（Customer 角色）  
@@ -632,19 +697,37 @@ Authorization: Bearer <your_token>
   "data": [
     {
       "id": 10,
+      "customer_id": 1,
       "title": "家具搬运",
+      "description": "搬运沙发和床",
+      "service_type": "other",
       "status": "completed",
       "price": 300.0,
       "location": "SOUTH",
-      "created_at": "2025-09-15T10:00:00"
+      "address": "456 Oak Avenue",
+      "service_start_time": "2025-09-15T10:00:00",
+      "service_end_time": "2025-09-15T14:00:00",
+      "created_at": "2025-09-15T10:00:00",
+      "updated_at": "2025-09-15T15:00:00",
+      "provider_id": 3,
+      "payment_status": "paid"
     },
     {
       "id": 8,
+      "customer_id": 1,
       "title": "管道维修",
+      "description": "厨房水管漏水",
+      "service_type": "cleaning_repair",
       "status": "cancelled",
       "price": 180.0,
       "location": "NORTH",
-      "created_at": "2025-09-10T14:00:00"
+      "address": "123 Main Street, Apt 5",
+      "service_start_time": null,
+      "service_end_time": null,
+      "created_at": "2025-09-10T14:00:00",
+      "updated_at": "2025-09-10T15:00:00",
+      "provider_id": null,
+      "payment_status": "pending"
     }
   ],
   "message": "Success",
@@ -654,7 +737,7 @@ Authorization: Bearer <your_token>
 
 ---
 
-#### 4.4 取消订单
+#### 4.5 取消订单
 
 **接口地址**: `POST /customer/orders/cancel/{order_id}`  
 **认证要求**: ✅ 需要认证（Customer 角色）  
@@ -705,19 +788,37 @@ POST /customer/orders/cancel/1
   "data": [
     {
       "id": 3,
+      "customer_id": 5,
       "title": "家电维修",
+      "description": "冰箱不制冷",
+      "service_type": "cleaning_repair",
       "status": "pending",
       "price": 250.0,
       "location": "EAST",
-      "created_at": "2025-10-17T12:00:00"
+      "address": "789 Pine Street",
+      "service_start_time": "2025-10-18T14:00:00",
+      "service_end_time": "2025-10-18T16:00:00",
+      "created_at": "2025-10-17T12:00:00",
+      "updated_at": "2025-10-17T12:00:00",
+      "provider_id": null,
+      "payment_status": "pending"
     },
     {
       "id": 4,
+      "customer_id": 8,
       "title": "房屋清洁",
+      "description": "全屋深度清洁",
+      "service_type": "cleaning_repair",
       "status": "pending",
       "price": 180.0,
       "location": "NORTH",
-      "created_at": "2025-10-17T12:30:00"
+      "address": "321 Maple Road",
+      "service_start_time": null,
+      "service_end_time": null,
+      "created_at": "2025-10-17T12:30:00",
+      "updated_at": "2025-10-17T12:30:00",
+      "provider_id": null,
+      "payment_status": "pending"
     }
   ],
   "message": "Success",
@@ -807,7 +908,54 @@ POST /provider/orders/accept/3
 
 ---
 
-#### 5.4 获取订单历史
+#### 5.4 获取订单详情
+
+**接口地址**: `GET /provider/orders/my/{order_id}`  
+**认证要求**: ✅ 需要认证（Provider 角色）  
+**接口说明**: 获取服务商已接订单的详细信息
+
+**路径参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| order_id | integer | ✅ | 订单 ID |
+
+**请求示例**:
+
+```
+GET /provider/orders/my/14
+```
+
+**响应示例**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 14,
+    "customer_id": 5,
+    "title": "家电维修",
+    "description": "冰箱不制冷",
+    "service_type": "cleaning_repair",
+    "status": "accepted",
+    "price": 250.0,
+    "location": "EAST",
+    "address": "789 Pine Street",
+    "service_start_time": "2025-10-18T14:00:00",
+    "service_end_time": "2025-10-18T16:00:00",
+    "created_at": "2025-10-17T12:00:00",
+    "updated_at": "2025-10-17T13:00:00",
+    "provider_id": 2,
+    "payment_status": "pending"
+  },
+  "message": "Success",
+  "error": null
+}
+```
+
+---
+
+#### 5.5 获取订单历史
 
 **接口地址**: `GET /provider/orders/history`  
 **认证要求**: ✅ 需要认证（Provider 角色）  
@@ -821,19 +969,37 @@ POST /provider/orders/accept/3
   "data": [
     {
       "id": 3,
+      "customer_id": 5,
       "title": "家电维修",
+      "description": "冰箱不制冷",
+      "service_type": "cleaning_repair",
       "status": "completed",
       "price": 250.0,
       "location": "EAST",
-      "created_at": "2025-10-17T12:00:00"
+      "address": "789 Pine Street",
+      "service_start_time": "2025-10-18T14:00:00",
+      "service_end_time": "2025-10-18T16:00:00",
+      "created_at": "2025-10-17T12:00:00",
+      "updated_at": "2025-10-18T16:30:00",
+      "provider_id": 2,
+      "payment_status": "paid"
     },
     {
       "id": 5,
+      "customer_id": 9,
       "title": "家具组装",
+      "description": "组装书柜和衣柜",
+      "service_type": "other",
       "status": "completed",
       "price": 200.0,
       "location": "WEST",
-      "created_at": "2025-10-16T10:00:00"
+      "address": "555 Elm Street",
+      "service_start_time": "2025-10-16T10:00:00",
+      "service_end_time": "2025-10-16T13:00:00",
+      "created_at": "2025-10-16T10:00:00",
+      "updated_at": "2025-10-16T14:00:00",
+      "provider_id": 2,
+      "payment_status": "paid"
     }
   ],
   "message": "Success",
@@ -1099,23 +1265,37 @@ GET /admin/orders?status=pending_review
   "data": [
     {
       "id": 1,
-      "title": "家庭清洁服务",
       "customer_id": 5,
-      "status": "pending_review",
+      "title": "家庭清洁服务",
+      "description": "需要对100平米的房屋进行深度清洁",
       "service_type": "cleaning_repair",
+      "status": "pending_review",
       "price": 200.0,
       "location": "NORTH",
-      "created_at": "2025-10-21T10:00:00"
+      "address": "123 Main Street, Apt 5",
+      "service_start_time": "2025-10-25T09:00:00",
+      "service_end_time": "2025-10-25T12:00:00",
+      "created_at": "2025-10-21T10:00:00",
+      "updated_at": "2025-10-21T10:00:00",
+      "provider_id": null,
+      "payment_status": "pending"
     },
     {
       "id": 2,
-      "title": "IT技术支持",
       "customer_id": 8,
-      "status": "pending_review",
+      "title": "IT技术支持",
+      "description": "网络配置和故障排查",
       "service_type": "it_technology",
+      "status": "pending_review",
       "price": 300.0,
       "location": "EAST",
-      "created_at": "2025-10-21T11:00:00"
+      "address": "456 Tech Plaza",
+      "service_start_time": null,
+      "service_end_time": null,
+      "created_at": "2025-10-21T11:00:00",
+      "updated_at": "2025-10-21T11:00:00",
+      "provider_id": null,
+      "payment_status": "pending"
     }
   ],
   "message": "Success",
@@ -1139,14 +1319,20 @@ GET /admin/orders?status=pending_review
   "data": [
     {
       "id": 1,
-      "title": "家庭清洁服务",
       "customer_id": 5,
-      "status": "pending_review",
+      "title": "家庭清洁服务",
+      "description": "需要对100平米的房屋进行深度清洁",
       "service_type": "cleaning_repair",
+      "status": "pending_review",
       "price": 200.0,
       "location": "NORTH",
-      "description": "需要对100平米的房屋进行深度清洁",
-      "created_at": "2025-10-21T10:00:00"
+      "address": "123 Main Street, Apt 5",
+      "service_start_time": "2025-10-25T09:00:00",
+      "service_end_time": "2025-10-25T12:00:00",
+      "created_at": "2025-10-21T10:00:00",
+      "updated_at": "2025-10-21T10:00:00",
+      "provider_id": null,
+      "payment_status": "pending"
     }
   ],
   "message": "Success",
@@ -1181,19 +1367,20 @@ GET /admin/orders/1
   "success": true,
   "data": {
     "id": 1,
+    "customer_id": 5,
     "title": "家庭清洁服务",
     "description": "需要对100平米的房屋进行深度清洁",
-    "customer_id": 5,
-    "provider_id": null,
-    "status": "pending_review",
     "service_type": "cleaning_repair",
+    "status": "pending_review",
     "price": 200.0,
     "location": "NORTH",
     "address": "123 Main Street, Apt 5",
     "service_start_time": "2025-10-25T09:00:00",
     "service_end_time": "2025-10-25T12:00:00",
     "created_at": "2025-10-21T10:00:00",
-    "updated_at": "2025-10-21T10:00:00"
+    "updated_at": "2025-10-21T10:00:00",
+    "provider_id": null,
+    "payment_status": "pending"
   },
   "message": "Success",
   "error": null
@@ -1793,11 +1980,24 @@ DELETE /admin/users/10
 如有任何问题，请联系后端开发团队。
 
 **文档版本**: v1.1  
-**最后更新**: 2025-10-21
+**最后更新**: 2025-10-22
 
 ---
 
 ## 📝 版本更新日志
+
+### v1.1.1 (2025-10-22)
+- ✅ 所有订单列表接口返回完整字段（OrderDetail）
+  - `GET /customer/orders` - 返回完整订单信息（17个字段）
+  - `GET /customer/orders/history` - 返回完整订单信息
+  - `GET /provider/orders/available` - 返回完整订单信息
+  - `GET /provider/orders/history` - 返回完整订单信息
+  - `GET /admin/orders` - 返回完整订单信息
+  - `GET /admin/orders/pending-review` - 返回完整订单信息
+- ✅ 新增订单详情接口
+  - `GET /customer/orders/my/{order_id}` - 客户查看订单详情
+  - `GET /provider/orders/my/{order_id}` - 服务商查看订单详情
+- 📊 订单完整字段（17个）：id, customer_id, title, description, service_type, status, price, location, address, service_start_time, service_end_time, created_at, updated_at, provider_id, payment_status
 
 ### v1.1 (2025-10-21)
 - ✅ 新增管理员角色（role_id = 3）
