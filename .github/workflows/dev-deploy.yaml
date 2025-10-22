@@ -3,7 +3,7 @@ name: Build and Deploy Services to EKS
 on:
   push:
     branches:
-      - dev
+      - githubworkflows
 
 env:
   AWS_REGION: ap-southeast-1
