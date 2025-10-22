@@ -1,0 +1,85 @@
+# Python cache files
+
+**pycache**/
+_.py[cod]
+_$py.class
+\*.so
+.Python
+
+# Virtual environments
+
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+
+.vscode/
+.idea/
+_.swp
+_.swo
+\*~
+
+# Testing
+
+.coverage
+.pytest_cache/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+\*.cover
+.hypothesis/
+
+# Documentation build
+
+docs/\_build/
+
+# Development files
+
+\*.md
+API_CHANGES_SUMMARY.md
+POSTMAN_TEST_GUIDE.md
+QUICK_TEST_REFERENCE.md
+README.md
+ROUTE_MAPPING_VERIFICATION.md
+ROUTE_UPDATE_SUMMARY.md
+
+# OS
+
+.DS*Store
+.DS_Store?
+.*\*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+
+.git
+.gitignore
+
+# Docker
+
+Dockerfile\*
+.dockerignore
+
+# Logs
+
+\*.log
+
+# Temporary files
+
+_.tmp
+_.temp
+
+# Development files
+
+.env.local
+.env.development
+tests/
