@@ -741,7 +741,39 @@ POST /customer/orders/cancel/1
 
 **接口地址**: `GET /provider/orders/available`  
 **认证要求**: ✅ 需要认证（Provider 角色）  
-**接口说明**: 获取当前可以接的订单列表（状态为 pending 的订单）
+**接口说明**: 获取当前可以接的订单列表（状态为 pending 的订单），支持按地点、服务类型、价格范围和关键词筛选
+
+**查询参数**（所有参数都是可选的）:
+
+| 参数名 | 类型 | 必填 | 说明 | 可选值 |
+|--------|------|------|------|--------|
+| location | string | ❌ | 按地点筛选 | `NORTH`, `SOUTH`, `EAST`, `WEST`, `MID` |
+| service_type | string | ❌ | 按服务类型筛选 | `cleaning_repair`, `it_technology`, `education_training`, `life_health`, `design_consulting`, `other` |
+| min_price | number | ❌ | 最低价格筛选 | ≥ 0 |
+| max_price | number | ❌ | 最高价格筛选 | ≥ 0 |
+| keyword | string | ❌ | 关键词搜索（标题或描述）| 任意文本 |
+
+**请求示例**:
+
+```
+# 不使用筛选，获取所有可接单
+GET /provider/orders/available
+
+# 按地点筛选
+GET /provider/orders/available?location=EAST
+
+# 按服务类型筛选
+GET /provider/orders/available?service_type=cleaning_repair
+
+# 同时按地点和服务类型筛选
+GET /provider/orders/available?location=EAST&service_type=it_technology
+
+# 组合多个筛选条件
+GET /provider/orders/available?location=NORTH&service_type=life_health&min_price=100&max_price=500
+
+# 关键词搜索 + 筛选
+GET /provider/orders/available?keyword=维修&location=EAST
+```
 
 **响应示例**:
 
@@ -1959,6 +1991,9 @@ DELETE /admin/users/10
 - ✅ 新增服务商查看可接单详情接口 `GET /provider/orders/available/{order_id}`
 - ✅ 服务商可以在接单前查看订单的完整详情信息
 - ✅ 更新服务商接单流程，增加查看详情步骤
+- ✅ 可接单列表接口支持按地点（`location`）和服务类型（`service_type`）筛选
+- ✅ 可接单列表接口支持按价格范围（`min_price`/`max_price`）和关键词（`keyword`）筛选
+- ✅ 所有筛选参数都是可选的，可以单独使用或组合使用
 
 ### v1.1 (2025-10-21)
 - ✅ 新增管理员角色（role_id = 3）

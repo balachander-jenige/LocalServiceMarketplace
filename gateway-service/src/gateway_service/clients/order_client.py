@@ -30,9 +30,29 @@ class OrderClient(BaseClient):
         return await self._make_request("POST", f"/customer/orders/cancel/{order_id}", token=token)
 
     # Provider endpoints
-    async def get_available_orders(self, token: str) -> List[Dict[str, Any]]:
-        """获取可接单列表"""
-        return await self._make_request("GET", "/provider/orders/available", token=token)
+    async def get_available_orders(
+        self,
+        token: str,
+        location: str = None,
+        service_type: str = None,
+        min_price: float = None,
+        max_price: float = None,
+        keyword: str = None,
+    ) -> List[Dict[str, Any]]:
+        """获取可接单列表 - 支持按地点、服务类型、价格范围和关键词筛选"""
+        params = {}
+        if location:
+            params["location"] = location
+        if service_type:
+            params["service_type"] = service_type
+        if min_price is not None:
+            params["min_price"] = min_price
+        if max_price is not None:
+            params["max_price"] = max_price
+        if keyword:
+            params["keyword"] = keyword
+
+        return await self._make_request("GET", "/provider/orders/available", token=token, params=params)
 
     async def get_available_order_detail(self, order_id: int, token: str) -> Dict[str, Any]:
         """获取可接单订单的详情"""

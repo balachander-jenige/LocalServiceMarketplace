@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Body, Depends, Request
+from fastapi import APIRouter, Body, Depends, Query, Request
 from fastapi.security import HTTPAuthorizationCredentials
 
 from ..clients import auth_client, notification_client, order_client, payment_client, review_client, user_client
@@ -143,10 +143,29 @@ async def cancel_order(order_id: int, credentials: HTTPAuthorizationCredentials 
 
 # ==================== Provider Order Routes ====================
 @router.get("/provider/orders/available", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
-async def get_available_orders(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """获取可接单列表"""
+async def get_available_orders(
+    location: Optional[str] = Query(
+        default=None, description="Filter by location: NORTH, SOUTH, EAST, WEST, MID"
+    ),
+    service_type: Optional[str] = Query(
+        default=None,
+        description="Filter by service type: cleaning_repair, it_technology, education_training, life_health, design_consulting, other",
+    ),
+    min_price: Optional[float] = Query(default=None, ge=0, description="Minimum price filter"),
+    max_price: Optional[float] = Query(default=None, ge=0, description="Maximum price filter"),
+    keyword: Optional[str] = Query(default=None, description="Search keyword in title or description"),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+):
+    """获取可接单列表 - 支持按地点、服务类型、价格范围和关键词筛选"""
     await verify_auth_token(credentials)
-    result = await order_client.get_available_orders(credentials.credentials)
+    result = await order_client.get_available_orders(
+        token=credentials.credentials,
+        location=location,
+        service_type=service_type,
+        min_price=min_price,
+        max_price=max_price,
+        keyword=keyword,
+    )
     return ApiResponse(success=True, data=result)
 
 

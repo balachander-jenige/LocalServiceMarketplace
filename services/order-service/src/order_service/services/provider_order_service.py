@@ -8,7 +8,7 @@ from ..dao.order_dao import OrderDAO
 from ..domain.events.order_accepted import OrderAcceptedEvent
 from ..domain.events.order_status_changed import OrderStatusChangedEvent
 from ..events.publishers.event_publisher import EventPublisher
-from ..models.order import LocationEnum, Order, OrderStatus
+from ..models.order import LocationEnum, Order, OrderStatus, ServiceType
 
 
 class ProviderOrderService:
@@ -18,15 +18,22 @@ class ProviderOrderService:
     async def list_available_orders(
         db: AsyncSession,
         location: Optional[str] = None,
+        service_type: Optional[str] = None,
         min_price: Optional[float] = None,
         max_price: Optional[float] = None,
         keyword: Optional[str] = None,
     ) -> List[Order]:
         """浏览可用订单"""
         location_enum = LocationEnum(location) if location else None
+        service_type_enum = ServiceType(service_type) if service_type else None
 
         return await OrderDAO.get_available_orders(
-            db=db, location=location_enum, min_price=min_price, max_price=max_price, keyword=keyword
+            db=db,
+            location=location_enum,
+            service_type=service_type_enum,
+            min_price=min_price,
+            max_price=max_price,
+            keyword=keyword,
         )
 
     @staticmethod

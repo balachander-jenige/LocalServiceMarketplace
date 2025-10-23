@@ -14,15 +14,24 @@ router = APIRouter(prefix="/provider/orders", tags=["Provider Orders"])
 
 @router.get("/available", response_model=List[OrderDetail])
 async def browse_available_orders(
-    location: Optional[str] = Query(default=None),
-    min_price: Optional[float] = Query(default=None, ge=0),
-    max_price: Optional[float] = Query(default=None, ge=0),
-    keyword: Optional[str] = Query(default=None),
+    location: Optional[str] = Query(default=None, description="Filter by location: NORTH, SOUTH, EAST, WEST, MID"),
+    service_type: Optional[str] = Query(
+        default=None,
+        description="Filter by service type: cleaning_repair, it_technology, education_training, life_health, design_consulting, other",
+    ),
+    min_price: Optional[float] = Query(default=None, ge=0, description="Minimum price filter"),
+    max_price: Optional[float] = Query(default=None, ge=0, description="Maximum price filter"),
+    keyword: Optional[str] = Query(default=None, description="Search keyword in title or description"),
     db: AsyncSession = Depends(get_db),
 ):
-    """浏览可用订单"""
+    """浏览可用订单 - 支持按地点、服务类型、价格范围和关键词筛选"""
     orders = await ProviderOrderService.list_available_orders(
-        db=db, location=location, min_price=min_price, max_price=max_price, keyword=keyword
+        db=db,
+        location=location,
+        service_type=service_type,
+        min_price=min_price,
+        max_price=max_price,
+        keyword=keyword,
     )
 
     return [
