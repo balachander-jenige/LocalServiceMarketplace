@@ -81,10 +81,34 @@ class AdminUserService:
                     customer_profile = await self.customer_dao.get_by_user_id(user_id)
                     if customer_profile:
                         profile = customer_profile.model_dump(mode="json")
+                    else:
+                        # 返回默认的 Customer Profile 结构
+                        profile = {
+                            "user_id": user_id,
+                            "location": "NORTH",
+                            "address": None,
+                            "budget_preference": 0.0,
+                            "created_at": None,
+                            "updated_at": None,
+                        }
                 elif user["role_id"] == 2:  # Provider
                     provider_profile = await self.provider_dao.get_by_user_id(user_id)
                     if provider_profile:
                         profile = provider_profile.model_dump(mode="json")
+                    else:
+                        # 返回默认的 Provider Profile 结构
+                        profile = {
+                            "user_id": user_id,
+                            "skills": [],
+                            "experience_years": 0,
+                            "hourly_rate": 0.0,
+                            "availability": None,
+                            "portfolio": [],
+                            "rating": 5.0,
+                            "total_reviews": 0,
+                            "created_at": None,
+                            "updated_at": None,
+                        }
 
                 return {
                     "user_id": user["id"],

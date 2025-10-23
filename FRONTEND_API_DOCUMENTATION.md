@@ -26,7 +26,7 @@
 
 ### Token 使用方法
 
-```
+```text
 Authorization: Bearer <your_token_here>
 ```
 
@@ -93,13 +93,13 @@ Authorization: Bearer <your_token_here>
 
 ---
 
-## � 订单审核流程说明
+## 📋 订单审核流程说明
 
 订单发布后需要经过管理员审核才能被服务商接单：
 
 ### 订单生命周期
 
-```
+```text
 1. Customer 发布订单
    ↓
 2. 订单状态: pending_review（待审核）
@@ -126,13 +126,13 @@ Authorization: Bearer <your_token_here>
 
 ### 重要提示
 
-- **客户端**: 发布订单后需要轮询收件箱或订单状态，以获取审核结果
-- **服务商端**: 只能看到审核通过（`status=pending`）的订单
-- **审核时间**: 取决于管理员处理速度，建议在前端显示"等待审核"提示
+**客户端**: 发布订单后需要轮询收件箱或订单状态，以获取审核结果
+**服务商端**: 只能看到审核通过（`status=pending`）的订单
+**审核时间**: 取决于管理员处理速度，建议在前端显示"等待审核"提示
 
 ---
 
-## �📚 接口列表
+## 📚 接口列表
 
 ### 1. 认证模块 (Authentication)
 
@@ -227,7 +227,7 @@ Authorization: Bearer <your_token_here>
 
 **请求 Header**:
 
-```
+```text
 Authorization: Bearer <your_token>
 ```
 
@@ -566,7 +566,6 @@ Authorization: Bearer <your_token>
 - 订单发布后状态为 `pending_review`（待审核）
 - 需要等待管理员审核通过后，状态才会变为 `pending`（待接单）
 - 客户会在收件箱收到审核结果通知
-```
 
 ---
 
@@ -632,7 +631,7 @@ Authorization: Bearer <your_token>
 
 **请求示例**:
 
-```
+```http
 GET /customer/orders/my/1
 ```
 
@@ -714,7 +713,7 @@ GET /customer/orders/my/1
 
 **请求示例**:
 
-```
+```http
 POST /customer/orders/cancel/1
 ```
 
@@ -755,7 +754,7 @@ POST /customer/orders/cancel/1
 
 **请求示例**:
 
-```
+```http
 # 不使用筛选，获取所有可接单
 GET /provider/orders/available
 
@@ -819,7 +818,7 @@ GET /provider/orders/available?keyword=维修&location=EAST
 
 **请求示例**:
 
-```
+```http
 GET /provider/orders/available/3
 ```
 
@@ -880,7 +879,7 @@ GET /provider/orders/available/3
 
 **请求示例**:
 
-```
+```http
 POST /provider/orders/accept/3
 ```
 
@@ -960,7 +959,7 @@ POST /provider/orders/accept/3
 
 **请求示例**:
 
-```
+```http
 GET /provider/orders/my/14
 ```
 
@@ -1190,7 +1189,7 @@ GET /provider/orders/my/14
 
 **请求示例**:
 
-```
+```http
 GET /reviews/provider/2/rating
 ```
 
@@ -1225,7 +1224,7 @@ GET /reviews/provider/2/rating
 
 **请求示例**:
 
-```
+```http
 GET /reviews/provider/2
 ```
 
@@ -1273,7 +1272,7 @@ GET /reviews/provider/2
 
 **请求示例**:
 
-```
+```http
 GET /admin/orders?status=pending_review
 ```
 
@@ -1356,7 +1355,7 @@ GET /admin/orders?status=pending_review
 
 **请求示例**:
 
-```
+```http
 GET /admin/orders/1
 ```
 
@@ -1506,7 +1505,7 @@ GET /admin/orders/1
 
 **请求示例**:
 
-```
+```http
 DELETE /admin/orders/1
 ```
 
@@ -1540,7 +1539,7 @@ DELETE /admin/orders/1
 
 **请求示例**:
 
-```
+```http
 GET /admin/users?role_id=1
 ```
 
@@ -1590,11 +1589,11 @@ GET /admin/users?role_id=1
 
 **请求示例**:
 
-```
+```http
 GET /admin/users/1
 ```
 
-**响应示例 - Customer**:
+**响应示例 - Customer（已创建 Profile）**:
 
 ```json
 {
@@ -1619,6 +1618,98 @@ GET /admin/users/1
   "error": null
 }
 ```
+
+**响应示例 - Customer（未创建 Profile，返回默认值）**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "user_id": 5,
+    "username": "new_customer",
+    "email": "new@example.com",
+    "role_id": 1,
+    "role_name": "customer",
+    "profile": {
+      "user_id": 5,
+      "location": "NORTH",
+      "address": null,
+      "budget_preference": 0.0,
+      "created_at": null,
+      "updated_at": null
+    },
+    "created_at": "2025-10-20T10:00:00"
+  },
+  "message": "Success",
+  "error": null
+}
+```
+
+**响应示例 - Provider（已创建 Profile）**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "user_id": 2,
+    "username": "service_provider",
+    "email": "provider@example.com",
+    "role_id": 2,
+    "role_name": "provider",
+    "profile": {
+      "user_id": 2,
+      "skills": ["清洁", "维修", "搬运"],
+      "experience_years": 5,
+      "hourly_rate": 50.0,
+      "availability": "周一至周五 9:00-18:00",
+      "portfolio": ["https://example.com/work1"],
+      "rating": 4.8,
+      "total_reviews": 15,
+      "created_at": "2025-10-15T10:00:00",
+      "updated_at": "2025-10-15T11:00:00"
+    },
+    "created_at": "2025-10-15T10:00:00"
+  },
+  "message": "Success",
+  "error": null
+}
+```
+
+**响应示例 - Provider（未创建 Profile，返回默认值）**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "user_id": 6,
+    "username": "new_provider",
+    "email": "newprovider@example.com",
+    "role_id": 2,
+    "role_name": "provider",
+    "profile": {
+      "user_id": 6,
+      "skills": [],
+      "experience_years": 0,
+      "hourly_rate": 0.0,
+      "availability": null,
+      "portfolio": [],
+      "rating": 5.0,
+      "total_reviews": 0,
+      "created_at": null,
+      "updated_at": null
+    },
+    "created_at": "2025-10-20T11:00:00"
+  },
+  "message": "Success",
+  "error": null
+}
+```
+
+**重要说明**:
+- ✅ **Profile 字段始终返回**：即使用户还没有创建 Profile，`profile` 字段也不会为 `null`
+- ✅ **默认值明确**：未创建 Profile 时返回包含默认值的结构（如空数组、0、null 等）
+- ✅ **区分标识**：可通过 `created_at` 和 `updated_at` 是否为 `null` 判断用户是否已创建 Profile
+- ✅ **前端友好**：前端无需判断 `profile` 是否为 `null`，可直接访问 Profile 字段
 
 ---
 
@@ -1721,7 +1812,7 @@ GET /admin/users/1
 
 **请求示例**:
 
-```
+```http
 DELETE /admin/users/10
 ```
 
@@ -1793,12 +1884,11 @@ DELETE /admin/users/10
 ```
 
 **通知类型说明**:
-- **订单审核通过**: "Your order {order_id} has been approved by admin..."
-- **订单审核拒绝**: "Your order {order_id} has been rejected by admin. Reason: {reason}"
-- **订单被接受**: "您的订单 #{order_id} 已被服务商接受"
-- **订单完成**: "订单 #{order_id} 已完成，请及时支付"
-- **支付成功**: "订单 #{order_id} 支付成功"
-```
+**订单审核通过**: "Your order {order_id} has been approved by admin..."
+**订单审核拒绝**: "Your order {order_id} has been rejected by admin. Reason: {reason}"
+**订单被接受**: "您的订单 #{order_id} 已被服务商接受"
+**订单完成**: "订单 #{order_id} 已完成，请及时支付"
+**支付成功**: "订单 #{order_id} 支付成功"
 
 ---
 
@@ -1850,7 +1940,7 @@ DELETE /admin/users/10
 
 ### 流程 1: 客户发布并支付订单
 
-```
+```text
 1. 注册/登录 (POST /auth/register, POST /auth/login)
 2. 创建客户资料 (POST /customer/profile)
 3. 发布订单 (POST /customer/orders/publish)
@@ -1868,7 +1958,7 @@ DELETE /admin/users/10
 
 ### 流程 2: 服务商接单并提供服务
 
-```
+```text
 1. 注册/登录 (POST /auth/register, POST /auth/login)
 2. 创建服务商资料 (POST /provider/profile)
 3. 查看可接单列表 (GET /provider/orders/available)
@@ -1884,7 +1974,7 @@ DELETE /admin/users/10
 
 ### 流程 3: 管理员审核订单
 
-```
+```text
 1. 登录管理员账号 (POST /auth/login, role_id=3)
 2. 查看待审核订单列表 (GET /admin/orders/pending-review)
 3. 查看订单详情 (GET /admin/orders/{order_id})
@@ -1896,7 +1986,7 @@ DELETE /admin/users/10
 
 ### 流程 4: 管理员管理用户
 
-```
+```text
 1. 登录管理员账号 (POST /auth/login, role_id=3)
 2. 查看所有用户 (GET /admin/users?role_id=1)
 3. 查看用户详情 (GET /admin/users/{user_id})
@@ -1980,7 +2070,7 @@ DELETE /admin/users/10
 
 如有任何问题，请联系后端开发团队。
 
-**文档版本**: v1.1  
+**文档版本**: v1.2  
 **最后更新**: 2025-10-23
 
 ---
