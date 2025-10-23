@@ -1,19 +1,24 @@
-from sqlalchemy import Column, BigInteger, Integer, String, Enum, DECIMAL, TIMESTAMP
-from datetime import datetime, UTC
 import enum
+from datetime import UTC, datetime
+
+from sqlalchemy import DECIMAL, TIMESTAMP, BigInteger, Column, Enum, Integer, String
+
 from ..core.database import Base
+
 
 class PaymentStatus(enum.Enum):
     pending = "pending"
     completed = "completed"
     failed = "failed"
 
+
 class PaymentMethod(enum.Enum):
     simulated = "simulated"  # 模拟支付（简化后的支付方式）
 
+
 class Payment(Base):
     __tablename__ = "payments"
-    
+
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     order_id = Column(BigInteger, nullable=False, index=True)
     customer_id = Column(BigInteger, nullable=False, index=True)
@@ -22,12 +27,12 @@ class Payment(Base):
     payment_method = Column(
         Enum(PaymentMethod, values_callable=lambda obj: [e.value for e in obj]),
         default=PaymentMethod.simulated,
-        nullable=False
+        nullable=False,
     )
     status = Column(
         Enum(PaymentStatus, values_callable=lambda obj: [e.value for e in obj]),
         default=PaymentStatus.pending,
-        nullable=False
+        nullable=False,
     )
     transaction_id = Column(String(255), unique=True)  # 交易流水号
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(UTC))

@@ -1,18 +1,19 @@
+from typing import List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Optional
 
 from ..core.database import get_db
 from ..core.dependencies import get_current_user_id
-from ..services.admin_order_service import AdminOrderService
 from ..dto.order_dto import (
     ApproveOrderRequest,
     ApproveOrderResponse,
-    UpdateOrderRequest,
     DeleteOrderResponse,
+    OrderDetail,
     OrderSummary,
-    OrderDetail
+    UpdateOrderRequest,
 )
+from ..services.admin_order_service import AdminOrderService
 
 router = APIRouter(prefix="/admin/orders", tags=["admin-orders"])
 
@@ -21,12 +22,12 @@ router = APIRouter(prefix="/admin/orders", tags=["admin-orders"])
 async def get_all_orders(
     status: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    current_user_id: int = Depends(get_current_user_id)
+    current_user_id: int = Depends(get_current_user_id),
 ):
     """获取所有订单（管理员）"""
     # 注意: 这里需要在网关层验证管理员权限
     orders = await AdminOrderService.get_all_orders(db, status)
-    
+
     return [
         OrderDetail(
             id=order.id,
@@ -43,7 +44,7 @@ async def get_all_orders(
             created_at=order.created_at.isoformat(),
             updated_at=order.updated_at.isoformat(),
             provider_id=order.provider_id,
-            payment_status=order.payment_status.value
+            payment_status=order.payment_status.value,
         )
         for order in orders
     ]
@@ -51,12 +52,11 @@ async def get_all_orders(
 
 @router.get("/pending-review", response_model=List[OrderDetail])
 async def get_pending_review_orders(
-    db: AsyncSession = Depends(get_db),
-    current_user_id: int = Depends(get_current_user_id)
+    db: AsyncSession = Depends(get_db), current_user_id: int = Depends(get_current_user_id)
 ):
     """获取待审核订单列表（管理员）"""
     orders = await AdminOrderService.get_pending_review_orders(db)
-    
+
     return [
         OrderDetail(
             id=order.id,
@@ -73,7 +73,7 @@ async def get_pending_review_orders(
             created_at=order.created_at.isoformat(),
             updated_at=order.updated_at.isoformat(),
             provider_id=order.provider_id,
-            payment_status=order.payment_status.value
+            payment_status=order.payment_status.value,
         )
         for order in orders
     ]
@@ -81,13 +81,11 @@ async def get_pending_review_orders(
 
 @router.get("/{order_id}", response_model=OrderDetail)
 async def get_order_detail(
-    order_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user_id: int = Depends(get_current_user_id)
+    order_id: int, db: AsyncSession = Depends(get_db), current_user_id: int = Depends(get_current_user_id)
 ):
     """获取订单详情（管理员）"""
     order = await AdminOrderService.get_order_detail(db, order_id)
-    
+
     return OrderDetail(
         id=order.id,
         customer_id=order.customer_id,
@@ -103,7 +101,7 @@ async def get_order_detail(
         created_at=order.created_at.isoformat(),
         updated_at=order.updated_at.isoformat(),
         provider_id=order.provider_id,
-        payment_status=order.payment_status.value
+        payment_status=order.payment_status.value,
     )
 
 
@@ -112,26 +110,17 @@ async def approve_order(
     order_id: int,
     request: ApproveOrderRequest,
     db: AsyncSession = Depends(get_db),
-    current_user_id: int = Depends(get_current_user_id)
+    current_user_id: int = Depends(get_current_user_id),
 ):
     """审批订单（管理员）"""
-    order = await AdminOrderService.approve_order(
-        db,
-        order_id,
-        request.approved,
-        request.reject_reason
-    )
-    
+    order = await AdminOrderService.approve_order(db, order_id, request.approved, request.reject_reason)
+
     if request.approved:
         message = "Order approved successfully"
     else:
         message = f"Order rejected: {request.reject_reason}"
-    
-    return ApproveOrderResponse(
-        order_id=order.id,
-        status=order.status.value,
-        message=message
-    )
+
+    return ApproveOrderResponse(order_id=order.id, status=order.status.value, message=message)
 
 
 @router.put("/{order_id}", response_model=OrderDetail)
@@ -139,7 +128,7 @@ async def update_order(
     order_id: int,
     request: UpdateOrderRequest,
     db: AsyncSession = Depends(get_db),
-    current_user_id: int = Depends(get_current_user_id)
+    current_user_id: int = Depends(get_current_user_id),
 ):
     """更新订单信息（管理员）"""
     order = await AdminOrderService.update_order(
@@ -153,9 +142,9 @@ async def update_order(
         address=request.address,
         service_start_time=request.service_start_time,
         service_end_time=request.service_end_time,
-        order_status=request.status
+        order_status=request.status,
     )
-    
+
     return OrderDetail(
         id=order.id,
         customer_id=order.customer_id,
@@ -171,26 +160,18 @@ async def update_order(
         created_at=order.created_at.isoformat(),
         updated_at=order.updated_at.isoformat(),
         provider_id=order.provider_id,
-        payment_status=order.payment_status.value
+        payment_status=order.payment_status.value,
     )
 
 
 @router.delete("/{order_id}", response_model=DeleteOrderResponse)
 async def delete_order(
-    order_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user_id: int = Depends(get_current_user_id)
+    order_id: int, db: AsyncSession = Depends(get_db), current_user_id: int = Depends(get_current_user_id)
 ):
     """删除订单（管理员）"""
     success = await AdminOrderService.delete_order(db, order_id)
-    
+
     if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Order not found"
-        )
-    
-    return DeleteOrderResponse(
-        order_id=order_id,
-        message="Order deleted successfully"
-    )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+
+    return DeleteOrderResponse(order_id=order_id, message="Order deleted successfully")

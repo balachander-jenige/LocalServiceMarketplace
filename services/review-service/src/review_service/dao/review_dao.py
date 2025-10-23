@@ -1,6 +1,9 @@
+from typing import List, Optional
+
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from typing import Optional, List
+
 from ..models.review import Review
+
 
 class ReviewDAO:
     def __init__(self, db: AsyncIOMotorDatabase):

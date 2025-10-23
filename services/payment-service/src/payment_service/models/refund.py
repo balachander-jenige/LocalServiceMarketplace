@@ -1,16 +1,20 @@
-from sqlalchemy import Column, BigInteger, Enum, DECIMAL, TIMESTAMP, Text
-from datetime import datetime, UTC
 import enum
+from datetime import UTC, datetime
+
+from sqlalchemy import DECIMAL, TIMESTAMP, BigInteger, Column, Enum, Text
+
 from ..core.database import Base
+
 
 class RefundStatus(enum.Enum):
     pending = "pending"
     completed = "completed"
     rejected = "rejected"
 
+
 class Refund(Base):
     __tablename__ = "refunds"
-    
+
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     payment_id = Column(BigInteger, nullable=False, index=True)
     order_id = Column(BigInteger, nullable=False, index=True)

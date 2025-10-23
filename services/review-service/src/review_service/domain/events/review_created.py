@@ -1,5 +1,7 @@
-from pydantic import BaseModel
 from datetime import datetime
+
+from pydantic import BaseModel
+
 
 class ReviewCreatedEvent(BaseModel):
     review_id: str
@@ -11,6 +13,4 @@ class ReviewCreatedEvent(BaseModel):
     timestamp: datetime
 
     class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
+        json_encoders = {datetime: lambda v: v.isoformat()}

@@ -1,14 +1,16 @@
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-import asyncio
 
-from .core.config import settings
-from .core.mongodb import connect_to_mongo, close_mongo_connection
-from .core.redis_client import connect_to_redis, close_redis_connection
-from .messaging.rabbitmq_client import rabbitmq_client
-from .events.consumers.event_consumer import start_consuming
 from .api import customer_inbox_api, provider_inbox_api
+from .core.config import settings
+from .core.mongodb import close_mongo_connection, connect_to_mongo
+from .core.redis_client import close_redis_connection, connect_to_redis
+from .events.consumers.event_consumer import start_consuming
+from .messaging.rabbitmq_client import rabbitmq_client
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -18,19 +20,16 @@ async def lifespan(app: FastAPI):
     await connect_to_redis()
     await rabbitmq_client.connect()
     asyncio.create_task(start_consuming())
-    
+
     yield
-    
+
     # 关闭时清理资源
     await rabbitmq_client.close()
     await close_redis_connection()
     await close_mongo_connection()
 
-app = FastAPI(
-    title=settings.SERVICE_NAME,
-    version="1.0.0",
-    lifespan=lifespan
-)
+
+app = FastAPI(title=settings.SERVICE_NAME, version="1.0.0", lifespan=lifespan)
 
 # CORS 中间件
 app.add_middleware(
@@ -45,11 +44,8 @@ app.add_middleware(
 app.include_router(customer_inbox_api.router)
 app.include_router(provider_inbox_api.router)
 
+
 @app.get("/health")
 async def health_check():
     """健康检查"""
-    return {
-        "status": "healthy",
-        "service": settings.SERVICE_NAME,
-        "version": "1.0.0"
-    }
+    return {"status": "healthy", "service": settings.SERVICE_NAME, "version": "1.0.0"}

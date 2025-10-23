@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, Field
+
 
 class Review(BaseModel):
     order_id: int = Field(...)
@@ -18,6 +20,6 @@ class Review(BaseModel):
                 "provider_id": 2,
                 "stars": 5,
                 "content": "Great job!",
-                "created_at": "2025-10-16T12:00:00Z"
+                "created_at": "2025-10-16T12:00:00Z",
             }
         }

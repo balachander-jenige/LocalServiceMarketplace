@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, Field
+
 
 class CustomerInbox(BaseModel):
     customer_id: int = Field(...)
@@ -16,6 +18,6 @@ class CustomerInbox(BaseModel):
                 "order_id": 123,
                 "message": "Your order has been accepted.",
                 "created_at": "2025-10-16T12:00:00Z",
-                "is_read": False
+                "is_read": False,
             }
         }

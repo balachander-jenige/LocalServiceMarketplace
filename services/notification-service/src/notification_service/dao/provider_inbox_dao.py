@@ -1,6 +1,9 @@
-from motor.motor_asyncio import AsyncIOMotorDatabase
 from typing import List
+
+from motor.motor_asyncio import AsyncIOMotorDatabase
+
 from ..models.provider_inbox import ProviderInbox
+
 
 class ProviderInboxDAO:
     def __init__(self, db: AsyncIOMotorDatabase):
@@ -17,6 +20,5 @@ class ProviderInboxDAO:
 
     async def mark_as_read(self, provider_id: int, order_id: int):
         await self.collection.update_many(
-            {"provider_id": provider_id, "order_id": order_id},
-            {"$set": {"is_read": True}}
+            {"provider_id": provider_id, "order_id": order_id}, {"$set": {"is_read": True}}
         )

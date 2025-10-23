@@ -1,5 +1,7 @@
 import aio_pika
+
 from ..core.config import settings
+
 
 class RabbitMQClient:
     def __init__(self):
@@ -14,27 +16,15 @@ class RabbitMQClient:
     async def publish_event(self, exchange_name: str, routing_key: str, message: str):
         if not self.channel:
             await self.connect()
-        exchange = await self.channel.declare_exchange(
-            exchange_name,
-            aio_pika.ExchangeType.TOPIC,
-            durable=True
-        )
+        exchange = await self.channel.declare_exchange(exchange_name, aio_pika.ExchangeType.TOPIC, durable=True)
         await exchange.publish(
-            aio_pika.Message(
-                body=message.encode(),
-                content_type="application/json"
-            ),
-            routing_key=routing_key
+            aio_pika.Message(body=message.encode(), content_type="application/json"), routing_key=routing_key
         )
 
     async def consume_events(self, exchange_name: str, routing_key: str, callback):
         if not self.channel:
             await self.connect()
-        exchange = await self.channel.declare_exchange(
-            exchange_name,
-            aio_pika.ExchangeType.TOPIC,
-            durable=True
-        )
+        exchange = await self.channel.declare_exchange(exchange_name, aio_pika.ExchangeType.TOPIC, durable=True)
         queue = await self.channel.declare_queue("", exclusive=True)
         await queue.bind(exchange, routing_key=routing_key)
         await queue.consume(callback)
@@ -43,5 +33,6 @@ class RabbitMQClient:
         if self.connection:
             await self.connection.close()
             print("✅ Closed RabbitMQ connection")
+
 
 rabbitmq_client = RabbitMQClient()

@@ -1,5 +1,5 @@
-from .customer_dto import CustomerProfileCreate, CustomerProfileUpdate, CustomerProfileResponse
-from .provider_dto import ProviderProfileCreate, ProviderProfileUpdate, ProviderProfileResponse
+from .customer_dto import CustomerProfileCreate, CustomerProfileResponse, CustomerProfileUpdate
+from .provider_dto import ProviderProfileCreate, ProviderProfileResponse, ProviderProfileUpdate
 
 __all__ = [
     "CustomerProfileCreate",
@@ -7,5 +7,5 @@ __all__ = [
     "CustomerProfileResponse",
     "ProviderProfileCreate",
     "ProviderProfileUpdate",
-    "ProviderProfileResponse"
+    "ProviderProfileResponse",
 ]
