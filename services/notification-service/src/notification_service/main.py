@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api import customer_inbox_api, provider_inbox_api
+from .api import admin_notification_api, customer_inbox_api, provider_inbox_api
 from .core.config import settings
 from .core.mongodb import close_mongo_connection, connect_to_mongo
 from .core.redis_client import close_redis_connection, connect_to_redis
@@ -43,6 +43,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(customer_inbox_api.router)
 app.include_router(provider_inbox_api.router)
+app.include_router(admin_notification_api.router)
 
 
 @app.get("/health")

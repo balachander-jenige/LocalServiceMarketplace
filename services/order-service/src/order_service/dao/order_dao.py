@@ -77,6 +77,7 @@ class OrderDAO:
     async def get_available_orders(
         db: AsyncSession,
         location: Optional[LocationEnum] = None,
+        service_type: Optional[ServiceType] = None,
         min_price: Optional[float] = None,
         max_price: Optional[float] = None,
         keyword: Optional[str] = None,
@@ -86,6 +87,8 @@ class OrderDAO:
 
         if location:
             query = query.where(Order.location == location)
+        if service_type:
+            query = query.where(Order.service_type == service_type)
         if min_price is not None:
             query = query.where(Order.price >= min_price)
         if max_price is not None:

@@ -16,5 +16,13 @@ class NotificationClient(BaseClient):
         """获取服务商收件箱"""
         return await self._make_request("GET", "/provider/inbox/", token=token)
 
+    async def admin_send_customer_notification(self, user_id: int, message: str, token: str) -> Dict[str, Any]:
+        """管理员发送通知给客户"""
+        return await self._make_request("POST", f"/admin/notifications/customer/{user_id}", token=token, json_data={"message": message})
+
+    async def admin_send_provider_notification(self, user_id: int, message: str, token: str) -> Dict[str, Any]:
+        """管理员发送通知给服务商"""
+        return await self._make_request("POST", f"/admin/notifications/provider/{user_id}", token=token, json_data={"message": message})
+
 
 notification_client = NotificationClient()
