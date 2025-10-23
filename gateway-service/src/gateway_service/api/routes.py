@@ -150,6 +150,16 @@ async def get_available_orders(credentials: HTTPAuthorizationCredentials = Depen
     return ApiResponse(success=True, data=result)
 
 
+@router.get(
+    "/provider/orders/available/{order_id}", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)]
+)
+async def get_available_order_detail(order_id: int, credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """获取可接单订单的详情"""
+    await verify_auth_token(credentials)
+    result = await order_client.get_available_order_detail(order_id, credentials.credentials)
+    return ApiResponse(success=True, data=result)
+
+
 @router.post("/provider/orders/accept/{order_id}", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
 async def accept_order(order_id: int, credentials: HTTPAuthorizationCredentials = Depends(security)):
     """服务商接单"""

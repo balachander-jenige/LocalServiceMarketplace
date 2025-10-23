@@ -30,6 +30,23 @@ class ProviderOrderService:
         )
 
     @staticmethod
+    async def get_available_order_detail(db: AsyncSession, order_id: int) -> Order:
+        """获取可接单订单的详情（不需要认证，任何服务商都可以查看）"""
+        order = await OrderDAO.get_order_by_id(db, order_id)
+
+        if not order:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+
+        # 只能查看状态为 pending 的订单
+        if order.status != OrderStatus.pending:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This order is no longer available for acceptance",
+            )
+
+        return order
+
+    @staticmethod
     async def accept_order(db: AsyncSession, provider_id: int, order_id: int) -> Order:
         """接受订单"""
         order = await OrderDAO.get_order_by_id(db, order_id)

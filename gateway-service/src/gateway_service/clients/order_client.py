@@ -34,6 +34,10 @@ class OrderClient(BaseClient):
         """获取可接单列表"""
         return await self._make_request("GET", "/provider/orders/available", token=token)
 
+    async def get_available_order_detail(self, order_id: int, token: str) -> Dict[str, Any]:
+        """获取可接单订单的详情"""
+        return await self._make_request("GET", f"/provider/orders/available/{order_id}", token=token)
+
     async def accept_order(self, order_id: int, token: str) -> Dict[str, Any]:
         """服务商接单"""
         return await self._make_request("POST", f"/provider/orders/accept/{order_id}", token=token)
