@@ -1,0 +1,46 @@
+# 设置默认行为：自动规范化所有文本文件
+* text=auto
+
+# Shell 脚本必须使用 LF（Unix 行尾符）
+# 这样可以在 macOS/Linux 上正常运行
+*.sh text eol=lf
+
+# Python 文件使用 LF（推荐）
+*.py text eol=lf
+
+# YAML/配置文件使用 LF
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.conf text eol=lf
+
+# Markdown 文档使用 LF
+*.md text eol=lf
+
+# JSON 文件使用 LF
+*.json text eol=lf
+
+# Dockerfile 使用 LF
+Dockerfile* text eol=lf
+*.dockerfile text eol=lf
+
+# 环境变量文件使用 LF
+.env* text eol=lf
+
+# Git 配置文件使用 LF
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# 二进制文件不进行行尾符转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.db binary
+*.sqlite binary

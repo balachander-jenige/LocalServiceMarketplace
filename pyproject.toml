@@ -1,0 +1,32 @@
+[tool.black]
+line-length = 120
+target-version = ['py311']
+extend-exclude = '''
+/(
+    \.git
+  | __pycache__
+  | \.venv
+  | venv
+  | alembic/versions
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
+skip_gitignore = true
+skip = [
+    ".venv",
+    "venv",
+    "__pycache__",
+    "alembic/versions"
+]
+
+[tool.bandit]
+exclude_dirs = [
+    "/tests/",
+    "/alembic/versions/"
+]
+skips = ["B101"]  # 允许使用 assert (测试中常用)

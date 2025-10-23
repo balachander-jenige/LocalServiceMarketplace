@@ -1,0 +1,77 @@
+name: Backend Security Scan (SAST)
+
+on:
+  push:
+    branches:
+      - reid
+    paths:
+      - 'services/**/*.py'
+      - 'gateway-service/**/*.py'
+      - 'shared/**/*.py'
+      - '.github/workflows/backend-sast.yml'
+  
+  pull_request:
+    branches:
+      - reid
+    paths:
+      - 'services/**/*.py'
+      - 'gateway-service/**/*.py'
+      - 'shared/**/*.py'
+
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Bandit
+        run: |
+          pip install --upgrade pip
+          pip install bandit==1.7.8
+
+      - name: Run Bandit Security Scan
+        run: |
+          bandit -r services/ gateway-service/ shared/ \
+            --exclude '*/tests/*,*/alembic/versions/*' \
+            --format json \
+            --output bandit-report.json \
+            --severity-level high \
+            --confidence-level medium
+        continue-on-error: true  # 初期不阻塞，只报告
+
+      - name: Display Bandit Results
+        if: always()
+        run: |
+          bandit -r services/ gateway-service/ shared/ \
+            --exclude '*/tests/*,*/alembic/versions/*' \
+            --format screen \
+            --severity-level high \
+            --confidence-level medium
+        continue-on-error: true
+
+      - name: Upload Security Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-security-report
+          path: bandit-report.json
+          retention-days: 30
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "✅ Security scan completed!"
+          echo "Note: Scan is in report-only mode during testing phase."
+          echo "Check the uploaded artifact for detailed results."
+          echo "Failures will not block the workflow."
