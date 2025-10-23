@@ -1,0 +1,141 @@
+name: Build and Deploy Services to EKS
+
+on:
+  push:
+    branches:
+      - githubworkflows
+    paths:
+      - "gateway-service/**"
+      - "services/**"
+      - ".github/workflows/dev-deploy.yaml"
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-southeast-1
+  CLUSTER_NAME: freelancer-marketplace-eks
+  ACCOUNT_ID: 539827877726
+  ECR_REGISTRY: 539827877726.dkr.ecr.ap-southeast-1.amazonaws.com
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.filter.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed services
+        id: filter
+        run: |
+          # Compare with previous commit
+          COMPARE="HEAD^"
+
+          echo "Comparing with: $COMPARE"
+          echo "Changed files:"
+          git diff --name-only $COMPARE HEAD
+
+          # Build matrix JSON array with all service details
+          MATRIX='{"include":['
+          FIRST=true
+
+          # Check gateway
+          if git diff --name-only $COMPARE HEAD | grep -q "^gateway-service/"; then
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"gateway-service","ecr_repo":"freelancer-gateway","path":"gateway-service"}'
+            FIRST=false
+            echo "✓ gateway-service changed"
+          fi
+
+          # Check all microservices
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/auth-service/"; then
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"auth-service","ecr_repo":"freelancer-auth","path":"services/auth-service"}'
+            FIRST=false
+            echo "✓ auth-service changed"
+          fi
+
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/user-service/"; then
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"user-service","ecr_repo":"freelancer-user","path":"services/user-service"}'
+            FIRST=false
+            echo "✓ user-service changed"
+          fi
+
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/order-service/"; then
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"order-service","ecr_repo":"freelancer-order","path":"services/order-service"}'
+            FIRST=false
+            echo "✓ order-service changed"
+          fi
+
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/payment-service/"; then
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"payment-service","ecr_repo":"freelancer-payment","path":"services/payment-service"}'
+            FIRST=false
+            echo "✓ payment-service changed"
+          fi
+
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/notification-service/"; then
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"notification-service","ecr_repo":"freelancer-notification","path":"services/notification-service"}'
+            FIRST=false
+            echo "✓ notification-service changed"
+          fi
+
+          if git diff --name-only $COMPARE HEAD | grep -q "^services/review-service/"; then
+            [[ "$FIRST" == "false" ]] && MATRIX+=","
+            MATRIX+='{"service":"review-service","ecr_repo":"freelancer-review","path":"services/review-service"}'
+            FIRST=false
+            echo "✓ review-service changed"
+          fi
+
+          MATRIX+=']}'
+
+          echo ""
+          echo "Matrix JSON:"
+          echo "$MATRIX" | jq '.'
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+  build-and-deploy:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.matrix != '{"include":[]}'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+      fail-fast: false
+      max-parallel: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/github-actions-role
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push ${{ matrix.service }}
+        run: |
+          IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:latest
+
+          echo "Building ${{ matrix.service }}..."
+          docker build -t $IMAGE_URI ${{ matrix.path }}/
+          docker push $IMAGE_URI
+          echo "✓ Pushed $IMAGE_URI"
+
+      - name: Deploy ${{ matrix.service }} to EKS
+        run: |
+          echo "Deploying ${{ matrix.service }}..."
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
+          kubectl rollout restart deployment ${{ matrix.service }}
+          kubectl rollout status deployment ${{ matrix.service }} --timeout=5m
+          echo "✓ ${{ matrix.service }} deployed successfully"

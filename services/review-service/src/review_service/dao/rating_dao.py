@@ -11,8 +11,10 @@ class RatingDAO:
         if doc:
             doc.pop("_id", None)
             return ProviderRating(**doc)
-        return None
+        return None  
 
+    
+      
     async def upsert_rating(self, provider_id: int, average_rating: float, total_reviews: int) -> ProviderRating:
         await self.collection.update_one(
             {"provider_id": provider_id},
