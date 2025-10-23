@@ -1832,6 +1832,114 @@ DELETE /admin/users/10
 
 ---
 
+#### 8.11 管理员发送通知给客户
+
+**接口地址**: `POST /admin/notifications/customer/{user_id}`  
+**认证要求**: ✅ 需要认证（Admin 角色）  
+**接口说明**: 管理员发送平台通知给指定客户用户
+
+**路径参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| user_id | integer | ✅ | 客户用户 ID |
+
+**请求参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| message | string | ✅ | 通知消息内容 |
+
+**请求示例**:
+
+```http
+POST /admin/notifications/customer/1
+```
+
+```json
+{
+  "message": "平台维护通知：系统将于今晚 10:00-12:00 进行维护，期间服务可能受影响。"
+}
+```
+
+**响应示例**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "user_id": 1,
+    "message": "Notification sent successfully to customer"
+  },
+  "message": "Notification sent to customer",
+  "error": null
+}
+```
+
+**重要说明**:
+- 发送的通知会出现在客户的收件箱中
+- 通知的 `order_id` 字段为 `null`，表示这是平台通知而非订单通知
+- 即使用户 ID 不存在，接口也会返回成功（通知会保存在数据库中）
+
+---
+
+#### 8.12 管理员发送通知给服务商
+
+**接口地址**: `POST /admin/notifications/provider/{user_id}`  
+**认证要求**: ✅ 需要认证（Admin 角色）  
+**接口说明**: 管理员发送平台通知给指定服务商用户
+
+**路径参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| user_id | integer | ✅ | 服务商用户 ID |
+
+**请求参数**:
+
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| message | string | ✅ | 通知消息内容 |
+
+**请求示例**:
+
+```http
+POST /admin/notifications/provider/2
+```
+
+```json
+{
+  "message": "新政策提醒：请所有服务商在本月底前完成资质认证。"
+}
+```
+
+**响应示例**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "user_id": 2,
+    "message": "Notification sent successfully to provider"
+  },
+  "message": "Notification sent to provider",
+  "error": null
+}
+```
+
+**重要说明**:
+- 发送的通知会出现在服务商的收件箱中
+- 通知的 `order_id` 字段为 `null`，表示这是平台通知而非订单通知
+- 即使用户 ID 不存在，接口也会返回成功（通知会保存在数据库中）
+
+**使用场景**:
+- 平台维护公告
+- 政策更新通知
+- 活动推广信息
+- 重要提醒事项
+
+---
+
 ### 9. 通知模块 (Notification)
 
 #### 9.1 获取客户收件箱

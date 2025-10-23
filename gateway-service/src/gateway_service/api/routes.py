@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Body, Depends, Query, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
 from fastapi.security import HTTPAuthorizationCredentials
 
 from ..clients import auth_client, notification_client, order_client, payment_client, review_client, user_client
@@ -370,3 +370,29 @@ async def get_provider_inbox(credentials: HTTPAuthorizationCredentials = Depends
     await verify_auth_token(credentials)
     result = await notification_client.get_provider_inbox(credentials.credentials)
     return ApiResponse(success=True, data=result)
+
+
+@router.post("/admin/notifications/customer/{user_id}", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_send_customer_notification(
+    user_id: int, data: Dict[str, Any] = Body(...), credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """管理员发送通知给客户"""
+    await verify_admin_token(credentials)
+    message = data.get("message")
+    if not message:
+        raise HTTPException(status_code=400, detail="Message is required")
+    result = await notification_client.admin_send_customer_notification(user_id, message, credentials.credentials)
+    return ApiResponse(success=True, data=result, message="Notification sent to customer")
+
+
+@router.post("/admin/notifications/provider/{user_id}", response_model=ApiResponse, dependencies=[Depends(apply_rate_limit)])
+async def admin_send_provider_notification(
+    user_id: int, data: Dict[str, Any] = Body(...), credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """管理员发送通知给服务商"""
+    await verify_admin_token(credentials)
+    message = data.get("message")
+    if not message:
+        raise HTTPException(status_code=400, detail="Message is required")
+    result = await notification_client.admin_send_provider_notification(user_id, message, credentials.credentials)
+    return ApiResponse(success=True, data=result, message="Notification sent to provider")
