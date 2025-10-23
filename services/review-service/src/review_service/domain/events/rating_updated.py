@@ -1,5 +1,7 @@
-from pydantic import BaseModel
 from datetime import datetime
+
+from pydantic import BaseModel
+
 
 class RatingUpdatedEvent(BaseModel):
     provider_id: int
@@ -8,6 +10,4 @@ class RatingUpdatedEvent(BaseModel):
     timestamp: datetime
 
     class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
+        json_encoders = {datetime: lambda v: v.isoformat()}

@@ -9,21 +9,17 @@ from ..services.payment_service import PaymentService
 
 router = APIRouter(prefix="/customer/payments", tags=["Payments"])
 
+
 @router.post("/pay", response_model=PayOrderResponse)
 async def pay_order(
     data: PayOrderRequest,
     credentials: HTTPAuthorizationCredentials = Depends(security),
     user_id: int = Depends(get_current_user_id),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """客户支付订单（模拟支付）"""
-    result = await PaymentService.pay_order(
-        db, user_id, data.order_id, credentials.credentials
-    )
-    
+    result = await PaymentService.pay_order(db, user_id, data.order_id, credentials.credentials)
+
     return PayOrderResponse(
-        payment_id=result["payment_id"],
-        order_id=result["order_id"],
-        amount=result["amount"],
-        message=result["message"]
+        payment_id=result["payment_id"], order_id=result["order_id"], amount=result["amount"], message=result["message"]
     )

@@ -1,6 +1,8 @@
-from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
+
+from pydantic import BaseModel
+
 
 class NotificationSentEvent(BaseModel):
     recipient_id: int
@@ -10,6 +12,4 @@ class NotificationSentEvent(BaseModel):
     timestamp: datetime
 
     class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
+        json_encoders = {datetime: lambda v: v.isoformat()}

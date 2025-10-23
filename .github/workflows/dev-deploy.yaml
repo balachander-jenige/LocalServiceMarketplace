@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - githubworkflows
+      - reid
     paths:
       - "gateway-service/**"
       - "services/**"

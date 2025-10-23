@@ -1,5 +1,7 @@
 import json
+
 from aio_pika import IncomingMessage
+
 
 async def handle_review_created(message: IncomingMessage):
     async with message.process():

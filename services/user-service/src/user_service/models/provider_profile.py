@@ -1,9 +1,12 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List
 from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel, Field
+
 
 class ProviderProfile(BaseModel):
     """服务商资料 MongoDB 模型"""
+
     user_id: int = Field(..., description="用户 ID（来自 Auth Service）")
     skills: List[str] = Field(default_factory=list, description="技能列表")
     experience_years: int = Field(default=0)
@@ -15,7 +18,7 @@ class ProviderProfile(BaseModel):
     total_reviews: int = Field(default=0, description="评价总数")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -26,6 +29,6 @@ class ProviderProfile(BaseModel):
                 "availability": "Full-time",
                 "portfolio": ["https://example.com/project1"],
                 "rating": 4.8,
-                "total_reviews": 20
+                "total_reviews": 20,
             }
         }
