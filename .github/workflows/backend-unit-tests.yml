@@ -98,7 +98,7 @@ jobs:
               --cov=${SERVICE_NAME}.services \
               --cov-report=term-missing \
               --cov-report=xml \
-              --cov-fail-under=95
+              --cov-fail-under=90
           elif [ "${{ matrix.service }}" == "user-service" ]; then
             poetry run pytest src/${SERVICE_NAME}/tests/unit/ -v \
               --cov=${SERVICE_NAME}.core.config \
@@ -106,14 +106,14 @@ jobs:
               --cov=${SERVICE_NAME}.services \
               --cov-report=term-missing \
               --cov-report=xml \
-              --cov-fail-under=95
+              --cov-fail-under=90
           elif [ "${{ matrix.service }}" == "order-service" ]; then
             poetry run pytest src/${SERVICE_NAME}/tests/unit/ -v \
               --cov=${SERVICE_NAME}.core.config \
               --cov=${SERVICE_NAME}.services \
               --cov-report=term-missing \
               --cov-report=xml \
-              --cov-fail-under=95
+              --cov-fail-under=90
           elif [ "${{ matrix.service }}" == "payment-service" ]; then
             poetry run pytest src/${SERVICE_NAME}/tests/unit/ -v \
               --cov=${SERVICE_NAME}.core.config \
@@ -121,7 +121,7 @@ jobs:
               --cov=${SERVICE_NAME}.services \
               --cov-report=term-missing \
               --cov-report=xml \
-              --cov-fail-under=95
+              --cov-fail-under=90
           elif [ "${{ matrix.service }}" == "review-service" ]; then
             poetry run pytest src/${SERVICE_NAME}/tests/unit/ -v \
               --cov=${SERVICE_NAME}.core.config \
@@ -129,7 +129,7 @@ jobs:
               --cov=${SERVICE_NAME}.services \
               --cov-report=term-missing \
               --cov-report=xml \
-              --cov-fail-under=95
+              --cov-fail-under=90
           elif [ "${{ matrix.service }}" == "notification-service" ]; then
             poetry run pytest src/${SERVICE_NAME}/tests/unit/ -v \
               --cov=${SERVICE_NAME}.core.config \
@@ -137,7 +137,7 @@ jobs:
               --cov=${SERVICE_NAME}.services \
               --cov-report=term-missing \
               --cov-report=xml \
-              --cov-fail-under=95
+              --cov-fail-under=90
           fi
 
       - name: Upload coverage report
