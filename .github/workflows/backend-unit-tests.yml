@@ -70,6 +70,14 @@ jobs:
 
       - name: Run unit tests with coverage
         working-directory: services/${{ matrix.service }}
+        env:
+          # 通用测试环境变量
+          DATABASE_URL: "mysql+aiomysql://test:test@localhost:3306/test_db"
+          MONGODB_URL: "mongodb://test:test@localhost:27017"
+          MONGODB_DATABASE: "test_db"
+          JWT_SECRET_KEY: "test-secret-key-for-ci"
+          LOCAL_RABBITMQ_URL: "amqp://guest:guest@localhost:5672/"
+          DOCKER_RABBITMQ_URL: "amqp://guest:guest@localhost:5672/"
         run: |
           SERVICE_NAME=$(echo "${{ matrix.service }}" | tr '-' '_')
           

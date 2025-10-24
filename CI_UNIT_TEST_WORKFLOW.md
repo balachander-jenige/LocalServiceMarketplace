@@ -71,15 +71,27 @@
 
 6. **安装依赖**
    ```bash
-   poetry install --no-interaction --no-root
+   poetry install --no-interaction
    ```
+   注意：不使用 `--no-root`，确保服务本身被安装为可导入的包
 
-7. **运行单元测试**
+7. **设置测试环境变量**
+   ```bash
+   DATABASE_URL: "mysql+aiomysql://test:test@localhost:3306/test_db"
+   MONGODB_URL: "mongodb://test:test@localhost:27017"
+   MONGODB_DATABASE: "test_db"
+   JWT_SECRET_KEY: "test-secret-key-for-ci"
+   LOCAL_RABBITMQ_URL: "amqp://guest:guest@localhost:5672/"
+   DOCKER_RABBITMQ_URL: "amqp://guest:guest@localhost:5672/"
+   ```
+   注意：这些是测试专用的环境变量，单元测试使用 mock，不会真正连接数据库
+
+8. **运行单元测试**
    - 自动根据服务选择正确的覆盖率配置
    - 生成终端报告和 XML 报告
    - **覆盖率要求: ≥ 95%**
 
-8. **上传覆盖率报告**
+9. **上传覆盖率报告**
    - 保存为 Artifacts
    - 保留 30 天
 
