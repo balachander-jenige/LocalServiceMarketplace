@@ -77,14 +77,27 @@
 
 7. **设置测试环境变量**
    ```bash
+   # Database URLs
    DATABASE_URL: "mysql+aiomysql://test:test@localhost:3306/test_db"
-   MONGODB_URL: "mongodb://test:test@localhost:27017"
-   MONGODB_DATABASE: "test_db"
+   MONGODB_URL: "mongodb://test:test@localhost:27017/test_db"
+   
+   # Message Queue & Cache
+   RABBITMQ_URL: "amqp://guest:guest@localhost:5672/"
+   REDIS_URL: "redis://localhost:6379/0"
+   
+   # Auth Service specific
    JWT_SECRET_KEY: "test-secret-key-for-ci"
    LOCAL_RABBITMQ_URL: "amqp://guest:guest@localhost:5672/"
    DOCKER_RABBITMQ_URL: "amqp://guest:guest@localhost:5672/"
+   
+   # Service URLs (for inter-service communication)
+   AUTH_SERVICE_URL: "http://localhost:8000"
+   USER_SERVICE_URL: "http://localhost:8002"
+   ORDER_SERVICE_URL: "http://localhost:8003"
+   PAYMENT_SERVICE_URL: "http://localhost:8004"
+   REVIEW_SERVICE_URL: "http://localhost:8005"
    ```
-   注意：这些是测试专用的环境变量，单元测试使用 mock，不会真正连接数据库
+   注意：这些是测试专用的环境变量，单元测试使用 mock，不会真正连接数据库或其他服务
 
 8. **运行单元测试**
    - 自动根据服务选择正确的覆盖率配置
