@@ -1,0 +1,162 @@
+name: Backend Unit Tests
+
+on:
+  push:
+    branches:
+      - reid
+    paths:
+      - 'services/**/*.py'
+      - 'gateway-service/**/*.py'
+      - 'shared/**/*.py'
+      - '.github/workflows/backend-unit-tests.yml'
+  
+  pull_request:
+    branches:
+      - reid
+    paths:
+      - 'services/**/*.py'
+      - 'gateway-service/**/*.py'
+      - 'shared/**/*.py'
+
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - auth-service
+          - user-service
+          - order-service
+          - payment-service
+          - review-service
+          - notification-service
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Configure Poetry
+        run: |
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: services/${{ matrix.service }}/.venv
+          key: poetry-${{ matrix.service }}-${{ runner.os }}-${{ hashFiles(format('services/{0}/pyproject.toml', matrix.service)) }}
+          restore-keys: |
+            poetry-${{ matrix.service }}-${{ runner.os }}-
+
+      - name: Install dependencies
+        working-directory: services/${{ matrix.service }}
+        run: |
+          poetry install --no-interaction --no-root
+
+      - name: Run unit tests with coverage
+        working-directory: services/${{ matrix.service }}
+        run: |
+          SERVICE_NAME=$(echo "${{ matrix.service }}" | tr '-' '_')
+          
+          # 根据不同服务使用不同的覆盖率配置
+          if [ "${{ matrix.service }}" == "auth-service" ]; then
+            poetry run pytest src/${SERVICE_NAME}/tests/unit/ -v \
+              --cov=${SERVICE_NAME}.core.security \
+              --cov=${SERVICE_NAME}.dao \
+              --cov=${SERVICE_NAME}.services \
+              --cov-report=term-missing \
+              --cov-report=xml \
+              --cov-fail-under=95
+          elif [ "${{ matrix.service }}" == "user-service" ]; then
+            poetry run pytest src/${SERVICE_NAME}/tests/unit/ -v \
+              --cov=${SERVICE_NAME}.core.config \
+              --cov=${SERVICE_NAME}.dao \
+              --cov=${SERVICE_NAME}.services \
+              --cov-report=term-missing \
+              --cov-report=xml \
+              --cov-fail-under=95
+          elif [ "${{ matrix.service }}" == "order-service" ]; then
+            poetry run pytest src/${SERVICE_NAME}/tests/unit/ -v \
+              --cov=${SERVICE_NAME}.core.config \
+              --cov=${SERVICE_NAME}.services \
+              --cov-report=term-missing \
+              --cov-report=xml \
+              --cov-fail-under=95
+          elif [ "${{ matrix.service }}" == "payment-service" ]; then
+            poetry run pytest src/${SERVICE_NAME}/tests/unit/ -v \
+              --cov=${SERVICE_NAME}.core.config \
+              --cov=${SERVICE_NAME}.dao.payment_dao \
+              --cov=${SERVICE_NAME}.services \
+              --cov-report=term-missing \
+              --cov-report=xml \
+              --cov-fail-under=95
+          elif [ "${{ matrix.service }}" == "review-service" ]; then
+            poetry run pytest src/${SERVICE_NAME}/tests/unit/ -v \
+              --cov=${SERVICE_NAME}.core.config \
+              --cov=${SERVICE_NAME}.dao \
+              --cov=${SERVICE_NAME}.services \
+              --cov-report=term-missing \
+              --cov-report=xml \
+              --cov-fail-under=95
+          elif [ "${{ matrix.service }}" == "notification-service" ]; then
+            poetry run pytest src/${SERVICE_NAME}/tests/unit/ -v \
+              --cov=${SERVICE_NAME}.core.config \
+              --cov=${SERVICE_NAME}.dao \
+              --cov=${SERVICE_NAME}.services \
+              --cov-report=term-missing \
+              --cov-report=xml \
+              --cov-fail-under=95
+          fi
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.service }}
+          path: services/${{ matrix.service }}/coverage.xml
+          retention-days: 30
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "✅ Unit tests completed for ${{ matrix.service }}!"
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    if: always()
+    
+    steps:
+      - name: Check test results
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  微服务单元测试执行完成"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "所有服务的单元测试已执行完毕"
+          echo "核心覆盖率要求: ≥ 95%"
+          echo ""
+          echo "查看详细报告请查看各个服务的 Artifacts"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: Verify all tests passed
+        if: needs.unit-tests.result != 'success'
+        run: |
+          echo "❌ 部分单元测试失败，请检查日志"
+          exit 1
