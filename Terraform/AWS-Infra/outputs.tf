@@ -1,0 +1,18 @@
+output "vpc_id" {
+  value = module.vpc.vpc_id
+}
+
+output "public_subnets" {
+  value = module.vpc.public_subnets
+}
+
+output "private_subnets" {
+  value = module.vpc.private_subnets
+}
+output "alb_dns_name" {
+  value = module.alb.alb_dns_name
+}
+
+output "target_sg_id" {
+  value = module.alb.target_security_group_id
+}

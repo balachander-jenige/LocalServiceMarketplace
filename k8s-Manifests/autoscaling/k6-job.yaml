@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k6-gateway-stress-test
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: k6
+          image: grafana/k6
+          command: ["k6", "run", "/scripts/gateway-k6-stress-test.js"]
+          volumeMounts:
+            - name: k6-script-volume
+              mountPath: /scripts
+      volumes:
+        - name: k6-script-volume
+          configMap:
+            name: gateway-stress-test-script
+  backoffLimit: 1

@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gateway-bombardier-load
+spec:
+  parallelism: 1
+  completions: 1
+  template:
+    spec:
+      containers:
+        - name: bombardier
+          image: alpine/bombardier
+          args:
+            - -c
+            - "10"
+            - -d
+            - 1m
+            - -l
+            - http://gateway-service:8081/health
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+      restartPolicy: Never
+  backoffLimit: 0
