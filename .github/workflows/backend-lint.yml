@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - reid
+      - dev
     paths:
       - 'services/**/*.py'
       - 'gateway-service/**/*.py'
@@ -13,6 +14,7 @@ on:
   pull_request:
     branches:
       - reid
+      - dev
     paths:
       - 'services/**/*.py'
       - 'gateway-service/**/*.py'
