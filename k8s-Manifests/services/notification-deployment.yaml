@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  labels:
+    app: notification-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+        version: v1
+    spec:
+      containers:
+        - name: notification-service
+          image: 539827877726.dkr.ecr.ap-southeast-1.amazonaws.com/freelancer-notification:latest
+          ports:
+            - containerPort: 8006
+          env:
+            - name: MONGODB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secrets
+                  key: mongodb-url
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-config
+                  key: redis-url
+            - name: RABBITMQ_URL
+              valueFrom:
+                secretKeyRef:
+                  name: notification-secrets
+                  key: rabbitmq-url
+            - name: AUTH_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-config
+                  key: auth-service-url
+            - name: USER_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-config
+                  key: user-service-url
+            - name: ORDER_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-config
+                  key: order-service-url
+            - name: PAYMENT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-config
+                  key: payment-service-url
+            - name: REVIEW_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-config
+                  key: review-service-url
+            - name: SERVICE_NAME
+              value: "notification-service"
+            - name: SERVICE_PORT
+              value: "8006"
+            - name: LOG_LEVEL
+              value: "INFO"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8006
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8006
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: false
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  labels:
+    app: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - name: http
+      port: 8006
+      targetPort: 8006
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notification-config
+data:
+  redis-url: "redis://redis-service:6379"
+  auth-service-url: "http://auth-service:8000"
+  user-service-url: "http://user-service:8002"
+  order-service-url: "http://order-service:8003"
+  payment-service-url: "http://payment-service:8004"
+  review-service-url: "http://review-service:8005"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: notification-secrets
+type: Opaque
+data:
+  # Base64 encoded values - replace with actual values
+  # MongoDB Atlas: mongodb+srv://freelancer:Password123@freelancer-cluster.rhf5ws4.mongodb.net/notification_db?retryWrites=true&w=majority&appName=freelancer-cluster
+  mongodb-url: bW9uZ29kYitzcnY6Ly9mcmVlbGFuY2VyOlBhc3N3b3JkMTIzQGZyZWVsYW5jZXItY2x1c3Rlci5yaGY1d3M0Lm1vbmdvZGIubmV0L25vdGlmaWNhdGlvbl9kYj9yZXRyeVdyaXRlcz10cnVlJnc9bWFqb3JpdHkmYXBwTmFtZT1mcmVlbGFuY2VyLWNsdXN0ZXIK
+  # amqp://guest:guest@rabbitmq-service:5672/
+  rabbitmq-url: YW1xcDovL2d1ZXN0Omd1ZXN0QHJhYmJpdG1xLXNlcnZpY2U6NTY3Mi8=

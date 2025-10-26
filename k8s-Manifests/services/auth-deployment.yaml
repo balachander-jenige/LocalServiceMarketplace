@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  labels:
+    app: auth-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+        version: v1
+    spec:
+      containers:
+        - name: auth-service
+          image: 539827877726.dkr.ecr.ap-southeast-1.amazonaws.com/freelancer-auth:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: database-url
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: jwt-secret-key
+            - name: LOCAL_RABBITMQ_URL
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: rabbitmq-url
+            - name: DOCKER_RABBITMQ_URL
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: rabbitmq-url
+            - name: JWT_ALGORITHM
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-config
+                  key: jwt-algorithm
+            - name: ACCESS_TOKEN_EXPIRE_MINUTES
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-config
+                  key: access-token-expire-minutes
+            - name: SERVICE_NAME
+              value: "auth-service"
+            - name: SERVICE_PORT
+              value: "8000"
+            - name: LOG_LEVEL
+              value: "INFO"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: false
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  labels:
+    app: auth-service
+spec:
+  selector:
+    app: auth-service
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-config
+data:
+  jwt-algorithm: "HS256"
+  access-token-expire-minutes: "30"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: auth-secrets
+type: Opaque
+data:
+  # Base64 encoded values - replace with actual values
+  # AWS RDS MySQL: mysql+aiomysql://freelancer:password123@freelancer-db.c1ie6ii2q3oy.ap-southeast-1.rds.amazonaws.com:3306/auth_db
+  database-url: bXlzcWwrYWlvbXlzcWw6Ly9mcmVlbGFuY2VyOnBhc3N3b3JkMTIzQGZyZWVsYW5jZXItZGIuYzFpZTZpaTJxM285LmFwLXNvdXRoZWFzcC0xLnJkcy5hbWF6b25hd3MuY29tOjMzMDYvYXV0aF9kYg==
+  jwt-secret-key: YXV0aC1zZXJ2aWNlLXNlY3JldC1rZXktMjAyNQ==
+  rabbitmq-url: YW1xcDovL2d1ZXN0Omd1ZXN0QHJhYmJpdG1xLXNlcnZpY2U6NTY3Mi8=
