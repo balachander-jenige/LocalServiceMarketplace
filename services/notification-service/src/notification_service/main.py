@@ -15,7 +15,7 @@ from .messaging.rabbitmq_client import rabbitmq_client
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
-    # 启动时连接数据库和消息队列
+    # 启动时连接数据库和消息队列.
     await connect_to_mongo()
     await connect_to_redis()
     await rabbitmq_client.connect()
