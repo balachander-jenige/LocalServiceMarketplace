@@ -21,7 +21,7 @@ class ReviewService:
         review = Review(**review_data)
         created_review = await self.review_dao.create(review)
 
-        # 发布评价创建事件
+        # 发布评价创建事件.
         review_event = ReviewCreatedEvent(
             review_id=str(created_review.order_id),  # MongoDB没有自增ID，用order_id代替
             order_id=created_review.order_id,

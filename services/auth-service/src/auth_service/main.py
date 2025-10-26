@@ -12,7 +12,7 @@ from .messaging.rabbitmq_client import rabbitmq_client
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
-    # 启动时创建数据库表
+    # 启动时创建数据库表.
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 

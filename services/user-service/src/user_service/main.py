@@ -14,7 +14,7 @@ from .messaging.rabbitmq_client import rabbitmq_client
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
-    # 启动时连接 MongoDB
+    # 启动时连接 MongoDB.
     await connect_to_mongo()
 
     # 连接 RabbitMQ 并开始消费事件

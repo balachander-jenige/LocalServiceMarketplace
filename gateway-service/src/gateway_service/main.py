@@ -9,7 +9,7 @@ from .api.routes import router
 from .core.config import settings
 from .dto.response_dto import ErrorResponse
 
-# 配置日志
+# 配置日志.
 logging.basicConfig(level=settings.LOG_LEVEL)
 logger = logging.getLogger(__name__)
 
