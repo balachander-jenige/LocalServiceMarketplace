@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class OrderRejectedEvent(BaseModel):
-    """订单审批拒绝事件"""
+    """Order审批RejectEvent"""
 
     order_id: int
     customer_id: int

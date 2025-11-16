@@ -4,13 +4,13 @@ from pydantic import BaseModel
 
 
 class PayOrderRequest(BaseModel):
-    """支付订单请求"""
+    """PaymentOrder请求"""
 
     order_id: int
 
 
 class PayOrderResponse(BaseModel):
-    """支付订单响应（简化版）"""
+    """PaymentOrder响应（简化版）"""
 
     payment_id: int
     order_id: int
@@ -19,7 +19,7 @@ class PayOrderResponse(BaseModel):
 
 
 class PaymentDetail(BaseModel):
-    """支付详情"""
+    """PaymentDetails"""
 
     id: int
     order_id: int

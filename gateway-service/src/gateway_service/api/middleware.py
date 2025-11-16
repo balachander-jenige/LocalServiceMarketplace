@@ -10,14 +10,14 @@ security = HTTPBearer()
 
 
 async def verify_auth_token(credentials: HTTPAuthorizationCredentials) -> dict:
-    """验证 JWT Token"""
+    """Verify JWT Token"""
     if not credentials:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing authentication token")
     return verify_token(credentials.credentials)
 
 
 async def verify_admin_token(credentials: HTTPAuthorizationCredentials) -> dict:
-    """验证 JWT Token 并确保是 admin 角色"""
+    """Verify JWT Token And确保是 admin Role"""
     if not credentials:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing authentication token")
     return verify_admin_role(credentials.credentials)

@@ -14,7 +14,7 @@ router = APIRouter(prefix="/provider/profile", tags=["Provider Profile"])
 async def create_provider_profile(
     data: ProviderProfileCreate, user_id: int = Depends(get_current_user_id), db=Depends(get_database)
 ):
-    """创建服务商资料"""
+    """CreateProviderProfile"""
     service = ProviderProfileService(db)
     profile = await service.create_profile(
         user_id=user_id,
@@ -28,7 +28,7 @@ async def create_provider_profile(
 
 @router.get("/me", response_model=ProviderProfileResponse)
 async def get_my_provider_profile(user_id: int = Depends(get_current_user_id), db=Depends(get_database)):
-    """获取当前用户的服务商资料"""
+    """Get Current User的ProviderProfile"""
     service = ProviderProfileService(db)
     profile = await service.get_profile(user_id)
     return ProviderProfileResponse(**profile.model_dump())
@@ -38,7 +38,7 @@ async def get_my_provider_profile(user_id: int = Depends(get_current_user_id), d
 async def update_my_provider_profile(
     data: ProviderProfileUpdate, user_id: int = Depends(get_current_user_id), db=Depends(get_database)
 ):
-    """更新当前用户的服务商资料"""
+    """UpdateCurrentUser的ProviderProfile"""
     service = ProviderProfileService(db)
     profile = await service.update_profile(user_id=user_id, update_data=data.model_dump(exclude_unset=True))
     return ProviderProfileResponse(**profile.model_dump())
@@ -52,7 +52,7 @@ async def search_providers(
     limit: int = Query(default=20, ge=1, le=100),
     db=Depends(get_database),
 ):
-    """搜索服务商"""
+    """SearchProvider"""
     service = ProviderProfileService(db)
     profiles = await service.search_providers(
         skills=skills, min_rating=min_rating, max_hourly_rate=max_hourly_rate, limit=limit
@@ -62,7 +62,7 @@ async def search_providers(
 
 @router.get("/{user_id}", response_model=ProviderProfileResponse)
 async def get_provider_profile_by_id(user_id: int, db=Depends(get_database)):
-    """根据用户 ID 获取服务商资料（公开接口）"""
+    """ByUser ID GetProviderProfile（公开接口）"""
     service = ProviderProfileService(db)
     profile = await service.get_profile(user_id)
     return ProviderProfileResponse(**profile.model_dump())

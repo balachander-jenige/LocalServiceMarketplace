@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class PaymentCompletedEvent(BaseModel):
-    """支付完成事件"""
+    """Payment Completed Event"""
 
     payment_id: int
     order_id: int

@@ -13,11 +13,11 @@ from user_service.models.customer_profile import CustomerProfile
 
 
 class TestCustomerProfileDAOCreate:
-    """测试 CustomerProfileDAO.create"""
+    """Test CustomerProfileDAO.create"""
 
     @pytest.mark.asyncio
     async def test_create_success(self, mock_mongo_db, sample_customer_profile):
-        """测试创建客户资料成功"""
+        """TestCreateCustomerProfileSuccess"""
         dao = CustomerProfileDAO(mock_mongo_db)
 
         # Mock insert_one
@@ -25,7 +25,7 @@ class TestCustomerProfileDAOCreate:
 
         result = await dao.create(sample_customer_profile)
 
-        # 验证
+        # Verify
         assert result == sample_customer_profile
         mock_mongo_db["customer_profiles"].insert_one.assert_awaited_once()
         call_args = mock_mongo_db["customer_profiles"].insert_one.call_args[0][0]
@@ -34,7 +34,7 @@ class TestCustomerProfileDAOCreate:
 
     @pytest.mark.asyncio
     async def test_create_with_all_fields(self, mock_mongo_db):
-        """测试创建包含所有字段的资料"""
+        """TestCreateContainsAllFields的Profile"""
         dao = CustomerProfileDAO(mock_mongo_db)
 
         profile = CustomerProfile(
@@ -55,14 +55,14 @@ class TestCustomerProfileDAOCreate:
 
 
 class TestCustomerProfileDAOGet:
-    """测试 CustomerProfileDAO.get_by_user_id"""
+    """Test CustomerProfileDAO.get_by_user_id"""
 
     @pytest.mark.asyncio
     async def test_get_by_user_id_success(self, mock_mongo_db):
-        """测试查询成功"""
+        """TestQuerySuccess"""
         dao = CustomerProfileDAO(mock_mongo_db)
 
-        # Mock find_one返回文档
+        # Mock find_oneReturn文档
         mock_doc = {
             "_id": "mock_id",
             "user_id": 1,
@@ -76,17 +76,17 @@ class TestCustomerProfileDAOGet:
 
         result = await dao.get_by_user_id(1)
 
-        # 验证
+        # Verify
         assert result is not None
         assert result.user_id == 1
         assert result.location == "NORTH"
         assert result.address == "123 Test St"
-        assert "_id" not in result.model_dump()  # 验证_id被移除
+        assert "_id" not in result.model_dump()  # Verify_id被移除
         mock_mongo_db["customer_profiles"].find_one.assert_awaited_once_with({"user_id": 1})
 
     @pytest.mark.asyncio
     async def test_get_by_user_id_not_found(self, mock_mongo_db):
-        """测试查询不存在的资料"""
+        """TestQueryDoes Not Exist的Profile"""
         dao = CustomerProfileDAO(mock_mongo_db)
 
         mock_mongo_db["customer_profiles"].find_one = AsyncMock(return_value=None)
@@ -98,7 +98,7 @@ class TestCustomerProfileDAOGet:
 
     @pytest.mark.asyncio
     async def test_get_removes_mongodb_id(self, mock_mongo_db):
-        """测试返回结果移除MongoDB _id字段"""
+        """TestReturnResult移除MongoDB _idFields"""
         dao = CustomerProfileDAO(mock_mongo_db)
 
         mock_doc = {
@@ -114,18 +114,18 @@ class TestCustomerProfileDAOGet:
 
         result = await dao.get_by_user_id(1)
 
-        # 验证_id不在模型中
+        # Verify_id不在Model中
         assert result is not None
         result_dict = result.model_dump()
         assert "_id" not in result_dict
 
 
 class TestCustomerProfileDAOUpdate:
-    """测试 CustomerProfileDAO.update"""
+    """Test CustomerProfileDAO.update"""
 
     @pytest.mark.asyncio
     async def test_update_success(self, mock_mongo_db, mocker):
-        """测试更新成功"""
+        """TestUpdateSuccess"""
         dao = CustomerProfileDAO(mock_mongo_db)
 
         # Mock update_one
@@ -133,7 +133,7 @@ class TestCustomerProfileDAOUpdate:
         mock_result.modified_count = 1
         mock_mongo_db["customer_profiles"].update_one = AsyncMock(return_value=mock_result)
 
-        # Mock get_by_user_id (被update调用)
+        # Mock get_by_user_id (被updateCall)
         updated_profile = CustomerProfile(
             user_id=1,
             location="SOUTH",
@@ -147,12 +147,12 @@ class TestCustomerProfileDAOUpdate:
         update_data = {"location": "SOUTH", "address": "456 New St"}
         result = await dao.update(1, update_data)
 
-        # 验证
+        # Verify
         assert result is not None
         assert result.location == "SOUTH"
         assert result.address == "456 New St"
 
-        # 验证update_one被调用
+        # Verifyupdate_oneBe Called
         mock_mongo_db["customer_profiles"].update_one.assert_awaited_once()
         call_args = mock_mongo_db["customer_profiles"].update_one.call_args
         assert call_args[0][0] == {"user_id": 1}
@@ -160,10 +160,10 @@ class TestCustomerProfileDAOUpdate:
 
     @pytest.mark.asyncio
     async def test_update_not_found(self, mock_mongo_db, mocker):
-        """测试更新不存在的资料"""
+        """TestUpdateDoes Not Exist的Profile"""
         dao = CustomerProfileDAO(mock_mongo_db)
 
-        # Mock update_one返回0
+        # Mock update_oneReturn0
         mock_result = MagicMock()
         mock_result.modified_count = 0
         mock_mongo_db["customer_profiles"].update_one = AsyncMock(return_value=mock_result)
@@ -175,7 +175,7 @@ class TestCustomerProfileDAOUpdate:
 
     @pytest.mark.asyncio
     async def test_update_adds_timestamp(self, mock_mongo_db, mocker):
-        """测试更新自动添加updated_at时间戳"""
+        """TestUpdate自动添加updated_atWhen间戳"""
         dao = CustomerProfileDAO(mock_mongo_db)
 
         mock_result = MagicMock()
@@ -198,18 +198,18 @@ class TestCustomerProfileDAOUpdate:
         update_data = {"location": "SOUTH"}
         await dao.update(1, update_data)
 
-        # 验证$set包含updated_at
+        # Verify$setContainsupdated_at
         call_args = mock_mongo_db["customer_profiles"].update_one.call_args[0][1]["$set"]
         assert "updated_at" in call_args
         assert isinstance(call_args["updated_at"], datetime)
 
 
 class TestCustomerProfileDAODelete:
-    """测试 CustomerProfileDAO.delete"""
+    """Test CustomerProfileDAO.delete"""
 
     @pytest.mark.asyncio
     async def test_delete_success(self, mock_mongo_db):
-        """测试删除成功"""
+        """TestDeleteSuccess"""
         dao = CustomerProfileDAO(mock_mongo_db)
 
         # Mock delete_one
@@ -224,7 +224,7 @@ class TestCustomerProfileDAODelete:
 
     @pytest.mark.asyncio
     async def test_delete_not_found(self, mock_mongo_db):
-        """测试删除不存在的资料"""
+        """TestDeleteDoes Not Exist的Profile"""
         dao = CustomerProfileDAO(mock_mongo_db)
 
         mock_result = MagicMock()

@@ -9,49 +9,49 @@ class UserClient(BaseClient):
         super().__init__(settings.USER_SERVICE_URL)
 
     async def get_customer_profile(self, token: str) -> Dict[str, Any]:
-        """获取客户资料"""
+        """GetCustomerProfile"""
         return await self._make_request("GET", "/customer/profile/me", token=token)
 
     async def get_provider_profile(self, token: str) -> Dict[str, Any]:
-        """获取服务商资料"""
+        """GetProviderProfile"""
         return await self._make_request("GET", "/provider/profile/me", token=token)
 
     async def update_customer_profile(self, token: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """更新客户资料"""
+        """UpdateCustomerProfile"""
         return await self._make_request("PUT", "/customer/profile/me", token=token, json_data=data)
 
     async def update_provider_profile(self, token: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """更新服务商资料"""
+        """UpdateProviderProfile"""
         return await self._make_request("PUT", "/provider/profile/me", token=token, json_data=data)
 
     async def create_customer_profile(self, token: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """创建客户资料"""
+        """CreateCustomerProfile"""
         return await self._make_request("POST", "/customer/profile/", token=token, json_data=data)
 
     async def create_provider_profile(self, token: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """创建服务商资料"""
+        """CreateProviderProfile"""
         return await self._make_request("POST", "/provider/profile/", token=token, json_data=data)
 
     async def get_user_by_id(self, user_id: int, token: str) -> Dict[str, Any]:
-        """根据ID获取用户信息"""
+        """ByIDGet User Information"""
         return await self._make_request("GET", f"/users/{user_id}", token=token)
 
     # ==================== Admin User Management ====================
     async def get_all_users(self, token: str, role_id: Optional[int] = None) -> Dict[str, Any]:
-        """管理员获取所有用户（可按角色过滤）"""
+        """AdminGetAllUser（CanByRoleFilter）"""
         params = {"role_id": role_id} if role_id else {}
         return await self._make_request("GET", "/admin/users", token=token, params=params)
 
     async def get_user_detail_admin(self, user_id: int, token: str) -> Dict[str, Any]:
-        """管理员获取用户详情"""
+        """AdminGet User Details"""
         return await self._make_request("GET", f"/admin/users/{user_id}", token=token)
 
     async def update_user_admin(self, user_id: int, token: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """管理员更新用户信息"""
+        """AdminUpdate User Information"""
         return await self._make_request("PUT", f"/admin/users/{user_id}", token=token, json_data=data)
 
     async def delete_user_admin(self, user_id: int, token: str) -> Dict[str, Any]:
-        """管理员删除用户"""
+        """AdminDelete User"""
         return await self._make_request("DELETE", f"/admin/users/{user_id}", token=token)
 
 

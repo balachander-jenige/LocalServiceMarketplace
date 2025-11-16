@@ -8,7 +8,7 @@ from .config import settings
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """创建访问 Token"""
+    """Create访问 Token"""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
@@ -21,7 +21,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 
 def verify_token(token: str) -> dict:
-    """验证并解析 Token"""
+    """VerifyAnd解析 Token"""
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id: int = payload.get("sub")
@@ -33,11 +33,11 @@ def verify_token(token: str) -> dict:
 
 
 def verify_admin_role(token: str) -> dict:
-    """验证 Token 并确保用户是 admin 角色"""
+    """Verify Token And确保User是 admin Role"""
     payload = verify_token(token)
     role_id = payload.get("role")
 
-    if role_id != 3:  # 3 是 admin 角色 ID
+    if role_id != 3:  # 3 是 admin Role ID
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied: Admin role required")
 
     return payload

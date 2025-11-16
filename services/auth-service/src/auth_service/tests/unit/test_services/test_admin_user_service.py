@@ -11,11 +11,11 @@ from auth_service.services.admin_user_service import AdminUserService
 
 
 class TestAdminUserServiceGetAllUsers:
-    """测试获取所有用户列表"""
+    """TestGet All Users List"""
 
     @pytest.mark.asyncio
     async def test_get_all_users_success(self, mock_db_session):
-        """测试获取所有用户成功"""
+        """TestGetAllUserSuccess"""
         # Arrange
         mock_user1 = MagicMock()
         mock_user1.id = 1
@@ -44,7 +44,7 @@ class TestAdminUserServiceGetAllUsers:
 
     @pytest.mark.asyncio
     async def test_get_all_users_with_role_filter(self, mock_db_session):
-        """测试按角色过滤用户"""
+        """TestByRoleFilterUser"""
         # Arrange
         mock_user = MagicMock()
         mock_user.id = 1
@@ -63,7 +63,7 @@ class TestAdminUserServiceGetAllUsers:
 
     @pytest.mark.asyncio
     async def test_get_all_users_empty_list(self, mock_db_session):
-        """测试获取空用户列表"""
+        """TestGetEmptyUserList"""
         # Arrange
         with patch("auth_service.services.admin_user_service.UserDAO.get_all_users") as mock_get_all:
             mock_get_all.return_value = []
@@ -77,11 +77,11 @@ class TestAdminUserServiceGetAllUsers:
 
 
 class TestAdminUserServiceGetUserById:
-    """测试获取用户详情"""
+    """TestGet User Details"""
 
     @pytest.mark.asyncio
     async def test_get_user_by_id_success(self, mock_db_session, mock_user_object):
-        """测试成功获取用户详情"""
+        """TestSuccessGet User Details"""
         # Arrange
         with patch("auth_service.services.admin_user_service.UserDAO.get_user_by_id") as mock_get:
             mock_get.return_value = mock_user_object
@@ -95,7 +95,7 @@ class TestAdminUserServiceGetUserById:
 
     @pytest.mark.asyncio
     async def test_get_user_by_id_not_found(self, mock_db_session):
-        """测试用户不存在时抛出404异常"""
+        """TestUserDoes Not ExistWhenThrow404Exception"""
         # Arrange
         with patch("auth_service.services.admin_user_service.UserDAO.get_user_by_id") as mock_get:
             mock_get.return_value = None
@@ -109,11 +109,11 @@ class TestAdminUserServiceGetUserById:
 
 
 class TestAdminUserServiceUpdateUser:
-    """测试更新用户信息"""
+    """TestUpdate User Information"""
 
     @pytest.mark.asyncio
     async def test_update_user_success(self, mock_db_session):
-        """测试成功更新用户信息"""
+        """TestSuccessUpdate User Information"""
         # Arrange
         mock_updated_user = MagicMock()
         mock_updated_user.id = 1
@@ -137,7 +137,7 @@ class TestAdminUserServiceUpdateUser:
 
     @pytest.mark.asyncio
     async def test_update_user_with_role_id(self, mock_db_session):
-        """测试更新用户角色"""
+        """TestUpdateUserRole"""
         # Arrange
         mock_role = MagicMock()
         mock_role.id = 2
@@ -163,7 +163,7 @@ class TestAdminUserServiceUpdateUser:
 
     @pytest.mark.asyncio
     async def test_update_user_invalid_role_id(self, mock_db_session):
-        """测试使用无效的角色ID更新用户"""
+        """Test使用No效的RoleIDUpdateUser"""
         # Arrange
         with patch("auth_service.services.admin_user_service.RoleDAO.get_role_by_id") as mock_get_role:
             mock_get_role.return_value = None
@@ -177,7 +177,7 @@ class TestAdminUserServiceUpdateUser:
 
     @pytest.mark.asyncio
     async def test_update_user_not_found(self, mock_db_session):
-        """测试更新不存在的用户"""
+        """TestUpdateDoes Not Exist的User"""
         # Arrange
         with patch("auth_service.services.admin_user_service.UserDAO.update_user") as mock_update:
             mock_update.return_value = None
@@ -191,7 +191,7 @@ class TestAdminUserServiceUpdateUser:
 
     @pytest.mark.asyncio
     async def test_update_user_only_username(self, mock_db_session):
-        """测试只更新用户名"""
+        """TestOnly UpdateUserName"""
         # Arrange
         mock_updated_user = MagicMock()
         mock_updated_user.username = "new_username"
@@ -208,7 +208,7 @@ class TestAdminUserServiceUpdateUser:
 
     @pytest.mark.asyncio
     async def test_update_user_only_email(self, mock_db_session):
-        """测试只更新邮箱"""
+        """TestOnly UpdateEmail"""
         # Arrange
         mock_updated_user = MagicMock()
         mock_updated_user.email = "new@test.com"
@@ -225,11 +225,11 @@ class TestAdminUserServiceUpdateUser:
 
 
 class TestAdminUserServiceDeleteUser:
-    """测试删除用户"""
+    """TestDelete User"""
 
     @pytest.mark.asyncio
     async def test_delete_user_success(self, mock_db_session):
-        """测试成功删除用户"""
+        """TestSuccessDelete User"""
         # Arrange
         with patch("auth_service.services.admin_user_service.UserDAO.delete_user") as mock_delete:
             mock_delete.return_value = True
@@ -243,7 +243,7 @@ class TestAdminUserServiceDeleteUser:
 
     @pytest.mark.asyncio
     async def test_delete_user_not_found(self, mock_db_session):
-        """测试删除不存在的用户"""
+        """TestDeleteDoes Not Exist的User"""
         # Arrange
         with patch("auth_service.services.admin_user_service.UserDAO.delete_user") as mock_delete:
             mock_delete.return_value = False

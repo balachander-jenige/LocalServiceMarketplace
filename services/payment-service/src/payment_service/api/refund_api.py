@@ -13,7 +13,7 @@ router = APIRouter(prefix="/customer/refunds", tags=["Refunds"])
 async def process_refund(
     data: RefundRequest, user_id: int = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)
 ):
-    """申请退款"""
+    """申请Refund"""
     result = await RefundService.process_refund(db, user_id, data.order_id, data.reason)
 
     return RefundResponse(

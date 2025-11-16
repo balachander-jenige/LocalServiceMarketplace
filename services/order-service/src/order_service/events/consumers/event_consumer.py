@@ -3,10 +3,10 @@ from ..handlers.payment_event_handler import handle_payment_completed
 
 
 async def start_consuming():
-    """开始消费事件"""
+    """Start Consuming Events"""
     await rabbitmq_client.connect()
 
-    # 监听支付完成事件
+    # Listen ToPayment Completed Event
     await rabbitmq_client.consume_events(
         exchange_name="payment_events", routing_key="payment.completed", callback=handle_payment_completed
     )

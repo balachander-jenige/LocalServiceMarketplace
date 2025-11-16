@@ -14,8 +14,8 @@ from .messaging.rabbitmq_client import rabbitmq_client
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期管理"""
-    # 启动时连接数据库和消息队列.
+    """Application Lifecycle Management"""
+    # 启动WhenConnectionDatabaseAndMessage队列.
     await connect_to_mongo()
     await connect_to_redis()
     await rabbitmq_client.connect()
@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # 关闭时清理资源
+    # Clean up resources on shutdown
     await rabbitmq_client.close()
     await close_redis_connection()
     await close_mongo_connection()
@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.SERVICE_NAME, version="1.0.0", lifespan=lifespan)
 
-# CORS 中间件
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -40,7 +40,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 注册路由
+# Register Routes
 app.include_router(customer_inbox_api.router)
 app.include_router(provider_inbox_api.router)
 app.include_router(admin_notification_api.router)
@@ -48,5 +48,5 @@ app.include_router(admin_notification_api.router)
 
 @app.get("/health")
 async def health_check():
-    """健康检查"""
+    """Health Check"""
     return {"status": "healthy", "service": settings.SERVICE_NAME, "version": "1.0.0"}

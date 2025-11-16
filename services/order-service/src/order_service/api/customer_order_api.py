@@ -15,7 +15,7 @@ router = APIRouter(prefix="/customer/orders", tags=["Customer Orders"])
 async def publish_order(
     data: PublishOrderRequest, user_id: int = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)
 ):
-    """发布订单 - 状态为 pending_review,需等待管理员审核"""
+    """PublishOrder - Status为 pending_review,需等待Admin审核"""
     order = await CustomerOrderService.publish_order(
         db=db,
         customer_id=user_id,
@@ -36,7 +36,7 @@ async def publish_order(
 
 @router.post("/cancel/{order_id}", response_model=CancelOrderResponse)
 async def cancel_order(order_id: int, user_id: int = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)):
-    """取消订单"""
+    """Cancel Order"""
     order = await CustomerOrderService.cancel_order(db, user_id, order_id)
 
     return CancelOrderResponse(
@@ -46,7 +46,7 @@ async def cancel_order(order_id: int, user_id: int = Depends(get_current_user_id
 
 @router.get("/my", response_model=List[OrderDetail])
 async def get_my_orders(user_id: int = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)):
-    """获取我的订单（进行中）"""
+    """Get我的Order（进行中）"""
     orders = await CustomerOrderService.get_my_orders(db, user_id)
 
     return [
@@ -75,7 +75,7 @@ async def get_my_orders(user_id: int = Depends(get_current_user_id), db: AsyncSe
 async def get_order_detail(
     order_id: int, user_id: int = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)
 ):
-    """获取订单详情"""
+    """Get Order Details"""
     order = await CustomerOrderService.get_order_detail(db, user_id, order_id)
 
     return OrderDetail(
@@ -99,7 +99,7 @@ async def get_order_detail(
 
 @router.get("/history", response_model=List[OrderDetail])
 async def get_order_history(user_id: int = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)):
-    """获取订单历史"""
+    """GetOrder历史"""
     orders = await CustomerOrderService.get_order_history(db, user_id)
 
     return [

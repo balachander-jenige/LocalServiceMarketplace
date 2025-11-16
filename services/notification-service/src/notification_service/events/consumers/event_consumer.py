@@ -12,10 +12,10 @@ from ..handlers.review_event_handler import handle_review_created
 
 
 async def start_consuming():
-    """开始消费所有事件"""
+    """开始ConsumeAllEvent"""
     await rabbitmq_client.connect()
 
-    # 监听订单事件
+    # Listen ToOrderEvent
     await rabbitmq_client.consume_events(
         exchange_name="order_events", routing_key="order.created", callback=handle_order_created
     )
@@ -35,7 +35,7 @@ async def start_consuming():
         exchange_name="order_events", routing_key="order.rejected", callback=handle_order_rejected
     )
 
-    # 监听支付事件
+    # Listen ToPaymentEvent
     await rabbitmq_client.consume_events(
         exchange_name="payment_events", routing_key="payment.completed", callback=handle_payment_completed
     )
@@ -43,7 +43,7 @@ async def start_consuming():
         exchange_name="payment_events", routing_key="payment.failed", callback=handle_payment_failed
     )
 
-    # 监听评价事件
+    # Listen To评价Event
     await rabbitmq_client.consume_events(
         exchange_name="review_events", routing_key="review.created", callback=handle_review_created
     )

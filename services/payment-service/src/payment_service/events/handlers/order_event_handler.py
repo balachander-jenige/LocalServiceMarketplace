@@ -13,5 +13,5 @@ async def handle_order_completed(message: IncomingMessage):
         order_id = data.get("order_id")
 
         print(f"✅ Received order completed event for order {order_id}")
-        # TODO: 可以在这里实现自动支付逻辑
+        # TODO: Can以在这里实现自动PaymentLogic
         # TODO: Can implement auto-payment logic here

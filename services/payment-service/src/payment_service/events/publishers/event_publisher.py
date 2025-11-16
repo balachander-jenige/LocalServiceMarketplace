@@ -5,25 +5,25 @@ from ...messaging.rabbitmq_client import rabbitmq_client
 
 
 class EventPublisher:
-    """事件发布器"""
+    """Event Publisher"""
 
     @staticmethod
     async def publish_payment_initiated(event: PaymentInitiatedEvent):
-        """发布支付发起事件"""
+        """PublishPayment发起Event"""
         await rabbitmq_client.publish_event(
             exchange_name="payment_events", routing_key="payment.initiated", message=event.model_dump_json()
         )
 
     @staticmethod
     async def publish_payment_completed(event: PaymentCompletedEvent):
-        """发布支付完成事件"""
+        """Publish Payment Completed Event"""
         await rabbitmq_client.publish_event(
             exchange_name="payment_events", routing_key="payment.completed", message=event.model_dump_json()
         )
 
     @staticmethod
     async def publish_payment_failed(event: PaymentFailedEvent):
-        """发布支付失败事件"""
+        """Publish Payment Failed Event"""
         await rabbitmq_client.publish_event(
             exchange_name="payment_events", routing_key="payment.failed", message=event.model_dump_json()
         )

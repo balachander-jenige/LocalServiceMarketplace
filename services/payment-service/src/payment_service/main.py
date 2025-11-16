@@ -13,25 +13,25 @@ from .messaging.rabbitmq_client import rabbitmq_client
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期管理"""
-    # 启动时创建数据库表.
+    """Application Lifecycle Management"""
+    # Create database tables on startup.
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    # 连接 RabbitMQ 并开始消费事件
+    # Connect RabbitMQ AndStart Consuming Events
     await rabbitmq_client.connect()
     asyncio.create_task(start_consuming())
 
     yield
 
-    # 关闭时清理资源
+    # Clean up resources on shutdown
     await rabbitmq_client.close()
     await engine.dispose()
 
 
 app = FastAPI(title=settings.SERVICE_NAME, version="1.0.0", lifespan=lifespan)
 
-# CORS 中间件
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -40,11 +40,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 注册路由
+# Register Routes
 app.include_router(payment_api.router)
 
 
 @app.get("/health")
 async def health_check():
-    """健康检查"""
+    """Health Check"""
     return {"status": "healthy", "service": settings.SERVICE_NAME, "version": "1.0.0"}

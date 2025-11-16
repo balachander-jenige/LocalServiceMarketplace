@@ -7,11 +7,11 @@ from ..models.user import User
 
 
 class UserDAO:
-    """用户数据访问对象"""
+    """UserData Access Object"""
 
     @staticmethod
     async def create_user(db: AsyncSession, username: str, email: str, password_hash: str, role_id: int) -> User:
-        """创建用户"""
+        """Create User"""
         from datetime import UTC, datetime
 
         user = User(
@@ -36,18 +36,18 @@ class UserDAO:
 
     @staticmethod
     async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
-        """根据邮箱获取用户"""
+        """ByEmailGetUser"""
         result = await db.execute(select(User).where(User.email == email))
         return result.scalars().first()
 
     @staticmethod
     async def get_user_by_id(db: AsyncSession, user_id: int) -> User | None:
-        """根据 ID 获取用户"""
+        """By ID GetUser"""
         return await db.get(User, user_id)
 
     @staticmethod
     async def delete_user_by_username(db: AsyncSession, username: str) -> bool:
-        """根据用户名删除用户"""
+        """ByUserNameDelete User"""
         from sqlalchemy import delete as sql_delete
 
         result = await db.execute(select(User).where(User.username == username))
@@ -61,7 +61,7 @@ class UserDAO:
 
     @staticmethod
     async def get_all_users(db: AsyncSession, role_id: int = None) -> list[User]:
-        """获取所有用户（管理员）"""
+        """GetAllUser（Admin）"""
         query = select(User)
 
         if role_id is not None:
@@ -75,7 +75,7 @@ class UserDAO:
     async def update_user(
         db: AsyncSession, user_id: int, username: str = None, email: str = None, role_id: int = None
     ) -> User | None:
-        """更新用户信息（管理员）"""
+        """Update User Information（Admin）"""
         from datetime import UTC, datetime
 
         user = await db.get(User, user_id)
@@ -102,7 +102,7 @@ class UserDAO:
 
     @staticmethod
     async def delete_user(db: AsyncSession, user_id: int) -> bool:
-        """删除用户（管理员）"""
+        """Delete User（Admin）"""
         from sqlalchemy import delete as sql_delete
 
         user = await db.get(User, user_id)

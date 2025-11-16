@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class AdminUserService:
-    """管理员用户管理服务"""
+    """Admin User Management Service"""
 
     def __init__(self, db):
         self.db = db
@@ -21,10 +21,10 @@ class AdminUserService:
         self.provider_dao = ProviderProfileDAO(db)
 
     async def get_all_users(self, role_filter: Optional[int] = None) -> List[dict]:
-        """获取所有用户列表（可按角色过滤）"""
+        """Get All Users List（CanByRoleFilter）"""
         try:
             async with httpx.AsyncClient() as client:
-                # 调用 Auth Service 获取用户列表
+                # Call Auth Service GetUserList
                 url = f"{settings.AUTH_SERVICE_URL}/admin/users"
                 params = {"role_id": role_filter} if role_filter else {}
 
@@ -33,7 +33,7 @@ class AdminUserService:
                 if response.status_code == 200:
                     users = response.json()
 
-                    # 为每个用户添加 profile 状态
+                    # 为每个User添加 profile Status
                     result = []
                     for user in users:
                         user_data = {
@@ -58,10 +58,10 @@ class AdminUserService:
             )
 
     async def get_user_detail(self, user_id: int) -> dict:
-        """获取用户详情（包含 Profile 信息）"""
+        """Get User Details（Contains Profile Information）"""
         try:
             async with httpx.AsyncClient() as client:
-                # 调用 Auth Service 获取用户基本信息
+                # Call Auth Service GetUser基本Information
                 url = f"{settings.AUTH_SERVICE_URL}/admin/users/{user_id}"
                 response = await client.get(url, timeout=10.0)
 
@@ -75,14 +75,14 @@ class AdminUserService:
 
                 user = response.json()
 
-                # 获取用户的 Profile
+                # GetUser的 Profile
                 profile = None
                 if user["role_id"] == 1:  # Customer
                     customer_profile = await self.customer_dao.get_by_user_id(user_id)
                     if customer_profile:
                         profile = customer_profile.model_dump(mode="json")
                     else:
-                        # 返回默认的 Customer Profile 结构
+                        # Return默认的 Customer Profile 结构
                         profile = {
                             "user_id": user_id,
                             "location": "NORTH",
@@ -96,7 +96,7 @@ class AdminUserService:
                     if provider_profile:
                         profile = provider_profile.model_dump(mode="json")
                     else:
-                        # 返回默认的 Provider Profile 结构
+                        # Return默认的 Provider Profile 结构
                         profile = {
                             "user_id": user_id,
                             "skills": [],
@@ -125,10 +125,10 @@ class AdminUserService:
             )
 
     async def update_user(self, user_id: int, update_data: UpdateUserRequest) -> Optional[dict]:
-        """更新用户信息和 Profile"""
+        """Update User InformationAnd Profile"""
         try:
             async with httpx.AsyncClient() as client:
-                # 1. 更新 Auth Service 的用户字段（username, email, role_id）
+                # 1. Update Auth Service 的UserFields（username, email, role_id）
                 auth_fields = {}
                 if update_data.username is not None:
                     auth_fields["username"] = update_data.username
@@ -146,7 +146,7 @@ class AdminUserService:
                             status_code=response.status_code, detail="Failed to update user in Auth Service"
                         )
 
-                # 2. 获取用户当前角色，确定更新哪个 Profile
+                # 2. GetUserCurrentRole，确定Update哪个 Profile
                 url = f"{settings.AUTH_SERVICE_URL}/admin/users/{user_id}"
                 response = await client.get(url, timeout=10.0)
 
@@ -161,9 +161,9 @@ class AdminUserService:
                 user_info = response.json()
                 current_role_id = user_info.get("role_id")
 
-                # 3. 根据角色更新对应的 Profile
+                # 3. ByRoleUpdate对应的 Profile
                 if current_role_id == 1:  # Customer
-                    # 提取 Customer Profile 字段
+                    # 提取 Customer Profile Fields
                     customer_fields = {}
                     if update_data.location is not None:
                         customer_fields["location"] = update_data.location
@@ -172,7 +172,7 @@ class AdminUserService:
                     if update_data.budget_preference is not None:
                         customer_fields["budget_preference"] = update_data.budget_preference
 
-                    # 更新 Customer Profile
+                    # Update Customer Profile
                     if customer_fields:
                         customer_profile = await self.customer_dao.get_by_user_id(user_id)
                         if customer_profile:
@@ -184,7 +184,7 @@ class AdminUserService:
                             logger.warning(f"Customer Profile 不存在: user_id={user_id}")
 
                 elif current_role_id == 2:  # Provider
-                    # 提取 Provider Profile 字段
+                    # 提取 Provider Profile Fields
                     provider_fields = {}
                     if update_data.skills is not None:
                         provider_fields["skills"] = update_data.skills
@@ -197,7 +197,7 @@ class AdminUserService:
                     if update_data.portfolio is not None:
                         provider_fields["portfolio"] = update_data.portfolio
 
-                    # 更新 Provider Profile
+                    # Update Provider Profile
                     if provider_fields:
                         provider_profile = await self.provider_dao.get_by_user_id(user_id)
                         if provider_profile:
@@ -208,7 +208,7 @@ class AdminUserService:
                         else:
                             logger.warning(f"Provider Profile 不存在: user_id={user_id}")
 
-                # 4. 返回更新后的完整用户信息
+                # 4. ReturnUpdate后的完整UserInformation
                 return await self.get_user_detail(user_id)
 
         except HTTPException:
@@ -220,9 +220,9 @@ class AdminUserService:
             )
 
     async def delete_user(self, user_id: int) -> bool:
-        """删除用户（包括 Profile）"""
+        """Delete User（Including Profile）"""
         try:
-            # 1. 先删除用户的 Profile
+            # 1. FirstDelete User的 Profile
             customer_profile = await self.customer_dao.get_by_user_id(user_id)
             if customer_profile:
                 await self.customer_dao.delete(user_id)
@@ -231,7 +231,7 @@ class AdminUserService:
             if provider_profile:
                 await self.provider_dao.delete(user_id)
 
-            # 2. 调用 Auth Service 删除用户
+            # 2. Call Auth Service Delete User
             async with httpx.AsyncClient() as client:
                 url = f"{settings.AUTH_SERVICE_URL}/admin/users/{user_id}"
                 response = await client.delete(url, timeout=10.0)
@@ -249,7 +249,7 @@ class AdminUserService:
             )
 
     async def _check_profile_exists(self, user_id: int, role_id: int) -> bool:
-        """检查用户是否有 Profile"""
+        """CheckUser是否With Profile"""
         if role_id == 1:  # Customer
             profile = await self.customer_dao.get_by_user_id(user_id)
             return profile is not None
@@ -260,6 +260,6 @@ class AdminUserService:
 
     @staticmethod
     def _get_role_name(role_id: int) -> str:
-        """获取角色名称"""
+        """GetRoleName称"""
         role_names = {1: "customer", 2: "provider", 3: "admin"}
         return role_names.get(role_id, "unknown")

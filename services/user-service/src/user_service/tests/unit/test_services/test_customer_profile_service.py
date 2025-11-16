@@ -13,11 +13,11 @@ from user_service.services.customer_profile_service import CustomerProfileServic
 
 
 class TestCustomerProfileServiceCreate:
-    """测试 CustomerProfileService.create_profile"""
+    """Test CustomerProfileService.create_profile"""
 
     @pytest.mark.asyncio
     async def test_create_profile_success(self, mock_mongo_db, mock_event_publisher, mocker):
-        """测试创建客户资料成功"""
+        """TestCreateCustomerProfileSuccess"""
         # Arrange
         service = CustomerProfileService(mock_mongo_db)
 
@@ -42,7 +42,7 @@ class TestCustomerProfileServiceCreate:
 
     @pytest.mark.asyncio
     async def test_create_profile_already_exists(self, mock_mongo_db, mock_event_publisher, mocker):
-        """测试创建已存在的客户资料"""
+        """TestCreateAlready ExistingCustomerProfile"""
         # Arrange
         service = CustomerProfileService(mock_mongo_db)
         existing_profile = MagicMock()
@@ -58,7 +58,7 @@ class TestCustomerProfileServiceCreate:
 
     @pytest.mark.asyncio
     async def test_create_profile_with_minimal_data(self, mock_mongo_db, mock_event_publisher, mocker):
-        """测试只提供必需字段创建资料"""
+        """TestOnly Provide Required FieldsCreateProfile"""
         service = CustomerProfileService(mock_mongo_db)
 
         mock_profile = MagicMock()
@@ -79,7 +79,7 @@ class TestCustomerProfileServiceCreate:
 
     @pytest.mark.asyncio
     async def test_create_profile_publishes_event(self, mock_mongo_db, mocker):
-        """测试创建资料发布事件"""
+        """TestCreateProfilePublish Event"""
         service = CustomerProfileService(mock_mongo_db)
 
         mock_profile = MagicMock()
@@ -99,11 +99,11 @@ class TestCustomerProfileServiceCreate:
 
 
 class TestCustomerProfileServiceGet:
-    """测试 CustomerProfileService.get_profile"""
+    """Test CustomerProfileService.get_profile"""
 
     @pytest.mark.asyncio
     async def test_get_profile_success(self, mock_mongo_db, mocker):
-        """测试获取客户资料成功"""
+        """TestGetCustomerProfileSuccess"""
         service = CustomerProfileService(mock_mongo_db)
 
         mock_profile = MagicMock()
@@ -117,7 +117,7 @@ class TestCustomerProfileServiceGet:
 
     @pytest.mark.asyncio
     async def test_get_profile_not_found(self, mock_mongo_db, mocker):
-        """测试获取不存在的客户资料"""
+        """TestGetDoes Not Exist的CustomerProfile"""
         service = CustomerProfileService(mock_mongo_db)
 
         mocker.patch.object(service.dao, "get_by_user_id", return_value=None)
@@ -130,11 +130,11 @@ class TestCustomerProfileServiceGet:
 
 
 class TestCustomerProfileServiceUpdate:
-    """测试 CustomerProfileService.update_profile"""
+    """Test CustomerProfileService.update_profile"""
 
     @pytest.mark.asyncio
     async def test_update_profile_success(self, mock_mongo_db, mock_event_publisher, mocker):
-        """测试更新客户资料成功"""
+        """TestUpdateCustomerProfileSuccess"""
         service = CustomerProfileService(mock_mongo_db)
 
         mock_updated_profile = MagicMock()
@@ -151,7 +151,7 @@ class TestCustomerProfileServiceUpdate:
 
     @pytest.mark.asyncio
     async def test_update_profile_not_found(self, mock_mongo_db, mock_event_publisher, mocker):
-        """测试更新不存在的资料"""
+        """TestUpdateDoes Not Exist的Profile"""
         service = CustomerProfileService(mock_mongo_db)
 
         mocker.patch.object(service.dao, "update", return_value=None)
@@ -163,7 +163,7 @@ class TestCustomerProfileServiceUpdate:
 
     @pytest.mark.asyncio
     async def test_update_profile_empty_data(self, mock_mongo_db, mock_event_publisher):
-        """测试提供空数据更新"""
+        """TestProvideEmptyDataUpdate"""
         service = CustomerProfileService(mock_mongo_db)
 
         with pytest.raises(HTTPException) as exc_info:
@@ -174,7 +174,7 @@ class TestCustomerProfileServiceUpdate:
 
     @pytest.mark.asyncio
     async def test_update_profile_filters_none_values(self, mock_mongo_db, mock_event_publisher, mocker):
-        """测试过滤None值"""
+        """TestFilter None Values"""
         service = CustomerProfileService(mock_mongo_db)
 
         mock_profile = MagicMock()
@@ -183,13 +183,13 @@ class TestCustomerProfileServiceUpdate:
         update_data = {"address": "New Address", "budget_preference": None, "location": None}
         await service.update_profile(user_id=1, update_data=update_data)
 
-        # 验证只传递了非None的值
+        # VerifyOnly Passed Non-NoneValue
         call_args = service.dao.update.call_args[0]
         assert call_args[1] == {"address": "New Address"}
 
     @pytest.mark.asyncio
     async def test_update_profile_publishes_event(self, mock_mongo_db, mocker):
-        """测试更新资料发布事件"""
+        """TestUpdateProfilePublish Event"""
         service = CustomerProfileService(mock_mongo_db)
 
         mock_profile = MagicMock()

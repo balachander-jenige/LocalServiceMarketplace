@@ -14,8 +14,8 @@ router = APIRouter(prefix="/admin/users", tags=["admin-users"])
 async def get_all_users(
     role_id: Optional[int] = None, current_user_id: int = Depends(get_current_user_id), db=Depends(get_database)
 ):
-    """获取所有用户列表（管理员）"""
-    # 注意: Gateway 层会验证管理员权限
+    """Get All Users List（Admin）"""
+    # Note: Gateway 层会VerifyAdminPermission
     service = AdminUserService(db)
     users = await service.get_all_users(role_id)
     return users
@@ -23,7 +23,7 @@ async def get_all_users(
 
 @router.get("/{user_id}", response_model=UserDetailAdmin)
 async def get_user_detail(user_id: int, current_user_id: int = Depends(get_current_user_id), db=Depends(get_database)):
-    """获取用户详情（管理员）"""
+    """Get User Details（Admin）"""
     service = AdminUserService(db)
     user = await service.get_user_detail(user_id)
     return user
@@ -36,7 +36,7 @@ async def update_user(
     current_user_id: int = Depends(get_current_user_id),
     db=Depends(get_database),
 ):
-    """更新用户信息（管理员），包括 Profile 字段"""
+    """Update User Information（Admin），Including Profile Fields"""
     service = AdminUserService(db)
     user = await service.update_user(user_id, request)
     return user
@@ -44,7 +44,7 @@ async def update_user(
 
 @router.delete("/{user_id}", response_model=DeleteUserResponse)
 async def delete_user(user_id: int, current_user_id: int = Depends(get_current_user_id), db=Depends(get_database)):
-    """删除用户（管理员）"""
+    """Delete User（Admin）"""
     service = AdminUserService(db)
     success = await service.delete_user(user_id)
 

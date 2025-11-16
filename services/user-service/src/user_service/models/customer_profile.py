@@ -14,13 +14,13 @@ class LocationEnum(str, Enum):
 
 
 class CustomerProfile(BaseModel):
-    """客户资料 MongoDB 模型"""
+    """CustomerProfile MongoDB Model"""
 
     user_id: int = Field(..., description="用户 ID（来自 Auth Service）")
     location: LocationEnum = Field(default=LocationEnum.NORTH)
     address: Optional[str] = None
     budget_preference: float = Field(default=0.0)
-    # balance 字段已删除 - 第三阶段修改
+    # balance Field Removed - Phase 3 Modification
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

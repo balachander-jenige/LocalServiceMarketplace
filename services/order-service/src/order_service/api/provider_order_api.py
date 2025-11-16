@@ -24,7 +24,7 @@ async def browse_available_orders(
     keyword: Optional[str] = Query(default=None, description="Search keyword in title or description"),
     db: AsyncSession = Depends(get_db),
 ):
-    """浏览可用订单 - 支持按地点、服务类型、价格范围和关键词筛选"""
+    """浏览Can用Order - 支持By地点、Service类型、价格范围And关键词筛选"""
     orders = await ProviderOrderService.list_available_orders(
         db=db,
         location=location,
@@ -58,7 +58,7 @@ async def browse_available_orders(
 
 @router.get("/available/{order_id}", response_model=OrderDetail)
 async def get_available_order_detail(order_id: int, db: AsyncSession = Depends(get_db)):
-    """获取可接单订单的详情"""
+    """GetCan接单Order的Details"""
     order = await ProviderOrderService.get_available_order_detail(db, order_id)
 
     return OrderDetail(
@@ -82,7 +82,7 @@ async def get_available_order_detail(order_id: int, db: AsyncSession = Depends(g
 
 @router.post("/accept/{order_id}", response_model=AcceptOrderResponse)
 async def accept_order(order_id: int, user_id: int = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)):
-    """接受订单"""
+    """Accept Order"""
     order = await ProviderOrderService.accept_order(db, user_id, order_id)
 
     return AcceptOrderResponse(
@@ -97,7 +97,7 @@ async def update_order_status(
     user_id: int = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),
 ):
-    """更新订单状态"""
+    """Update Order Status"""
     order = await ProviderOrderService.update_order_status(db, user_id, order_id, data.new_status)
 
     return UpdateStatusResponse(
@@ -109,7 +109,7 @@ async def update_order_status(
 
 @router.get("/history", response_model=List[OrderDetail])
 async def get_order_history(user_id: int = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)):
-    """获取订单历史"""
+    """GetOrder历史"""
     orders = await ProviderOrderService.get_order_history(db, user_id)
 
     return [
@@ -138,7 +138,7 @@ async def get_order_history(user_id: int = Depends(get_current_user_id), db: Asy
 async def get_order_detail(
     order_id: int, user_id: int = Depends(get_current_user_id), db: AsyncSession = Depends(get_db)
 ):
-    """获取订单详情"""
+    """Get Order Details"""
     order = await ProviderOrderService.get_order_detail(db, user_id, order_id)
 
     return OrderDetail(

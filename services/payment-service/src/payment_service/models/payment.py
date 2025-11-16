@@ -13,7 +13,7 @@ class PaymentStatus(enum.Enum):
 
 
 class PaymentMethod(enum.Enum):
-    simulated = "simulated"  # 模拟支付（简化后的支付方式）
+    simulated = "simulated"  # MockPayment（简化后的Payment方式）
 
 
 class Payment(Base):
@@ -34,6 +34,6 @@ class Payment(Base):
         default=PaymentStatus.pending,
         nullable=False,
     )
-    transaction_id = Column(String(255), unique=True)  # 交易流水号
+    transaction_id = Column(String(255), unique=True)  # Transaction流水号
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(UTC))
     updated_at = Column(TIMESTAMP, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))

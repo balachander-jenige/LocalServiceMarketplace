@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class ProfileUpdatedEvent(BaseModel):
-    """用户资料更新事件"""
+    """UserProfileUpdateEvent"""
 
     user_id: int
     profile_type: str  # "customer" or "provider"

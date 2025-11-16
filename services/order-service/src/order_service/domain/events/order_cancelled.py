@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class OrderCancelledEvent(BaseModel):
-    """订单取消事件"""
+    """Order Cancelled Event"""
 
     order_id: int
     customer_id: int

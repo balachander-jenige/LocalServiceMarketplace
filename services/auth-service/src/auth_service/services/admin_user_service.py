@@ -9,16 +9,16 @@ from ..models.user import User
 
 
 class AdminUserService:
-    """管理员用户管理服务"""
+    """Admin User Management Service"""
 
     @staticmethod
     async def get_all_users(db: AsyncSession, role_id: Optional[int] = None) -> List[User]:
-        """获取所有用户列表"""
+        """Get All Users List"""
         return await UserDAO.get_all_users(db, role_id)
 
     @staticmethod
     async def get_user_by_id(db: AsyncSession, user_id: int) -> User:
-        """获取用户详情"""
+        """Get User Details"""
         user = await UserDAO.get_user_by_id(db, user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -32,8 +32,8 @@ class AdminUserService:
         email: Optional[str] = None,
         role_id: Optional[int] = None,
     ) -> User:
-        """更新用户信息"""
-        # 验证 role_id 是否有效
+        """Update User Information"""
+        # Validate if role_id is valid
         if role_id is not None:
             role = await RoleDAO.get_role_by_id(db, role_id)
             if not role:
@@ -48,7 +48,7 @@ class AdminUserService:
 
     @staticmethod
     async def delete_user(db: AsyncSession, user_id: int) -> bool:
-        """删除用户"""
+        """Delete User"""
         success = await UserDAO.delete_user(db, user_id)
         if not success:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

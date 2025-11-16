@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class PaymentFailedEvent(BaseModel):
-    """支付失败事件"""
+    """Payment Failed Event"""
 
     payment_id: int
     order_id: int

@@ -15,13 +15,13 @@ from ..models.transaction import TransactionType
 
 
 class PaymentService:
-    """支付服务（简化版 - 模拟支付）"""
+    """Payment Service（简化版 - MockPayment）"""
 
     @staticmethod
     async def pay_order(db: AsyncSession, user_id: int, order_id: int, token: str) -> dict:
-        """客户支付订单（模拟支付，无需余额）"""
+        """CustomerPaymentOrder（MockPayment，No需余额）"""
 
-        # 1. 调用 Order Service 获取订单信息
+        # 1. Call Order Service GetOrderInformation
         async with httpx.AsyncClient() as client:
             order_response = await client.get(
                 f"{settings.ORDER_SERVICE_URL}/customer/orders/my/{order_id}",
@@ -35,7 +35,7 @@ class PaymentService:
 
             order = order_response.json()
 
-        # 2. 验证订单状态：只有当订单状态是 completed 且支付状态是 unpaid 时才能支付
+        # 2. VerifyOrderStatus：OnlyWith当OrderStatus是 completed 且PaymentStatus是 unpaid When才能Payment
         if order["status"] != "completed":
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="订单未完成，无法支付 / Order not completed, cannot pay"
@@ -47,14 +47,14 @@ class PaymentService:
                 detail="订单不可支付，支付状态必须为 unpaid / Order cannot be paid, payment status must be unpaid",
             )
 
-        # 3. 检查是否已存在支付记录
+        # 3. Check是否AlreadyExistsPayment记录
         existing_payment = await PaymentDAO.get_payment_by_order_id(db, order_id)
         if existing_payment and existing_payment.status == PaymentStatus.completed:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="订单已支付 / Order already paid")
 
         order_price = float(order["price"])
 
-        # 4. 创建支付记录（使用模拟支付方式）
+        # 4. Create Payment记录（使用MockPayment方式）
         payment = await PaymentDAO.create_payment(
             db=db,
             order_id=order_id,
@@ -64,7 +64,7 @@ class PaymentService:
             payment_method=PaymentMethod.simulated,
         )
 
-        # 5. 发布支付发起事件
+        # 5. PublishPayment发起Event
         await EventPublisher.publish_payment_initiated(
             PaymentInitiatedEvent(
                 payment_id=payment.id,
@@ -75,10 +75,10 @@ class PaymentService:
             )
         )
 
-        # 6. 模拟支付成功 - 更新支付状态为已完成
+        # 6. MockPaymentSuccess - UpdatePaymentStatus为AlreadyComplete
         await PaymentDAO.update_payment_status(db, payment.id, PaymentStatus.completed)
 
-        # 7. 创建交易记录（不含余额信息）
+        # 7. CreateTransaction记录（不含余额Information）
         await TransactionDAO.create_transaction(
             db=db,
             user_id=user_id,
@@ -88,7 +88,7 @@ class PaymentService:
             description=f"支付订单 {order_id}（模拟支付）",
         )
 
-        # 8. 发布支付完成事件
+        # 8. Publish Payment Completed Event
         await EventPublisher.publish_payment_completed(
             PaymentCompletedEvent(
                 payment_id=payment.id,

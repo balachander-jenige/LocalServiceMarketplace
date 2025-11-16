@@ -10,7 +10,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
-    """用户注册"""
+    """User Registration"""
     user = await AuthService.register(
         db=db, username=data.username, email=data.email, password=data.password, role_id=data.role_id
     )
@@ -19,21 +19,21 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
-    """用户登录"""
+    """User Login"""
     token = await AuthService.login(db, data.email, data.password)
     return TokenResponse(access_token=token)
 
 
 @router.post("/logout")
 async def logout():
-    """用户登出"""
+    """User Logout"""
     return {"msg": "Logout successful"}
 
 
 @router.post("/admin/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 async def register_admin(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
-    """管理员注册 (role_id 必须为 3)"""
-    # 强制设置 role_id 为 3 (admin)
+    """Admin Registration (role_id must be 3)"""
+    # Force set role_id to 3 (admin)
     if data.role_id != 3:
         from fastapi import HTTPException
 

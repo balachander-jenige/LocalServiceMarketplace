@@ -11,11 +11,11 @@ from auth_service.services.user_service import UserService
 
 
 class TestUserServiceGetUserById:
-    """测试获取用户信息"""
+    """TestGet User Information"""
 
     @pytest.mark.asyncio
     async def test_get_user_by_id_success(self, mock_db_session, mock_user_object):
-        """测试成功获取用户信息"""
+        """TestSuccessGet User Information"""
         # Arrange
         with patch("auth_service.services.user_service.UserDAO.get_user_by_id") as mock_get:
             mock_get.return_value = mock_user_object
@@ -32,7 +32,7 @@ class TestUserServiceGetUserById:
 
     @pytest.mark.asyncio
     async def test_get_user_by_id_not_found(self, mock_db_session):
-        """测试用户不存在时抛出404异常"""
+        """TestUserDoes Not ExistWhenThrow404Exception"""
         # Arrange
         with patch("auth_service.services.user_service.UserDAO.get_user_by_id") as mock_get:
             mock_get.return_value = None
@@ -47,7 +47,7 @@ class TestUserServiceGetUserById:
 
     @pytest.mark.asyncio
     async def test_get_user_by_id_with_different_users(self, mock_db_session):
-        """测试获取不同角色的用户"""
+        """TestGetDifferentRole的User"""
         # Arrange - Customer
         mock_customer = MagicMock()
         mock_customer.id = 1

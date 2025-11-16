@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class CustomerProfileCreate(BaseModel):
-    """创建客户资料请求"""
+    """CreateCustomerProfile请求"""
 
     location: str = "NORTH"
     address: Optional[str] = None
@@ -13,22 +13,22 @@ class CustomerProfileCreate(BaseModel):
 
 
 class CustomerProfileUpdate(BaseModel):
-    """更新客户资料请求"""
+    """UpdateCustomerProfile请求"""
 
     location: Optional[str] = None
     address: Optional[str] = None
     budget_preference: Optional[float] = None
-    # balance 字段已删除 - 第三阶段修改
+    # balance Field Removed - Phase 3 Modification
 
 
 class CustomerProfileResponse(BaseModel):
-    """客户资料响应"""
+    """CustomerProfile响应"""
 
     user_id: int
     location: str
     address: Optional[str]
     budget_preference: float
-    # balance 字段已删除 - 第三阶段修改
+    # balance Field Removed - Phase 3 Modification
     created_at: datetime
     updated_at: datetime
 

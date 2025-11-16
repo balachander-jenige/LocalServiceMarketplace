@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class ProfileCreatedEvent(BaseModel):
-    """用户资料创建事件"""
+    """UserProfileCreateEvent"""
 
     user_id: int
     profile_type: str  # "customer" or "provider"

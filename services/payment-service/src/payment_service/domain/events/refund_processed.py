@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class RefundProcessedEvent(BaseModel):
-    """退款处理完成事件"""
+    """RefundHandleCompleteEvent"""
 
     refund_id: int
     order_id: int

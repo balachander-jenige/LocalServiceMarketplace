@@ -7,7 +7,7 @@ from ..core.database import Base
 
 
 class OrderStatus(enum.Enum):
-    pending_review = "pending_review"  # 新增:待审核状态
+    pending_review = "pending_review"  # 新增:待审核Status
     pending = "pending"
     accepted = "accepted"
     in_progress = "in_progress"
@@ -22,7 +22,7 @@ class PaymentStatus(enum.Enum):
 
 
 class ServiceType(enum.Enum):
-    """服务类型枚举"""
+    """Service类型枚举"""
 
     CLEANING_REPAIR = "cleaning_repair"  # 清洁与维修
     IT_TECHNOLOGY = "it_technology"  # IT与技术
@@ -50,18 +50,18 @@ class Order(Base):
     description = Column(Text)
     service_type = Column(
         Enum(ServiceType, values_callable=lambda obj: [e.value for e in obj]), nullable=False, index=True
-    )  # 新增:服务类型
+    )  # 新增:Service类型
     status = Column(
         Enum(OrderStatus, values_callable=lambda obj: [e.value for e in obj]),
         default=OrderStatus.pending_review,
         nullable=False,
         index=True,
-    )  # 修改默认状态为 pending_review
+    )  # 修改默认Status为 pending_review
     price = Column(DECIMAL(10, 2), nullable=False)
     location = Column(Enum(LocationEnum, values_callable=lambda obj: [e.value for e in obj]), nullable=False)
     address = Column(String(255))
-    service_start_time = Column(DateTime, nullable=True)  # 新增:服务开始时间
-    service_end_time = Column(DateTime, nullable=True)  # 新增:服务结束时间
+    service_start_time = Column(DateTime, nullable=True)  # 新增:Service开始When间
+    service_end_time = Column(DateTime, nullable=True)  # 新增:Service结束When间
     payment_status = Column(
         Enum(PaymentStatus, values_callable=lambda obj: [e.value for e in obj]),
         default=PaymentStatus.unpaid,

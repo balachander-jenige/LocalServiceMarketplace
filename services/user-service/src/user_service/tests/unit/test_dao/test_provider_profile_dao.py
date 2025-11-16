@@ -13,11 +13,11 @@ from user_service.models.provider_profile import ProviderProfile
 
 
 class TestProviderProfileDAOCreate:
-    """测试 ProviderProfileDAO.create"""
+    """Test ProviderProfileDAO.create"""
 
     @pytest.mark.asyncio
     async def test_create_success(self, mock_mongo_db, sample_provider_profile):
-        """测试创建服务商资料成功"""
+        """TestCreateProviderProfileSuccess"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_mongo_db["provider_profiles"].insert_one = AsyncMock()
@@ -32,7 +32,7 @@ class TestProviderProfileDAOCreate:
 
     @pytest.mark.asyncio
     async def test_create_with_all_fields(self, mock_mongo_db):
-        """测试创建包含所有字段的服务商资料"""
+        """TestCreateContainsAllFields的ProviderProfile"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         profile = ProviderProfile(
@@ -58,11 +58,11 @@ class TestProviderProfileDAOCreate:
 
 
 class TestProviderProfileDAOGet:
-    """测试 ProviderProfileDAO.get_by_user_id"""
+    """Test ProviderProfileDAO.get_by_user_id"""
 
     @pytest.mark.asyncio
     async def test_get_by_user_id_success(self, mock_mongo_db):
-        """测试查询服务商资料成功"""
+        """TestQueryProviderProfileSuccess"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_doc = {
@@ -91,7 +91,7 @@ class TestProviderProfileDAOGet:
 
     @pytest.mark.asyncio
     async def test_get_by_user_id_not_found(self, mock_mongo_db):
-        """测试查询不存在的服务商资料"""
+        """TestQueryDoes Not Exist的ProviderProfile"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_mongo_db["provider_profiles"].find_one = AsyncMock(return_value=None)
@@ -102,7 +102,7 @@ class TestProviderProfileDAOGet:
 
     @pytest.mark.asyncio
     async def test_get_removes_mongodb_id(self, mock_mongo_db):
-        """测试返回结果移除MongoDB _id字段"""
+        """TestReturnResult移除MongoDB _idFields"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_doc = {
@@ -127,11 +127,11 @@ class TestProviderProfileDAOGet:
 
 
 class TestProviderProfileDAOUpdate:
-    """测试 ProviderProfileDAO.update"""
+    """Test ProviderProfileDAO.update"""
 
     @pytest.mark.asyncio
     async def test_update_success(self, mock_mongo_db, mocker):
-        """测试更新服务商资料成功"""
+        """TestUpdateProviderProfileSuccess"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_result = MagicMock()
@@ -166,7 +166,7 @@ class TestProviderProfileDAOUpdate:
 
     @pytest.mark.asyncio
     async def test_update_not_found(self, mock_mongo_db):
-        """测试更新不存在的资料"""
+        """TestUpdateDoes Not Exist的Profile"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_result = MagicMock()
@@ -179,7 +179,7 @@ class TestProviderProfileDAOUpdate:
 
     @pytest.mark.asyncio
     async def test_update_adds_timestamp(self, mock_mongo_db, mocker):
-        """测试更新自动添加updated_at时间戳"""
+        """TestUpdate自动添加updated_atWhen间戳"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_result = MagicMock()
@@ -212,11 +212,11 @@ class TestProviderProfileDAOUpdate:
 
 
 class TestProviderProfileDAODelete:
-    """测试 ProviderProfileDAO.delete"""
+    """Test ProviderProfileDAO.delete"""
 
     @pytest.mark.asyncio
     async def test_delete_success(self, mock_mongo_db):
-        """测试删除成功"""
+        """TestDeleteSuccess"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_result = MagicMock()
@@ -230,7 +230,7 @@ class TestProviderProfileDAODelete:
 
     @pytest.mark.asyncio
     async def test_delete_not_found(self, mock_mongo_db):
-        """测试删除不存在的资料"""
+        """TestDeleteDoes Not Exist的Profile"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_result = MagicMock()
@@ -243,11 +243,11 @@ class TestProviderProfileDAODelete:
 
 
 class TestProviderProfileDAOSearch:
-    """测试 ProviderProfileDAO.search_providers (复杂查询)"""
+    """Test ProviderProfileDAO.search_providers (复杂Query)"""
 
     @pytest.mark.asyncio
     async def test_search_no_filters(self, mock_mongo_db):
-        """测试无过滤条件搜索"""
+        """TestNoFilter条件Search"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         # Mock cursor
@@ -290,12 +290,12 @@ class TestProviderProfileDAOSearch:
         assert len(result) == 2
         assert result[0].user_id == 2
         assert result[1].user_id == 3
-        # 验证调用find({})
+        # VerifyCallfind({})
         mock_mongo_db["provider_profiles"].find.assert_called_once_with({})
 
     @pytest.mark.asyncio
     async def test_search_with_skills_filter(self, mock_mongo_db):
-        """测试按技能搜索"""
+        """TestBySkillsSearch"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_docs = [
@@ -323,13 +323,13 @@ class TestProviderProfileDAOSearch:
 
         assert len(result) == 1
         assert result[0].skills == ["Python", "FastAPI"]
-        # 验证查询条件
+        # VerifyQuery条件
         call_args = mock_mongo_db["provider_profiles"].find.call_args[0][0]
         assert call_args == {"skills": {"$in": ["Python", "FastAPI"]}}
 
     @pytest.mark.asyncio
     async def test_search_with_min_rating_filter(self, mock_mongo_db):
-        """测试按最低评分过滤"""
+        """TestBy最低RatingFilter"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_docs = []
@@ -340,13 +340,13 @@ class TestProviderProfileDAOSearch:
 
         await dao.search_providers(min_rating=4.5)
 
-        # 验证查询条件包含$gte
+        # VerifyQuery条件Contains$gte
         call_args = mock_mongo_db["provider_profiles"].find.call_args[0][0]
         assert call_args == {"rating": {"$gte": 4.5}}
 
     @pytest.mark.asyncio
     async def test_search_with_max_hourly_rate_filter(self, mock_mongo_db):
-        """测试按时薪上限过滤"""
+        """TestByHourly Rate上限Filter"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_docs = []
@@ -357,13 +357,13 @@ class TestProviderProfileDAOSearch:
 
         await dao.search_providers(max_hourly_rate=100.0)
 
-        # 验证查询条件包含$lte
+        # VerifyQuery条件Contains$lte
         call_args = mock_mongo_db["provider_profiles"].find.call_args[0][0]
         assert call_args == {"hourly_rate": {"$lte": 100.0}}
 
     @pytest.mark.asyncio
     async def test_search_with_multiple_filters(self, mock_mongo_db):
-        """测试组合多个过滤条件"""
+        """Test组合MultipleFilter条件"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_docs = []
@@ -374,7 +374,7 @@ class TestProviderProfileDAOSearch:
 
         await dao.search_providers(skills=["Python"], min_rating=4.0, max_hourly_rate=80.0)
 
-        # 验证复合查询条件
+        # Verify复合Query条件
         call_args = mock_mongo_db["provider_profiles"].find.call_args[0][0]
         assert call_args["skills"] == {"$in": ["Python"]}
         assert call_args["rating"] == {"$gte": 4.0}
@@ -382,7 +382,7 @@ class TestProviderProfileDAOSearch:
 
     @pytest.mark.asyncio
     async def test_search_with_custom_limit(self, mock_mongo_db):
-        """测试自定义返回数量限制"""
+        """TestCustomReturn数量限制"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_docs = []
@@ -393,13 +393,13 @@ class TestProviderProfileDAOSearch:
 
         await dao.search_providers(limit=50)
 
-        # 验证limit被正确设置
+        # VerifylimitBe Set Correctly
         mock_cursor.limit.assert_called_once_with(50)
         mock_cursor.to_list.assert_awaited_once_with(length=50)
 
     @pytest.mark.asyncio
     async def test_search_removes_mongodb_ids(self, mock_mongo_db):
-        """测试搜索结果移除所有MongoDB _id字段"""
+        """TestSearchResult移除AllMongoDB _idFields"""
         dao = ProviderProfileDAO(mock_mongo_db)
 
         mock_docs = [
@@ -438,6 +438,6 @@ class TestProviderProfileDAOSearch:
 
         result = await dao.search_providers()
 
-        # 验证所有结果都没有_id
+        # VerifyAllResultAllWithout_id
         for profile in result:
             assert "_id" not in profile.model_dump()

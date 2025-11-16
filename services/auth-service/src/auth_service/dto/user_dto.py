@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class UserResponse(BaseModel):
-    """用户响应"""
+    """User响应"""
 
     id: int
     username: str
@@ -18,7 +18,7 @@ class UserResponse(BaseModel):
 
 
 class TokenVerifyResponse(BaseModel):
-    """Token 验证响应"""
+    """Token Verify响应"""
 
     user_id: int
     role_id: int
@@ -27,7 +27,7 @@ class TokenVerifyResponse(BaseModel):
 
 
 class UpdateUserRequest(BaseModel):
-    """管理员更新用户请求"""
+    """AdminUpdateUser请求"""
 
     username: Optional[str] = None
     email: Optional[str] = None
@@ -35,7 +35,7 @@ class UpdateUserRequest(BaseModel):
 
 
 class DeleteUserResponse(BaseModel):
-    """删除用户响应"""
+    """Delete User响应"""
 
     user_id: int
     message: str

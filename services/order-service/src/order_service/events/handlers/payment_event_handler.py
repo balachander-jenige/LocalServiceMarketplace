@@ -16,10 +16,10 @@ async def handle_payment_completed(message: IncomingMessage):
         data = json.loads(message.body.decode())
         order_id = data.get("order_id")
 
-        # 获取数据库会话（需要手动管理）
+        # GetDatabaseSession（需要手动管理）
         from ...core.database import async_session_maker
 
         async with async_session_maker() as db:
-            # 更新订单支付状态
+            # UpdateOrderPaymentStatus
             await OrderDAO.update_payment_status(db, order_id, PaymentStatus.paid)
             print(f"✅ Updated payment status for order {order_id} to paid")
