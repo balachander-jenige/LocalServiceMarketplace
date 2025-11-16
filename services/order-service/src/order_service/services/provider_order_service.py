@@ -12,7 +12,7 @@ from ..models.order import LocationEnum, Order, OrderStatus, ServiceType
 
 
 class ProviderOrderService:
-    """服务商订单服务"""
+    """Provider Order Service"""
 
     @staticmethod
     async def list_available_orders(
@@ -23,7 +23,7 @@ class ProviderOrderService:
         max_price: Optional[float] = None,
         keyword: Optional[str] = None,
     ) -> List[Order]:
-        """浏览可用订单"""
+        """浏览Can用Order"""
         location_enum = LocationEnum(location) if location else None
         service_type_enum = ServiceType(service_type) if service_type else None
 
@@ -38,13 +38,13 @@ class ProviderOrderService:
 
     @staticmethod
     async def get_available_order_detail(db: AsyncSession, order_id: int) -> Order:
-        """获取可接单订单的详情（不需要认证，任何服务商都可以查看）"""
+        """GetCan接单Order的Details（不需要Authentication，任何ProviderAllCan以查看）"""
         order = await OrderDAO.get_order_by_id(db, order_id)
 
         if not order:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
 
-        # 只能查看状态为 pending 的订单
+        # Only能查看Status为 pending 的Order
         if order.status != OrderStatus.pending:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -55,7 +55,7 @@ class ProviderOrderService:
 
     @staticmethod
     async def accept_order(db: AsyncSession, provider_id: int, order_id: int) -> Order:
-        """接受订单"""
+        """Accept Order"""
         order = await OrderDAO.get_order_by_id(db, order_id)
 
         if not order:
@@ -64,10 +64,10 @@ class ProviderOrderService:
         if order.status != OrderStatus.pending:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The order has already been accepted!")
 
-        # 接受订单
+        # Accept Order
         updated_order = await OrderDAO.accept_order(db, order_id, provider_id)
 
-        # 发布订单接受事件
+        # Publish Order Accepted Event
         event = OrderAcceptedEvent(
             order_id=order_id, customer_id=order.customer_id, provider_id=provider_id, timestamp=datetime.now(UTC)
         )
@@ -77,7 +77,7 @@ class ProviderOrderService:
 
     @staticmethod
     async def update_order_status(db: AsyncSession, provider_id: int, order_id: int, new_status: str) -> Order:
-        """更新订单状态"""
+        """Update Order Status"""
         order = await OrderDAO.get_order_by_id(db, order_id)
 
         if not order:
@@ -86,7 +86,7 @@ class ProviderOrderService:
         if order.provider_id != provider_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied: not your order")
 
-        # 验证状态转换
+        # VerifyStatus转换
         new_status_enum = OrderStatus(new_status)
 
         if new_status_enum not in {OrderStatus.in_progress, OrderStatus.completed}:
@@ -104,10 +104,10 @@ class ProviderOrderService:
 
         old_status = order.status.value
 
-        # 更新订单状态
+        # Update Order Status
         updated_order = await OrderDAO.update_order_status(db, order_id, new_status_enum)
 
-        # 发布订单状态变更事件
+        # Publish Order Status Changed Event
         event = OrderStatusChangedEvent(
             order_id=order_id,
             customer_id=order.customer_id,
@@ -122,12 +122,12 @@ class ProviderOrderService:
 
     @staticmethod
     async def get_order_history(db: AsyncSession, provider_id: int) -> List[Order]:
-        """获取服务商订单历史"""
+        """GetProviderOrder历史"""
         return await OrderDAO.get_provider_orders(db, provider_id)
 
     @staticmethod
     async def get_order_detail(db: AsyncSession, provider_id: int, order_id: int) -> Order:
-        """获取订单详情"""
+        """Get Order Details"""
         order = await OrderDAO.get_order_by_id(db, order_id)
 
         if not order:

@@ -9,7 +9,7 @@ from ..models.order import LocationEnum, Order, OrderStatus, PaymentStatus, Serv
 
 
 class OrderDAO:
-    """订单数据访问对象"""
+    """OrderData Access Object"""
 
     @staticmethod
     async def create_order(
@@ -24,7 +24,7 @@ class OrderDAO:
         service_start_time: Optional[datetime] = None,
         service_end_time: Optional[datetime] = None,
     ) -> Order:
-        """创建订单"""
+        """Create Order"""
         order = Order(
             customer_id=customer_id,
             title=title,
@@ -35,7 +35,7 @@ class OrderDAO:
             address=address,
             service_start_time=service_start_time,
             service_end_time=service_end_time,
-            status=OrderStatus.pending_review,  # 新订单默认为待审核状态
+            status=OrderStatus.pending_review,  # 新Order默认为待审核Status
             payment_status=PaymentStatus.unpaid,
             created_at=datetime.now(UTC),
             updated_at=datetime.now(UTC),
@@ -48,14 +48,14 @@ class OrderDAO:
 
     @staticmethod
     async def get_order_by_id(db: AsyncSession, order_id: int) -> Optional[Order]:
-        """根据 ID 获取订单"""
+        """By ID GetOrder"""
         return await db.get(Order, order_id)
 
     @staticmethod
     async def get_customer_orders(
         db: AsyncSession, customer_id: int, statuses: Optional[List[OrderStatus]] = None
     ) -> List[Order]:
-        """获取客户的订单列表"""
+        """GetCustomer的OrderList"""
         query = select(Order).where(Order.customer_id == customer_id)
 
         if statuses:
@@ -67,7 +67,7 @@ class OrderDAO:
 
     @staticmethod
     async def get_provider_orders(db: AsyncSession, provider_id: int) -> List[Order]:
-        """获取服务商的订单列表"""
+        """GetProvider的OrderList"""
         result = await db.execute(
             select(Order).where(Order.provider_id == provider_id).order_by(Order.updated_at.desc())
         )
@@ -82,7 +82,7 @@ class OrderDAO:
         max_price: Optional[float] = None,
         keyword: Optional[str] = None,
     ) -> List[Order]:
-        """获取可用订单列表（pending 状态）"""
+        """GetCan用OrderList（pending Status）"""
         query = select(Order).where(Order.status == OrderStatus.pending)
 
         if location:
@@ -103,7 +103,7 @@ class OrderDAO:
 
     @staticmethod
     async def update_order_status(db: AsyncSession, order_id: int, new_status: OrderStatus) -> Optional[Order]:
-        """更新订单状态"""
+        """Update Order Status"""
         order = await db.get(Order, order_id)
         if order:
             order.status = new_status
@@ -114,7 +114,7 @@ class OrderDAO:
 
     @staticmethod
     async def accept_order(db: AsyncSession, order_id: int, provider_id: int) -> Optional[Order]:
-        """接受订单"""
+        """Accept Order"""
         order = await db.get(Order, order_id)
         if order:
             order.provider_id = provider_id
@@ -126,7 +126,7 @@ class OrderDAO:
 
     @staticmethod
     async def update_payment_status(db: AsyncSession, order_id: int, payment_status: PaymentStatus) -> Optional[Order]:
-        """更新支付状态"""
+        """UpdatePaymentStatus"""
         order = await db.get(Order, order_id)
         if order:
             order.payment_status = payment_status
@@ -137,19 +137,19 @@ class OrderDAO:
 
     @staticmethod
     async def get_all_orders(db: AsyncSession) -> List[Order]:
-        """获取所有订单（管理员）"""
+        """Get All Orders（Admin）"""
         result = await db.execute(select(Order).order_by(Order.created_at.desc()))
         return list(result.scalars().all())
 
     @staticmethod
     async def get_orders_by_status(db: AsyncSession, status: OrderStatus) -> List[Order]:
-        """根据状态获取订单列表（管理员）"""
+        """ByStatusGet Order List（Admin）"""
         result = await db.execute(select(Order).where(Order.status == status).order_by(Order.created_at.desc()))
         return list(result.scalars().all())
 
     @staticmethod
     async def update_order(db: AsyncSession, order_id: int, **kwargs: Any) -> Optional[Order]:
-        """更新订单字段（管理员）"""
+        """UpdateOrderFields（Admin）"""
         order = await db.get(Order, order_id)
         if order:
             for key, value in kwargs.items():
@@ -162,7 +162,7 @@ class OrderDAO:
 
     @staticmethod
     async def delete_order(db: AsyncSession, order_id: int) -> bool:
-        """删除订单（管理员）"""
+        """DeleteOrder（Admin）"""
         order = await db.get(Order, order_id)
         if order:
             await db.delete(order)

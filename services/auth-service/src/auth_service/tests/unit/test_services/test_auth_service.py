@@ -14,12 +14,12 @@ from auth_service.services.auth_service import AuthService
 
 
 class TestAuthServiceRegister:
-    """测试 AuthService.register 方法"""
+    """Test AuthService.register Method"""
 
     @pytest.mark.asyncio
     async def test_register_success(self, mock_db_session, mocker):
-        """测试正常注册流程"""
-        # Arrange: 准备Mock对象
+        """Test正常Registration流程"""
+        # Arrange: PrepareMockObject
         mock_user = MagicMock()
         mock_user.id = 1
         mock_user.username = "testuser"
@@ -34,33 +34,33 @@ class TestAuthServiceRegister:
         # Mock EventPublisher
         mock_publish = mocker.patch("auth_service.services.auth_service.EventPublisher.publish_user_registered")
 
-        # Act: 执行注册
+        # Act: ExecuteRegistration
         result = await AuthService.register(
             db=mock_db_session, username="testuser", email="test@test.com", password="Test123!", role_id=1
         )
 
-        # Assert: 验证结果
+        # Assert: VerifyResult
         assert result.id == 1
         assert result.username == "testuser"
         assert result.email == "test@test.com"
 
-        # 验证UserDAO被调用
+        # VerifyUserDAOBe Called
         mock_create_user.assert_called_once()
         call_args = mock_create_user.call_args
-        # 使用位置参数验证
+        # Verify With Positional Arguments
         assert call_args[0][1] == "testuser"  # username
         assert call_args[0][2] == "test@test.com"  # email
         assert call_args[0][4] == 1  # role_id
-        # 验证密码被hash
+        # Verify密码Be Hashed
         assert call_args[0][3] != "Test123!"
         assert call_args[0][3].startswith("$2b$")
 
-        # 验证事件发布被调用
+        # VerifyEventPublishBe Called
         mock_publish.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_register_customer_role(self, mock_db_session, mocker):
-        """测试注册客户角色"""
+        """TestRegistrationCustomerRole"""
         mock_user = MagicMock()
         mock_user.id = 1
         mock_user.username = "customer"
@@ -78,7 +78,7 @@ class TestAuthServiceRegister:
 
     @pytest.mark.asyncio
     async def test_register_provider_role(self, mock_db_session, mocker):
-        """测试注册服务商角色"""
+        """TestRegistrationProviderRole"""
         mock_user = MagicMock()
         mock_user.id = 2
         mock_user.username = "provider"
@@ -96,14 +96,14 @@ class TestAuthServiceRegister:
 
     @pytest.mark.asyncio
     async def test_register_duplicate_email(self, mock_db_session, mocker):
-        """测试重复邮箱注册"""
-        # Mock UserDAO抛出HTTPException
+        """TestDuplicateEmailRegistration"""
+        # Mock UserDAOThrowHTTPException
         mocker.patch(
             "auth_service.services.auth_service.UserDAO.create_user",
             side_effect=HTTPException(status_code=400, detail="用户名或邮箱已存在"),
         )
 
-        # 验证抛出异常
+        # VerifyThrowException
         with pytest.raises(HTTPException) as exc_info:
             await AuthService.register(
                 db=mock_db_session, username="testuser", email="existing@test.com", password="Test123!", role_id=1
@@ -114,12 +114,12 @@ class TestAuthServiceRegister:
 
 
 class TestAuthServiceLogin:
-    """测试 AuthService.login 方法"""
+    """Test AuthService.login Method"""
 
     @pytest.mark.asyncio
     async def test_login_success(self, mock_db_session, mocker):
-        """测试正常登录"""
-        # Arrange: 创建Mock用户
+        """Test正常Login"""
+        # Arrange: CreateMockUser
         mock_user = MagicMock()
         mock_user.id = 1
         mock_user.role_id = 1
@@ -128,15 +128,15 @@ class TestAuthServiceLogin:
         # Mock UserDAO.get_user_by_email
         mocker.patch("auth_service.services.auth_service.UserDAO.get_user_by_email", return_value=mock_user)
 
-        # Act: 执行登录
+        # Act: ExecuteLogin
         token = await AuthService.login(db=mock_db_session, email="test@test.com", password="Test123!")
 
-        # Assert: 验证token
+        # Assert: Verifytoken
         assert token is not None
         assert isinstance(token, str)
         assert len(token) > 0
 
-        # 验证token可以解码
+        # VerifytokenCan以解码
         from jose import jwt
 
         from auth_service.core.config import settings
@@ -148,14 +148,14 @@ class TestAuthServiceLogin:
 
     @pytest.mark.asyncio
     async def test_login_wrong_password(self, mock_db_session, mocker):
-        """测试错误密码"""
+        """TestError密码"""
         mock_user = MagicMock()
         mock_user.id = 1
         mock_user.password_hash = hash_password("CorrectPassword")
 
         mocker.patch("auth_service.services.auth_service.UserDAO.get_user_by_email", return_value=mock_user)
 
-        # 验证抛出401异常
+        # VerifyThrow401Exception
         with pytest.raises(HTTPException) as exc_info:
             await AuthService.login(db=mock_db_session, email="test@test.com", password="WrongPassword")
 
@@ -164,11 +164,11 @@ class TestAuthServiceLogin:
 
     @pytest.mark.asyncio
     async def test_login_user_not_found(self, mock_db_session, mocker):
-        """测试用户不存在"""
-        # Mock返回None
+        """TestUserDoes Not Exist"""
+        # MockReturnNone
         mocker.patch("auth_service.services.auth_service.UserDAO.get_user_by_email", return_value=None)
 
-        # 验证抛出401异常
+        # VerifyThrow401Exception
         with pytest.raises(HTTPException) as exc_info:
             await AuthService.login(db=mock_db_session, email="notexist@test.com", password="Test123!")
 
@@ -177,7 +177,7 @@ class TestAuthServiceLogin:
 
     @pytest.mark.asyncio
     async def test_login_token_contains_user_id_and_role(self, mock_db_session, mocker):
-        """测试token包含正确的user_id和role"""
+        """TesttokenContainsCorrect的user_idAndrole"""
         mock_user = MagicMock()
         mock_user.id = 99
         mock_user.role_id = 2  # Provider
@@ -187,7 +187,7 @@ class TestAuthServiceLogin:
 
         token = await AuthService.login(db=mock_db_session, email="provider@test.com", password="Test123!")
 
-        # 解码token验证内容
+        # 解码tokenVerify内容
         from jose import jwt
 
         from auth_service.core.config import settings

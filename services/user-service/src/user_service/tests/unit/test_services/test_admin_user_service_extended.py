@@ -15,7 +15,7 @@ from datetime import datetime
 
 
 class TestAdminUserServiceUpdateUser:
-    """测试 update_user 方法"""
+    """Test update_user Method"""
 
     @pytest.fixture
     def service(self, mock_mongo_db):
@@ -23,8 +23,8 @@ class TestAdminUserServiceUpdateUser:
 
     @pytest.mark.asyncio
     async def test_update_customer_username_and_location(self, service, mocker):
-        """测试更新 Customer 用户名和位置"""
-        # Mock HTTP 响应
+        """TestUpdate Customer UserNameAndLocation"""
+        # Mock HTTP Response
         mock_response_put = MagicMock()
         mock_response_put.status_code = 200
         mock_response_put.json.return_value = {"id": 1, "username": "new_customer"}
@@ -59,7 +59,7 @@ class TestAdminUserServiceUpdateUser:
         mocker.patch.object(service.customer_dao, "get_by_user_id", return_value=mock_customer)
         mocker.patch.object(service.customer_dao, "update", return_value=mock_customer)
 
-        # Mock get_user_detail 返回值
+        # Mock get_user_detail Return Value
         mock_detail = {
             "user_id": 1,
             "username": "new_customer",
@@ -70,26 +70,26 @@ class TestAdminUserServiceUpdateUser:
         }
         mocker.patch.object(service, "get_user_detail", return_value=mock_detail)
 
-        # 执行测试
+        # ExecuteTest
         update_data = UpdateUserRequest(username="new_customer", location="SOUTH")
         result = await service.update_user(user_id=1, update_data=update_data)
 
-        # 验证结果
+        # VerifyResult
         assert result["username"] == "new_customer"
         assert result["role_id"] == 1
 
-        # 验证 Auth Service 调用
+        # Verify Auth Service Call
         mock_client.put.assert_called_once()
         put_call_args = mock_client.put.call_args
         assert "username" in put_call_args[1]["json"]
 
-        # 验证 DAO 更新调用
+        # Verify DAO UpdateCall
         service.customer_dao.update.assert_called_once_with(user_id=1, update_data={"location": "SOUTH"})
 
     @pytest.mark.asyncio
     async def test_update_provider_skills_and_hourly_rate(self, service, mocker):
-        """测试更新 Provider 技能和时薪"""
-        # Mock HTTP 响应
+        """TestUpdate Provider SkillsAndHourly Rate"""
+        # Mock HTTP Response
         mock_response_get = MagicMock()
         mock_response_get.status_code = 200
         mock_response_get.json.return_value = {
@@ -134,22 +134,22 @@ class TestAdminUserServiceUpdateUser:
         }
         mocker.patch.object(service, "get_user_detail", return_value=mock_detail)
 
-        # 执行测试
+        # ExecuteTest
         update_data = UpdateUserRequest(skills=["Python", "Django", "React"], hourly_rate=80.0)
         result = await service.update_user(user_id=2, update_data=update_data)
 
-        # 验证结果
+        # VerifyResult
         assert result["role_id"] == 2
 
-        # 验证 DAO 更新调用
+        # Verify DAO UpdateCall
         service.provider_dao.update.assert_called_once_with(
             user_id=2, update_data={"skills": ["Python", "Django", "React"], "hourly_rate": 80.0}
         )
 
     @pytest.mark.asyncio
     async def test_update_customer_profile_not_exists(self, service, mocker):
-        """测试更新 Customer,但 Profile 不存在"""
-        # Mock HTTP 响应
+        """TestUpdate Customer,But Profile Does Not Exist"""
+        # Mock HTTP Response
         mock_response_get = MagicMock()
         mock_response_get.status_code = 200
         mock_response_get.json.return_value = {
@@ -167,7 +167,7 @@ class TestAdminUserServiceUpdateUser:
 
         mocker.patch("httpx.AsyncClient", return_value=mock_client)
 
-        # Mock DAO - Profile 不存在
+        # Mock DAO - Profile Does Not Exist
         mock_get = mocker.patch.object(service.customer_dao, "get_by_user_id", return_value=None)
         mock_update = mocker.patch.object(service.customer_dao, "update", return_value=None)
 
@@ -182,20 +182,20 @@ class TestAdminUserServiceUpdateUser:
         }
         mocker.patch.object(service, "get_user_detail", return_value=mock_detail)
 
-        # 执行测试 - 即使 Profile 不存在,update_user 也应该成功(只更新 Auth 部分)
+        # ExecuteTest - Even If Profile Does Not Exist,update_user Should AlsoSuccess(Only Update Auth Part)
         update_data = UpdateUserRequest(location="EAST")
         result = await service.update_user(user_id=3, update_data=update_data)
 
-        # 验证结果
+        # VerifyResult
         assert result["user_id"] == 3
 
-        # 验证 DAO update 未被调用(因为 Profile 不存在)
+        # Verify DAO update Not Called(Because Profile Does Not Exist)
         mock_update.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_update_user_auth_service_error(self, service, mocker):
-        """测试更新用户时 Auth Service 返回错误"""
-        # Mock HTTP PUT 返回错误
+        """TestUpdateUserWhen Auth Service ReturnError"""
+        # Mock HTTP PUT ReturnError
         mock_response_put = MagicMock()
         mock_response_put.status_code = 400
         mock_response_put.json.return_value = {"detail": "Invalid username"}
@@ -207,7 +207,7 @@ class TestAdminUserServiceUpdateUser:
 
         mocker.patch("httpx.AsyncClient", return_value=mock_client)
 
-        # 执行测试
+        # ExecuteTest
         update_data = UpdateUserRequest(username="invalid@@@")
 
         with pytest.raises(HTTPException) as exc_info:
@@ -217,12 +217,12 @@ class TestAdminUserServiceUpdateUser:
 
     @pytest.mark.asyncio
     async def test_update_user_not_found(self, service, mocker):
-        """测试更新不存在的用户"""
-        # Mock HTTP PUT 成功(更新Auth部分)
+        """TestUpdateDoes Not Exist的User"""
+        # Mock HTTP PUT Success(UpdateAuthPart)
         mock_response_put = MagicMock()
         mock_response_put.status_code = 200
 
-        # Mock HTTP GET 返回 404
+        # Mock HTTP GET Return 404
         mock_response_get = MagicMock()
         mock_response_get.status_code = 404
 
@@ -234,7 +234,7 @@ class TestAdminUserServiceUpdateUser:
 
         mocker.patch("httpx.AsyncClient", return_value=mock_client)
 
-        # 执行测试
+        # ExecuteTest
         update_data = UpdateUserRequest(username="new_name")
 
         with pytest.raises(HTTPException) as exc_info:
@@ -245,8 +245,8 @@ class TestAdminUserServiceUpdateUser:
 
     @pytest.mark.asyncio
     async def test_update_provider_multiple_fields(self, service, mocker):
-        """测试更新 Provider 多个字段"""
-        # Mock HTTP 响应
+        """TestUpdate Provider MultipleFields"""
+        # Mock HTTP Response
         mock_response_get = MagicMock()
         mock_response_get.status_code = 200
         mock_response_get.json.return_value = {
@@ -284,13 +284,13 @@ class TestAdminUserServiceUpdateUser:
         mock_detail = {"user_id": 4, "role_id": 2}
         mocker.patch.object(service, "get_user_detail", return_value=mock_detail)
 
-        # 执行测试 - 更新多个字段
+        # ExecuteTest - UpdateMultipleFields
         update_data = UpdateUserRequest(
             experience_years=10, availability="FULL_TIME", portfolio=["project1", "project2", "project3"]
         )
         result = await service.update_user(user_id=4, update_data=update_data)
 
-        # 验证 DAO 调用包含所有字段
+        # Verify DAO CallContainsAllFields
         service.provider_dao.update.assert_called_once()
         call_args = service.provider_dao.update.call_args
         assert call_args[1]["update_data"]["experience_years"] == 10
@@ -299,7 +299,7 @@ class TestAdminUserServiceUpdateUser:
 
 
 class TestAdminUserServiceDeleteUser:
-    """测试 delete_user 方法"""
+    """Test delete_user Method"""
 
     @pytest.fixture
     def service(self, mock_mongo_db):
@@ -307,8 +307,8 @@ class TestAdminUserServiceDeleteUser:
 
     @pytest.mark.asyncio
     async def test_delete_customer_with_profile(self, service, mocker):
-        """测试删除有 Profile 的 Customer"""
-        # Mock DAO - Customer Profile 存在
+        """TestDeleteWith Profile 的 Customer"""
+        # Mock DAO - Customer Profile Exists
         mock_customer = CustomerProfile(
             user_id=1,
             location="NORTH",
@@ -320,10 +320,10 @@ class TestAdminUserServiceDeleteUser:
         mocker.patch.object(service.customer_dao, "get_by_user_id", return_value=mock_customer)
         mocker.patch.object(service.customer_dao, "delete", return_value=True)
 
-        # Provider Profile 不存在
+        # Provider Profile Does Not Exist
         mocker.patch.object(service.provider_dao, "get_by_user_id", return_value=None)
 
-        # Mock HTTP 删除响应
+        # Mock HTTP Delete响应
         mock_response = MagicMock()
         mock_response.status_code = 200
 
@@ -334,22 +334,22 @@ class TestAdminUserServiceDeleteUser:
 
         mocker.patch("httpx.AsyncClient", return_value=mock_client)
 
-        # 执行测试
+        # ExecuteTest
         result = await service.delete_user(user_id=1)
 
-        # 验证结果
+        # VerifyResult
         assert result is True
 
-        # 验证 Customer Profile 被删除
+        # Verify Customer Profile 被Delete
         service.customer_dao.delete.assert_called_once_with(1)
 
-        # 验证 Auth Service 删除被调用
+        # Verify Auth Service DeleteBe Called
         mock_client.delete.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_delete_provider_with_profile(self, service, mocker):
-        """测试删除有 Profile 的 Provider"""
-        # Mock DAO - Provider Profile 存在
+        """TestDeleteWith Profile 的 Provider"""
+        # Mock DAO - Provider Profile Exists
         mock_provider = ProviderProfile(
             user_id=2,
             skills=["Python"],
@@ -365,10 +365,10 @@ class TestAdminUserServiceDeleteUser:
         mocker.patch.object(service.provider_dao, "get_by_user_id", return_value=mock_provider)
         mocker.patch.object(service.provider_dao, "delete", return_value=True)
 
-        # Customer Profile 不存在
+        # Customer Profile Does Not Exist
         mocker.patch.object(service.customer_dao, "get_by_user_id", return_value=None)
 
-        # Mock HTTP 删除响应
+        # Mock HTTP Delete响应
         mock_response = MagicMock()
         mock_response.status_code = 200
 
@@ -379,30 +379,30 @@ class TestAdminUserServiceDeleteUser:
 
         mocker.patch("httpx.AsyncClient", return_value=mock_client)
 
-        # 执行测试
+        # ExecuteTest
         result = await service.delete_user(user_id=2)
 
-        # 验证结果
+        # VerifyResult
         assert result is True
 
-        # 验证 Provider Profile 被删除
+        # Verify Provider Profile 被Delete
         service.provider_dao.delete.assert_called_once_with(2)
 
-        # 验证 Auth Service 删除被调用
+        # Verify Auth Service DeleteBe Called
         mock_client.delete.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_delete_user_without_profile(self, service, mocker):
-        """测试删除没有 Profile 的用户(Admin)"""
-        # Mock DAO - 两种 Profile 都不存在
+        """TestDeleteWithout Profile 的User(Admin)"""
+        # Mock DAO - Both Profile AllDoes Not Exist
         mocker.patch.object(service.customer_dao, "get_by_user_id", return_value=None)
         mocker.patch.object(service.provider_dao, "get_by_user_id", return_value=None)
         
-        # Mock delete 方法(即使不会被调用,也要Mock)
+        # Mock delete Method(Even If Not Called, Still Need ToMock)
         mock_customer_delete = mocker.patch.object(service.customer_dao, "delete")
         mock_provider_delete = mocker.patch.object(service.provider_dao, "delete")
 
-        # Mock HTTP 删除响应
+        # Mock HTTP Delete响应
         mock_response = MagicMock()
         mock_response.status_code = 200
 
@@ -413,27 +413,27 @@ class TestAdminUserServiceDeleteUser:
 
         mocker.patch("httpx.AsyncClient", return_value=mock_client)
 
-        # 执行测试
+        # ExecuteTest
         result = await service.delete_user(user_id=3)
 
-        # 验证结果
+        # VerifyResult
         assert result is True
 
-        # 验证 DAO delete 未被调用
+        # Verify DAO delete Not Called
         mock_customer_delete.assert_not_called()
         mock_provider_delete.assert_not_called()
 
-        # 验证 Auth Service 删除仍被调用
+        # Verify Auth Service DeleteStillBe Called
         mock_client.delete.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_delete_user_not_found(self, service, mocker):
-        """测试删除不存在的用户"""
-        # Mock DAO - Profile 不存在
+        """TestDeleteDoes Not Exist的User"""
+        # Mock DAO - Profile Does Not Exist
         mocker.patch.object(service.customer_dao, "get_by_user_id", return_value=None)
         mocker.patch.object(service.provider_dao, "get_by_user_id", return_value=None)
 
-        # Mock HTTP 返回 404
+        # Mock HTTP Return 404
         mock_response = MagicMock()
         mock_response.status_code = 404
 
@@ -444,7 +444,7 @@ class TestAdminUserServiceDeleteUser:
 
         mocker.patch("httpx.AsyncClient", return_value=mock_client)
 
-        # 执行测试
+        # ExecuteTest
         with pytest.raises(HTTPException) as exc_info:
             await service.delete_user(user_id=999)
 
@@ -453,12 +453,12 @@ class TestAdminUserServiceDeleteUser:
 
     @pytest.mark.asyncio
     async def test_delete_user_auth_service_error(self, service, mocker):
-        """测试删除用户时 Auth Service 返回错误"""
+        """TestDelete UserWhen Auth Service ReturnError"""
         # Mock DAO
         mocker.patch.object(service.customer_dao, "get_by_user_id", return_value=None)
         mocker.patch.object(service.provider_dao, "get_by_user_id", return_value=None)
 
-        # Mock HTTP 返回 500
+        # Mock HTTP Return 500
         mock_response = MagicMock()
         mock_response.status_code = 500
 
@@ -469,7 +469,7 @@ class TestAdminUserServiceDeleteUser:
 
         mocker.patch("httpx.AsyncClient", return_value=mock_client)
 
-        # 执行测试
+        # ExecuteTest
         with pytest.raises(HTTPException) as exc_info:
             await service.delete_user(user_id=1)
 
@@ -477,7 +477,7 @@ class TestAdminUserServiceDeleteUser:
 
 
 class TestAdminUserServiceHelperMethods:
-    """测试辅助方法 _check_profile_exists 和 _get_role_name"""
+    """TestHelper Method _check_profile_exists And _get_role_name"""
 
     @pytest.fixture
     def service(self, mock_mongo_db):
@@ -485,7 +485,7 @@ class TestAdminUserServiceHelperMethods:
 
     @pytest.mark.asyncio
     async def test_check_profile_exists_customer_true(self, service, mocker):
-        """测试 Customer Profile 存在"""
+        """Test Customer Profile Exists"""
         mock_customer = CustomerProfile(
             user_id=1,
             location="NORTH",
@@ -501,7 +501,7 @@ class TestAdminUserServiceHelperMethods:
 
     @pytest.mark.asyncio
     async def test_check_profile_exists_customer_false(self, service, mocker):
-        """测试 Customer Profile 不存在"""
+        """Test Customer Profile Does Not Exist"""
         mocker.patch.object(service.customer_dao, "get_by_user_id", return_value=None)
 
         result = await service._check_profile_exists(user_id=1, role_id=1)
@@ -509,7 +509,7 @@ class TestAdminUserServiceHelperMethods:
 
     @pytest.mark.asyncio
     async def test_check_profile_exists_provider_true(self, service, mocker):
-        """测试 Provider Profile 存在"""
+        """Test Provider Profile Exists"""
         mock_provider = ProviderProfile(
             user_id=2,
             skills=["Python"],
@@ -529,7 +529,7 @@ class TestAdminUserServiceHelperMethods:
 
     @pytest.mark.asyncio
     async def test_check_profile_exists_provider_false(self, service, mocker):
-        """测试 Provider Profile 不存在"""
+        """Test Provider Profile Does Not Exist"""
         mocker.patch.object(service.provider_dao, "get_by_user_id", return_value=None)
 
         result = await service._check_profile_exists(user_id=2, role_id=2)
@@ -537,28 +537,28 @@ class TestAdminUserServiceHelperMethods:
 
     @pytest.mark.asyncio
     async def test_check_profile_exists_admin_role(self, service):
-        """测试 Admin 角色(无 Profile)"""
+        """Test Admin Role(No Profile)"""
         result = await service._check_profile_exists(user_id=3, role_id=3)
         assert result is False
 
     @pytest.mark.asyncio
     async def test_check_profile_exists_unknown_role(self, service):
-        """测试未知角色"""
+        """TestUnknownRole"""
         result = await service._check_profile_exists(user_id=4, role_id=99)
         assert result is False
 
     def test_get_role_name_customer(self, service):
-        """测试获取 Customer 角色名"""
+        """TestGet Customer RoleName"""
         assert service._get_role_name(1) == "customer"
 
     def test_get_role_name_provider(self, service):
-        """测试获取 Provider 角色名"""
+        """TestGet Provider RoleName"""
         assert service._get_role_name(2) == "provider"
 
     def test_get_role_name_admin(self, service):
-        """测试获取 Admin 角色名"""
+        """TestGet Admin RoleName"""
         assert service._get_role_name(3) == "admin"
 
     def test_get_role_name_unknown(self, service):
-        """测试未知角色名"""
+        """TestUnknownRoleName"""
         assert service._get_role_name(99) == "unknown"

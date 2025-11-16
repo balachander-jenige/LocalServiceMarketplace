@@ -9,7 +9,7 @@ router = APIRouter(prefix="/admin/notifications", tags=["admin-notifications"])
 
 
 class SendNotificationRequest(BaseModel):
-    """发送通知请求"""
+    """发送Notification请求"""
 
     message: str
 
@@ -18,7 +18,7 @@ class SendNotificationRequest(BaseModel):
 
 
 class SendNotificationResponse(BaseModel):
-    """发送通知响应"""
+    """发送Notification响应"""
 
     user_id: int
     message: str
@@ -28,11 +28,11 @@ class SendNotificationResponse(BaseModel):
 async def send_customer_notification(
     user_id: int, request: SendNotificationRequest, current_user_id: int = Depends(get_current_user_id), db=Depends(get_database)
 ):
-    """管理员发送通知给客户"""
-    # 注意: Gateway 层会验证管理员权限
+    """Admin发送Notification给Customer"""
+    # Note: Gateway 层会VerifyAdminPermission
     service = NotificationService(db)
 
-    # 发送通知（order_id 为 None 表示平台通知）
+    # 发送Notification（order_id 为 None 表示平台Notification）
     await service.send_customer_notification(customer_id=user_id, order_id=None, message=request.message)
 
     return SendNotificationResponse(user_id=user_id, message="Notification sent successfully to customer")
@@ -42,11 +42,11 @@ async def send_customer_notification(
 async def send_provider_notification(
     user_id: int, request: SendNotificationRequest, current_user_id: int = Depends(get_current_user_id), db=Depends(get_database)
 ):
-    """管理员发送通知给服务商"""
-    # 注意: Gateway 层会验证管理员权限
+    """Admin发送Notification给Provider"""
+    # Note: Gateway 层会VerifyAdminPermission
     service = NotificationService(db)
 
-    # 发送通知（order_id 为 None 表示平台通知）
+    # 发送Notification（order_id 为 None 表示平台Notification）
     await service.send_provider_notification(provider_id=user_id, order_id=None, message=request.message)
 
     return SendNotificationResponse(user_id=user_id, message="Notification sent successfully to provider")

@@ -17,7 +17,7 @@ class BaseClient:
         json_data: Optional[Dict[str, Any]] = None,
         params: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """通用 HTTP 请求方法"""
+        """Common HTTP 请求Method"""
         headers = {}
         if token:
             headers["Authorization"] = f"Bearer {token}"
@@ -37,7 +37,7 @@ class BaseClient:
                 else:
                     raise ValueError(f"Unsupported HTTP method: {method}")
 
-                # 检查响应状态
+                # Check响应Status
                 if response.status_code >= 400:
                     raise HTTPException(
                         status_code=response.status_code, detail=response.json().get("detail", "Service request failed")

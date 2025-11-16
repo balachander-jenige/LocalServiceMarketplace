@@ -7,19 +7,19 @@ from ..models.provider_profile import ProviderProfile
 
 
 class ProviderProfileDAO:
-    """服务商资料数据访问对象"""
+    """ProviderProfileData Access Object"""
 
     def __init__(self, db: AsyncIOMotorDatabase):
         self.collection = db["provider_profiles"]
 
     async def create(self, profile: ProviderProfile) -> ProviderProfile:
-        """创建服务商资料"""
+        """CreateProviderProfile"""
         profile_dict = profile.model_dump()
         await self.collection.insert_one(profile_dict)
         return profile
 
     async def get_by_user_id(self, user_id: int) -> Optional[ProviderProfile]:
-        """根据用户 ID 获取服务商资料"""
+        """ByUser ID GetProviderProfile"""
         doc = await self.collection.find_one({"user_id": user_id})
         if doc:
             doc.pop("_id", None)
@@ -27,7 +27,7 @@ class ProviderProfileDAO:
         return None
 
     async def update(self, user_id: int, update_data: dict) -> Optional[ProviderProfile]:
-        """更新服务商资料"""
+        """UpdateProviderProfile"""
         update_data["updated_at"] = datetime.utcnow()
 
         result = await self.collection.update_one({"user_id": user_id}, {"$set": update_data})
@@ -37,7 +37,7 @@ class ProviderProfileDAO:
         return None
 
     async def delete(self, user_id: int) -> bool:
-        """删除服务商资料"""
+        """DeleteProviderProfile"""
         result = await self.collection.delete_one({"user_id": user_id})
         return result.deleted_count > 0
 
@@ -48,7 +48,7 @@ class ProviderProfileDAO:
         max_hourly_rate: Optional[float] = None,
         limit: int = 20,
     ) -> List[ProviderProfile]:
-        """搜索服务商"""
+        """SearchProvider"""
         query = {}
 
         if skills:

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class PaymentInitiatedEvent(BaseModel):
-    """支付发起事件"""
+    """Payment发起Event"""
 
     payment_id: int
     order_id: int

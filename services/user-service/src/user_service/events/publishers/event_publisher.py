@@ -4,11 +4,11 @@ from ...messaging.rabbitmq_client import rabbitmq_client
 
 
 class EventPublisher:
-    """事件发布器"""
+    """Event Publisher"""
 
     @staticmethod
     async def publish_profile_created(event: ProfileCreatedEvent):
-        """发布用户资料创建事件"""
+        """PublishUserProfileCreateEvent"""
         await rabbitmq_client.publish_event(
             exchange_name="profile_events",
             routing_key=f"profile.{event.profile_type}.created",
@@ -17,7 +17,7 @@ class EventPublisher:
 
     @staticmethod
     async def publish_profile_updated(event: ProfileUpdatedEvent):
-        """发布用户资料更新事件"""
+        """PublishUserProfileUpdateEvent"""
         await rabbitmq_client.publish_event(
             exchange_name="profile_events",
             routing_key=f"profile.{event.profile_type}.updated",

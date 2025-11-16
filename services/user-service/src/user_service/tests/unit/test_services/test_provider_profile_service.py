@@ -13,11 +13,11 @@ from user_service.services.provider_profile_service import ProviderProfileServic
 
 
 class TestProviderProfileServiceCreate:
-    """测试 ProviderProfileService.create_profile"""
+    """Test ProviderProfileService.create_profile"""
 
     @pytest.mark.asyncio
     async def test_create_profile_success(self, mock_mongo_db, mock_event_publisher, mocker):
-        """测试创建服务商资料成功"""
+        """TestCreateProviderProfileSuccess"""
         service = ProviderProfileService(mock_mongo_db)
 
         mock_profile = MagicMock(spec=ProviderProfile)
@@ -39,7 +39,7 @@ class TestProviderProfileServiceCreate:
 
     @pytest.mark.asyncio
     async def test_create_profile_already_exists(self, mock_mongo_db, mock_event_publisher, mocker):
-        """测试创建已存在的服务商资料"""
+        """TestCreateAlready ExistingProviderProfile"""
         service = ProviderProfileService(mock_mongo_db)
 
         mocker.patch.object(service.dao, "get_by_user_id", return_value=MagicMock())
@@ -52,7 +52,7 @@ class TestProviderProfileServiceCreate:
 
     @pytest.mark.asyncio
     async def test_create_profile_with_defaults(self, mock_mongo_db, mock_event_publisher, mocker):
-        """测试使用默认值创建资料"""
+        """Test使用Default ValueCreateProfile"""
         service = ProviderProfileService(mock_mongo_db)
 
         mock_profile = MagicMock()
@@ -75,7 +75,7 @@ class TestProviderProfileServiceCreate:
 
     @pytest.mark.asyncio
     async def test_create_profile_publishes_event(self, mock_mongo_db, mocker):
-        """测试创建资料发布事件"""
+        """TestCreateProfilePublish Event"""
         service = ProviderProfileService(mock_mongo_db)
 
         mock_profile = MagicMock()
@@ -95,11 +95,11 @@ class TestProviderProfileServiceCreate:
 
 
 class TestProviderProfileServiceGet:
-    """测试 ProviderProfileService.get_profile"""
+    """Test ProviderProfileService.get_profile"""
 
     @pytest.mark.asyncio
     async def test_get_profile_success(self, mock_mongo_db, mocker):
-        """测试获取服务商资料成功"""
+        """TestGetProviderProfileSuccess"""
         service = ProviderProfileService(mock_mongo_db)
 
         mock_profile = MagicMock()
@@ -113,7 +113,7 @@ class TestProviderProfileServiceGet:
 
     @pytest.mark.asyncio
     async def test_get_profile_not_found(self, mock_mongo_db, mocker):
-        """测试获取不存在的服务商资料"""
+        """TestGetDoes Not Exist的ProviderProfile"""
         service = ProviderProfileService(mock_mongo_db)
 
         mocker.patch.object(service.dao, "get_by_user_id", return_value=None)
@@ -126,11 +126,11 @@ class TestProviderProfileServiceGet:
 
 
 class TestProviderProfileServiceUpdate:
-    """测试 ProviderProfileService.update_profile"""
+    """Test ProviderProfileService.update_profile"""
 
     @pytest.mark.asyncio
     async def test_update_profile_success(self, mock_mongo_db, mock_event_publisher, mocker):
-        """测试更新服务商资料成功"""
+        """TestUpdateProviderProfileSuccess"""
         service = ProviderProfileService(mock_mongo_db)
 
         mock_updated_profile = MagicMock()
@@ -147,7 +147,7 @@ class TestProviderProfileServiceUpdate:
 
     @pytest.mark.asyncio
     async def test_update_profile_not_found(self, mock_mongo_db, mock_event_publisher, mocker):
-        """测试更新不存在的资料"""
+        """TestUpdateDoes Not Exist的Profile"""
         service = ProviderProfileService(mock_mongo_db)
 
         mocker.patch.object(service.dao, "update", return_value=None)
@@ -159,7 +159,7 @@ class TestProviderProfileServiceUpdate:
 
     @pytest.mark.asyncio
     async def test_update_profile_empty_data(self, mock_mongo_db, mock_event_publisher):
-        """测试提供空数据更新"""
+        """TestProvideEmptyDataUpdate"""
         service = ProviderProfileService(mock_mongo_db)
 
         with pytest.raises(HTTPException) as exc_info:
@@ -170,7 +170,7 @@ class TestProviderProfileServiceUpdate:
 
     @pytest.mark.asyncio
     async def test_update_profile_publishes_event(self, mock_mongo_db, mocker):
-        """测试更新资料发布事件"""
+        """TestUpdateProfilePublish Event"""
         service = ProviderProfileService(mock_mongo_db)
 
         mock_profile = MagicMock()
@@ -187,11 +187,11 @@ class TestProviderProfileServiceUpdate:
 
 
 class TestProviderProfileServiceSearch:
-    """测试 ProviderProfileService.search_providers"""
+    """Test ProviderProfileService.search_providers"""
 
     @pytest.mark.asyncio
     async def test_search_providers_no_filters(self, mock_mongo_db, mocker):
-        """测试无过滤条件搜索"""
+        """TestNoFilter条件Search"""
         service = ProviderProfileService(mock_mongo_db)
 
         mock_providers = [MagicMock(), MagicMock()]
@@ -204,7 +204,7 @@ class TestProviderProfileServiceSearch:
 
     @pytest.mark.asyncio
     async def test_search_providers_with_skills(self, mock_mongo_db, mocker):
-        """测试按技能搜索"""
+        """TestBySkillsSearch"""
         service = ProviderProfileService(mock_mongo_db)
 
         mock_providers = [MagicMock()]
@@ -218,7 +218,7 @@ class TestProviderProfileServiceSearch:
 
     @pytest.mark.asyncio
     async def test_search_providers_with_rating_filter(self, mock_mongo_db, mocker):
-        """测试按评分过滤"""
+        """TestByRatingFilter"""
         service = ProviderProfileService(mock_mongo_db)
 
         mock_providers = [MagicMock()]
@@ -231,7 +231,7 @@ class TestProviderProfileServiceSearch:
 
     @pytest.mark.asyncio
     async def test_search_providers_with_hourly_rate_limit(self, mock_mongo_db, mocker):
-        """测试按时薪上限过滤"""
+        """TestByHourly Rate上限Filter"""
         service = ProviderProfileService(mock_mongo_db)
 
         mock_providers = [MagicMock()]
@@ -244,7 +244,7 @@ class TestProviderProfileServiceSearch:
 
     @pytest.mark.asyncio
     async def test_search_providers_with_custom_limit(self, mock_mongo_db, mocker):
-        """测试自定义返回数量"""
+        """TestCustomReturn数量"""
         service = ProviderProfileService(mock_mongo_db)
 
         mock_providers = [MagicMock() for _ in range(10)]

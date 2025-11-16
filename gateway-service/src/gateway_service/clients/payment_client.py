@@ -9,7 +9,7 @@ class PaymentClient(BaseClient):
         super().__init__(settings.PAYMENT_SERVICE_URL)
 
     async def pay_order(self, token: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """客户支付订单（模拟支付）"""
+        """CustomerPaymentOrder（MockPayment）"""
         return await self._make_request("POST", "/customer/payments/pay", token=token, json_data=data)
 
 

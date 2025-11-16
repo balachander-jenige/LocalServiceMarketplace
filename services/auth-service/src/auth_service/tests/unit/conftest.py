@@ -13,7 +13,7 @@ from auth_service.core.security import hash_password
 
 @pytest.fixture
 def mock_db_session():
-    """Mock数据库会话"""
+    """MockDatabaseSession"""
     mock_db = AsyncMock()
     mock_db.add = MagicMock()
     mock_db.commit = AsyncMock()
@@ -26,7 +26,7 @@ def mock_db_session():
 
 @pytest.fixture
 def sample_user_data():
-    """标准用户测试数据"""
+    """StandardUserTestData"""
     return {
         "id": 1,
         "username": "testuser",
@@ -40,7 +40,7 @@ def sample_user_data():
 
 @pytest.fixture
 def sample_customer_data():
-    """客户测试数据"""
+    """CustomerTestData"""
     return {
         "id": 1,
         "username": "customer1",
@@ -52,7 +52,7 @@ def sample_customer_data():
 
 @pytest.fixture
 def sample_provider_data():
-    """服务商测试数据"""
+    """ProviderTestData"""
     return {
         "id": 2,
         "username": "provider1",
@@ -64,7 +64,7 @@ def sample_provider_data():
 
 @pytest.fixture
 def sample_admin_data():
-    """管理员测试数据"""
+    """AdminTestData"""
     return {
         "id": 3,
         "username": "admin",
@@ -76,7 +76,7 @@ def sample_admin_data():
 
 @pytest.fixture
 def mock_user_object(sample_user_data):
-    """Mock User对象"""
+    """Mock UserObject"""
     mock_user = MagicMock()
     for key, value in sample_user_data.items():
         setattr(mock_user, key, value)

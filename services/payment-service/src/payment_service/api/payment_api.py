@@ -17,7 +17,7 @@ async def pay_order(
     user_id: int = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db),
 ):
-    """客户支付订单（模拟支付）"""
+    """CustomerPaymentOrder（MockPayment）"""
     result = await PaymentService.pay_order(db, user_id, data.order_id, credentials.credentials)
 
     return PayOrderResponse(

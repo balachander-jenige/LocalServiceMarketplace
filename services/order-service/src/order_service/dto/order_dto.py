@@ -5,16 +5,16 @@ from pydantic import BaseModel, validator
 
 
 class PublishOrderRequest(BaseModel):
-    """发布订单请求"""
+    """PublishOrder请求"""
 
     title: str
     description: Optional[str] = None
-    service_type: str  # 新增:服务类型
+    service_type: str  # 新增:Service类型
     price: float
     location: str
     address: Optional[str] = None
-    service_start_time: Optional[datetime] = None  # 新增:服务开始时间
-    service_end_time: Optional[datetime] = None  # 新增:服务结束时间
+    service_start_time: Optional[datetime] = None  # 新增:Service开始When间
+    service_end_time: Optional[datetime] = None  # 新增:Service结束When间
 
     @validator("title")
     def title_not_empty(cls, v):
@@ -51,7 +51,7 @@ class PublishOrderRequest(BaseModel):
 
 
 class PublishOrderResponse(BaseModel):
-    """发布订单响应"""
+    """PublishOrder响应"""
 
     order_id: int
     status: str
@@ -59,7 +59,7 @@ class PublishOrderResponse(BaseModel):
 
 
 class CancelOrderResponse(BaseModel):
-    """取消订单响应"""
+    """Cancel Order响应"""
 
     order_id: int
     status: str
@@ -67,11 +67,11 @@ class CancelOrderResponse(BaseModel):
 
 
 class OrderSummary(BaseModel):
-    """订单摘要"""
+    """Order摘要"""
 
     id: int
     title: str
-    service_type: str  # 新增:服务类型
+    service_type: str  # 新增:Service类型
     status: str
     price: float
     location: str
@@ -79,19 +79,19 @@ class OrderSummary(BaseModel):
 
 
 class OrderDetail(BaseModel):
-    """订单详情"""
+    """OrderDetails"""
 
     id: int
     customer_id: int
     title: str
     description: Optional[str]
-    service_type: str  # 新增:服务类型
+    service_type: str  # 新增:Service类型
     status: str
     price: float
     location: str
     address: Optional[str]
-    service_start_time: Optional[str] = None  # 新增:服务开始时间
-    service_end_time: Optional[str] = None  # 新增:服务结束时间
+    service_start_time: Optional[str] = None  # 新增:Service开始When间
+    service_end_time: Optional[str] = None  # 新增:Service结束When间
     created_at: str
     updated_at: str
     provider_id: Optional[int]
@@ -99,7 +99,7 @@ class OrderDetail(BaseModel):
 
 
 class AcceptOrderResponse(BaseModel):
-    """接受订单响应"""
+    """Accept Order响应"""
 
     order_id: int
     status: str
@@ -107,14 +107,14 @@ class AcceptOrderResponse(BaseModel):
 
 
 class ApproveOrderRequest(BaseModel):
-    """管理员审批订单请求"""
+    """Admin审批Order请求"""
 
-    approved: bool  # True=批准, False=拒绝
-    reject_reason: Optional[str] = None  # 拒绝原因(拒绝时必填)
+    approved: bool  # True=Approve, False=Reject
+    reject_reason: Optional[str] = None  # Reject原因(RejectWhen必填)
 
 
 class ApproveOrderResponse(BaseModel):
-    """管理员审批订单响应"""
+    """Admin审批Order响应"""
 
     order_id: int
     status: str
@@ -122,7 +122,7 @@ class ApproveOrderResponse(BaseModel):
 
 
 class UpdateOrderRequest(BaseModel):
-    """管理员更新订单请求"""
+    """AdminUpdateOrder请求"""
 
     title: Optional[str] = None
     description: Optional[str] = None
@@ -136,7 +136,7 @@ class UpdateOrderRequest(BaseModel):
 
 
 class DeleteOrderResponse(BaseModel):
-    """管理员删除订单响应"""
+    """AdminDeleteOrder响应"""
 
     order_id: int
     message: str

@@ -24,8 +24,8 @@ async def get_all_orders(
     db: AsyncSession = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    """获取所有订单（管理员）"""
-    # 注意: 这里需要在网关层验证管理员权限
+    """Get All Orders（Admin）"""
+    # Note: 这里需要在网关层VerifyAdminPermission
     orders = await AdminOrderService.get_all_orders(db, status)
 
     return [
@@ -54,7 +54,7 @@ async def get_all_orders(
 async def get_pending_review_orders(
     db: AsyncSession = Depends(get_db), current_user_id: int = Depends(get_current_user_id)
 ):
-    """获取待审核订单列表（管理员）"""
+    """Get待审核OrderList（Admin）"""
     orders = await AdminOrderService.get_pending_review_orders(db)
 
     return [
@@ -83,7 +83,7 @@ async def get_pending_review_orders(
 async def get_order_detail(
     order_id: int, db: AsyncSession = Depends(get_db), current_user_id: int = Depends(get_current_user_id)
 ):
-    """获取订单详情（管理员）"""
+    """Get Order Details（Admin）"""
     order = await AdminOrderService.get_order_detail(db, order_id)
 
     return OrderDetail(
@@ -112,7 +112,7 @@ async def approve_order(
     db: AsyncSession = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    """审批订单（管理员）"""
+    """审批Order（Admin）"""
     order = await AdminOrderService.approve_order(db, order_id, request.approved, request.reject_reason)
 
     if request.approved:
@@ -130,7 +130,7 @@ async def update_order(
     db: AsyncSession = Depends(get_db),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    """更新订单信息（管理员）"""
+    """UpdateOrderInformation（Admin）"""
     order = await AdminOrderService.update_order(
         db,
         order_id,
@@ -168,7 +168,7 @@ async def update_order(
 async def delete_order(
     order_id: int, db: AsyncSession = Depends(get_db), current_user_id: int = Depends(get_current_user_id)
 ):
-    """删除订单（管理员）"""
+    """DeleteOrder（Admin）"""
     success = await AdminOrderService.delete_order(db, order_id)
 
     if not success:

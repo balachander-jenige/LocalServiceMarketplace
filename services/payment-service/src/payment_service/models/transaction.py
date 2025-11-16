@@ -7,8 +7,8 @@ from ..core.database import Base
 
 
 class TransactionType(enum.Enum):
-    payment = "payment"  # 支付
-    refund = "refund"  # 退款
+    payment = "payment"  # Payment
+    refund = "refund"  # Refund
 
 
 class Transaction(Base):
@@ -18,6 +18,6 @@ class Transaction(Base):
     user_id = Column(BigInteger, nullable=False, index=True)
     transaction_type = Column(Enum(TransactionType, values_callable=lambda obj: [e.value for e in obj]), nullable=False)
     amount = Column(DECIMAL(10, 2), nullable=False)
-    reference_id = Column(BigInteger)  # 关联订单/支付ID
+    reference_id = Column(BigInteger)  # 关联Order/PaymentID
     description = Column(Text)
     created_at = Column(TIMESTAMP, default=lambda: datetime.now(UTC))

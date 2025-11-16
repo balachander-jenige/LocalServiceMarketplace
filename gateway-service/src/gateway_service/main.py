@@ -9,13 +9,13 @@ from .api.routes import router
 from .core.config import settings
 from .dto.response_dto import ErrorResponse
 
-# 配置日志.
+# Configuration Logging.
 logging.basicConfig(level=settings.LOG_LEVEL)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title=settings.SERVICE_NAME, version="1.0.0", description="API Gateway for Freelancer Marketplace")
 
-# CORS 中间件
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,11 +24,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 注册路由
+# Register Routes
 app.include_router(router, prefix="/api/v1")
 
 
-# 全局异常处理
+# Global Exception Handling
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
@@ -45,13 +45,13 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-# 健康检查
+# Health Check
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": settings.SERVICE_NAME, "version": "1.0.0"}
 
 
-# 根路径
+# Root Path
 @app.get("/")
 async def root():
     return {"service": settings.SERVICE_NAME, "version": "1.0.0", "docs": "/docs"}

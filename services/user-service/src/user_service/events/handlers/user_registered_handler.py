@@ -23,7 +23,7 @@ async def handle_user_registered(message: IncomingMessage):
 
         # role_id: 1=customer, 2=provider, 3=admin
         if role_id == 1:
-            # 创建客户资料
+            # CreateCustomerProfile
             customer_dao = CustomerProfileDAO(db)
             existing = await customer_dao.get_by_user_id(user_id)
 
@@ -33,13 +33,13 @@ async def handle_user_registered(message: IncomingMessage):
                     location=LocationEnum.NORTH,
                     address=None,
                     budget_preference=0.0,
-                    # balance 字段已删除 - 第三阶段修改
+                    # balance Field Removed - Phase 3 Modification
                 )
                 await customer_dao.create(profile)
                 print(f"✅ Created customer profile for user {user_id}")
 
         elif role_id == 2:
-            # 创建服务商资料
+            # CreateProviderProfile
             provider_dao = ProviderProfileDAO(db)
             existing = await provider_dao.get_by_user_id(user_id)
 
@@ -51,7 +51,7 @@ async def handle_user_registered(message: IncomingMessage):
                     hourly_rate=0.0,
                     availability=None,
                     portfolio=[],
-                    # total_earnings 字段已删除 - 第三阶段修改
+                    # total_earnings Field Removed - Phase 3 Modification
                     rating=5.0,
                     total_reviews=0,
                 )

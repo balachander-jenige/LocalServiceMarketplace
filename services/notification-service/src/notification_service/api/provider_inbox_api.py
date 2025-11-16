@@ -10,7 +10,7 @@ router = APIRouter(prefix="/provider/inbox", tags=["provider-inbox"])
 
 @router.get("/", response_model=NotificationListResponse)
 async def get_provider_inbox(current_user_id: int = Depends(get_current_user_id), db=Depends(get_database)):
-    """获取服务商收件箱"""
+    """GetProviderInbox"""
     service = NotificationService(db)
     notifications = await service.get_provider_inbox(current_user_id)
 

@@ -9,7 +9,7 @@ from ..models.transaction import Transaction, TransactionType
 
 
 class TransactionDAO:
-    """交易记录数据访问对象"""
+    """Transaction记录Data Access Object"""
 
     @staticmethod
     async def create_transaction(
@@ -20,7 +20,7 @@ class TransactionDAO:
         reference_id: Optional[int] = None,
         description: Optional[str] = None,
     ) -> Transaction:
-        """创建交易记录（简化版，不含余额信息）"""
+        """CreateTransaction记录（简化版，不含余额Information）"""
         transaction = Transaction(
             user_id=user_id,
             transaction_type=transaction_type,
@@ -37,7 +37,7 @@ class TransactionDAO:
 
     @staticmethod
     async def get_user_transactions(db: AsyncSession, user_id: int, limit: int = 50) -> List[Transaction]:
-        """获取用户的交易记录"""
+        """GetUser的Transaction记录"""
         result = await db.execute(
             select(Transaction)
             .where(Transaction.user_id == user_id)

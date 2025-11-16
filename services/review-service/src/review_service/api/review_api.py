@@ -20,15 +20,15 @@ async def create_review(
     current_user_id: int = Depends(get_current_user_id),
     db=Depends(get_database),
 ):
-    """创建评价（需要认证）"""
+    """Create评价（需要Authentication）"""
     service = ReviewService(db)
 
-    # 检查该订单是否已评价
+    # Check该Order是否Already评价
     existing = await service.get_review_by_order(data.order_id)
     if existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This order has already been reviewed")
 
-    # 调用 Order Service 获取订单信息
+    # Call Order Service GetOrderInformation
     async with httpx.AsyncClient() as client:
         order_response = await client.get(
             f"{settings.ORDER_SERVICE_URL}/customer/orders/my/{data.order_id}",
@@ -43,18 +43,18 @@ async def create_review(
 
         order = order_response.json()
 
-    # 验证订单属于当前用户（customer）
+    # VerifyOrder属于CurrentUser（customer）
     if order["customer_id"] != current_user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only review your own orders")
 
-    # 验证订单已完成且已支付
+    # VerifyOrderAlreadyComplete且AlreadyPayment
     if order["status"] != "completed":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You can only review completed orders")
 
     if order.get("payment_status") != "paid":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You can only review paid orders")
 
-    # 创建评价，使用从订单获取的 customer_id 和 provider_id
+    # Create评价，使用从OrderGet的 customer_id And provider_id
     review_data = {
         "order_id": data.order_id,
         "customer_id": order["customer_id"],
@@ -75,7 +75,7 @@ async def create_review(
 
 @router.get("/provider/me/rating", response_model=ProviderRatingResponse)
 async def get_my_provider_rating(current_user_id: int = Depends(get_current_user_id), db=Depends(get_database)):
-    """获取当前 Provider 的评分（需要认证）"""
+    """GetCurrent Provider 的Rating（需要Authentication）"""
     service = ReviewService(db)
     rating = await service.get_provider_rating(current_user_id)
     return ProviderRatingResponse(
@@ -85,7 +85,7 @@ async def get_my_provider_rating(current_user_id: int = Depends(get_current_user
 
 @router.get("/provider/me/reviews", response_model=List[dict])
 async def get_my_provider_reviews(current_user_id: int = Depends(get_current_user_id), db=Depends(get_database)):
-    """获取当前 Provider 的所有评价（需要认证）"""
+    """GetCurrent Provider 的All评价（需要Authentication）"""
     service = ReviewService(db)
     reviews = await service.get_reviews_for_provider(current_user_id)
     return [
@@ -102,7 +102,7 @@ async def get_my_provider_reviews(current_user_id: int = Depends(get_current_use
 
 @router.get("/provider/{provider_id}/rating", response_model=ProviderRatingResponse)
 async def get_provider_rating(provider_id: int, db=Depends(get_database)):
-    """获取服务商评分（公开接口）"""
+    """GetProviderRating（公开接口）"""
     service = ReviewService(db)
     rating = await service.get_provider_rating(provider_id)
     return ProviderRatingResponse(
@@ -112,7 +112,7 @@ async def get_provider_rating(provider_id: int, db=Depends(get_database)):
 
 @router.get("/provider/{provider_id}", response_model=List[dict])
 async def get_provider_reviews(provider_id: int, db=Depends(get_database)):
-    """获取服务商的所有评价（公开接口）"""
+    """GetProvider的All评价（公开接口）"""
     service = ReviewService(db)
     reviews = await service.get_reviews_for_provider(provider_id)
     return [
@@ -129,7 +129,7 @@ async def get_provider_reviews(provider_id: int, db=Depends(get_database)):
 
 @router.get("/order/{order_id}", response_model=dict)
 async def get_order_review(order_id: int, db=Depends(get_database)):
-    """根据订单ID获取评价（公开接口）"""
+    """ByOrderIDGet评价（公开接口）"""
     service = ReviewService(db)
     review = await service.get_review_by_order(order_id)
     if not review:

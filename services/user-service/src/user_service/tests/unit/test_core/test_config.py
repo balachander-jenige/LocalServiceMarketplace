@@ -12,10 +12,10 @@ from user_service.core.config import Settings
 
 
 class TestSettings:
-    """测试 Settings 配置类"""
+    """Test Settings Configuration类"""
 
     def test_settings_with_env_vars(self):
-        """测试使用环境变量加载配置"""
+        """TestLoad Using Environment VariablesConfiguration"""
         with patch.dict(
             os.environ,
             {
@@ -37,28 +37,28 @@ class TestSettings:
             assert settings.LOG_LEVEL == "DEBUG"
 
     def test_settings_default_values(self):
-        """测试默认配置值"""
+        """Test默认ConfigurationValue"""
         with patch.dict(
             os.environ,
             {
                 "MONGODB_URL": "mongodb://localhost:27017",
                 "RABBITMQ_URL": "amqp://localhost:5672",
-                # 不设置其他值,使用默认值
+                # Not Set Other Values, UseDefault Value
             },
             clear=True,
         ):
             settings = Settings()
 
-            # 验证默认值
+            # VerifyDefault Value
             assert settings.AUTH_SERVICE_URL == "http://localhost:8000"
             assert settings.SERVICE_NAME == "user-service"
             assert settings.SERVICE_PORT == 8002
             assert settings.LOG_LEVEL == "INFO"
 
     def test_settings_required_fields(self):
-        """测试MONGODB_URL和RABBITMQ_URL是必填字段"""
-        # 由于.env文件存在,这个测试可能从.env读取配置
-        # 只验证Settings对象有这两个必填字段即可
+        """TestMONGODB_URLAndRABBITMQ_URLAre Required Fields"""
+        # Since .env File Exists, ThisTestMay Read From .envConfiguration
+        # OnlyVerifySettingsObject Has These Two Required Fields
         with patch.dict(
             os.environ,
             {
@@ -68,12 +68,12 @@ class TestSettings:
             clear=True,
         ):
             settings = Settings()
-            # 验证必填字段被正确设置
+            # VerifyRequired FieldsBe Set Correctly
             assert settings.MONGODB_URL == "mongodb://required:27017"
             assert settings.RABBITMQ_URL == "amqp://required:5672"
 
     def test_settings_mongodb_url_validation(self):
-        """测试MongoDB URL格式验证"""
+        """TestMongoDB URLFormatVerify"""
         with patch.dict(
             os.environ,
             {
@@ -86,7 +86,7 @@ class TestSettings:
             assert "mongodb://" in settings.MONGODB_URL
 
     def test_settings_rabbitmq_url_validation(self):
-        """测试RabbitMQ URL格式验证"""
+        """TestRabbitMQ URLFormatVerify"""
         with patch.dict(
             os.environ,
             {
@@ -99,7 +99,7 @@ class TestSettings:
             assert "amqp://" in settings.RABBITMQ_URL
 
     def test_settings_service_port_type(self):
-        """测试SERVICE_PORT字段类型转换"""
+        """TestSERVICE_PORTFieldsType Conversion"""
         with patch.dict(
             os.environ,
             {
@@ -114,7 +114,7 @@ class TestSettings:
             assert settings.SERVICE_PORT == 3000
 
     def test_settings_auth_service_url_override(self):
-        """测试覆盖AUTH_SERVICE_URL默认值"""
+        """TestOverrideAUTH_SERVICE_URLDefault Value"""
         with patch.dict(
             os.environ,
             {
@@ -128,7 +128,7 @@ class TestSettings:
             assert settings.AUTH_SERVICE_URL == "http://custom-auth:9000"
 
     def test_settings_log_level_values(self):
-        """测试不同的LOG_LEVEL值"""
+        """TestDifferent的LOG_LEVELValue"""
         log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
         for level in log_levels:
@@ -145,7 +145,7 @@ class TestSettings:
                 assert settings.LOG_LEVEL == level
 
     def test_settings_service_name_custom(self):
-        """测试自定义SERVICE_NAME"""
+        """TestCustomSERVICE_NAME"""
         with patch.dict(
             os.environ,
             {
@@ -159,7 +159,7 @@ class TestSettings:
             assert settings.SERVICE_NAME == "custom-user-service"
 
     def test_settings_immutable(self):
-        """测试配置对象不可变性(Pydantic特性)"""
+        """TestConfigurationObjectImmutability(PydanticFeature)"""
         with patch.dict(
             os.environ,
             {
@@ -170,6 +170,6 @@ class TestSettings:
         ):
             settings = Settings()
 
-            # Pydantic V2模型默认可变,但可以通过frozen=True设置不可变
-            # 这里只测试初始值正确
+            # Pydantic V2ModelDefault Mutable, But Can Set Viafrozen=TrueSet Immutable
+            # Here OnlyTestInitial Value Correct
             assert settings.SERVICE_NAME == "user-service"

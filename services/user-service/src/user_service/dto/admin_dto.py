@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class UserSummary(BaseModel):
-    """用户摘要（管理员视图）"""
+    """User摘要（Admin视图）"""
 
     user_id: int
     username: str
@@ -17,31 +17,31 @@ class UserSummary(BaseModel):
 
 
 class UserDetailAdmin(BaseModel):
-    """用户详情（管理员视图）"""
+    """UserDetails（Admin视图）"""
 
     user_id: int
     username: str
     email: str
     role_id: int
     role_name: str
-    profile: Optional[dict] = None  # 客户或服务商资料
+    profile: Optional[dict] = None  # Customer或ProviderProfile
     created_at: datetime
 
 
 class UpdateUserRequest(BaseModel):
-    """管理员更新用户请求"""
+    """AdminUpdateUser请求"""
 
-    # Auth Service 字段
+    # Auth Service Fields
     username: Optional[str] = None
     email: Optional[str] = None
     role_id: Optional[int] = None
 
-    # Customer Profile 字段
+    # Customer Profile Fields
     location: Optional[str] = None  # NORTH, SOUTH, EAST, WEST, MID
     address: Optional[str] = None
     budget_preference: Optional[float] = None
 
-    # Provider Profile 字段
+    # Provider Profile Fields
     skills: Optional[List[str]] = None
     experience_years: Optional[int] = None
     hourly_rate: Optional[float] = None
@@ -50,7 +50,7 @@ class UpdateUserRequest(BaseModel):
 
 
 class DeleteUserResponse(BaseModel):
-    """删除用户响应"""
+    """Delete User响应"""
 
     user_id: int
     message: str

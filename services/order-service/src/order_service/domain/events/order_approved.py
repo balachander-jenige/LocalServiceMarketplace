@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class OrderApprovedEvent(BaseModel):
-    """订单审批通过事件"""
+    """Order审批通过Event"""
 
     order_id: int
     customer_id: int

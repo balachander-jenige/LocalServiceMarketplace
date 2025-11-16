@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class ProviderProfileCreate(BaseModel):
-    """创建服务商资料请求"""
+    """CreateProviderProfile请求"""
 
     skills: List[str] = []
     experience_years: int = 0
@@ -14,7 +14,7 @@ class ProviderProfileCreate(BaseModel):
 
 
 class ProviderProfileUpdate(BaseModel):
-    """更新服务商资料请求"""
+    """UpdateProviderProfile请求"""
 
     skills: Optional[List[str]] = None
     experience_years: Optional[int] = None
@@ -24,7 +24,7 @@ class ProviderProfileUpdate(BaseModel):
 
 
 class ProviderProfileResponse(BaseModel):
-    """服务商资料响应"""
+    """ProviderProfile响应"""
 
     user_id: int
     skills: List[str]
@@ -32,7 +32,7 @@ class ProviderProfileResponse(BaseModel):
     hourly_rate: float
     availability: Optional[str]
     portfolio: List[str]
-    # total_earnings 字段已删除 - 第三阶段修改
+    # total_earnings Field Removed - Phase 3 Modification
     rating: float
     total_reviews: int
     created_at: datetime

@@ -10,11 +10,11 @@ from auth_service.dao.role_dao import RoleDAO
 
 
 class TestRoleDAOGetRoleById:
-    """测试根据ID获取角色"""
+    """TestByIDGetRole"""
 
     @pytest.mark.asyncio
     async def test_get_role_by_id_success(self, mock_db_session):
-        """测试成功获取角色"""
+        """TestSuccessGetRole"""
         # Arrange
         mock_role = MagicMock()
         mock_role.id = 1
@@ -34,7 +34,7 @@ class TestRoleDAOGetRoleById:
 
     @pytest.mark.asyncio
     async def test_get_role_by_id_not_found(self, mock_db_session):
-        """测试角色不存在时返回None"""
+        """TestRoleDoes Not ExistWhenReturnNone"""
         # Arrange
         mock_db_session.get = AsyncMock(return_value=None)
 
@@ -47,7 +47,7 @@ class TestRoleDAOGetRoleById:
 
     @pytest.mark.asyncio
     async def test_get_role_by_id_provider(self, mock_db_session):
-        """测试获取provider角色"""
+        """TestGetproviderRole"""
         # Arrange
         mock_role = MagicMock()
         mock_role.id = 2
@@ -63,7 +63,7 @@ class TestRoleDAOGetRoleById:
 
     @pytest.mark.asyncio
     async def test_get_role_by_id_admin(self, mock_db_session):
-        """测试获取admin角色"""
+        """TestGetadminRole"""
         # Arrange
         mock_role = MagicMock()
         mock_role.id = 3
@@ -79,11 +79,11 @@ class TestRoleDAOGetRoleById:
 
 
 class TestRoleDAOGetRoleByName:
-    """测试根据名称获取角色"""
+    """TestByName称GetRole"""
 
     @pytest.mark.asyncio
     async def test_get_role_by_name_success(self, mock_db_session):
-        """测试成功根据名称获取角色"""
+        """TestSuccessByName称GetRole"""
         # Arrange
         mock_role = MagicMock()
         mock_role.id = 1
@@ -106,7 +106,7 @@ class TestRoleDAOGetRoleByName:
 
     @pytest.mark.asyncio
     async def test_get_role_by_name_not_found(self, mock_db_session):
-        """测试角色名称不存在时返回None"""
+        """TestRoleName称Does Not ExistWhenReturnNone"""
         # Arrange
         mock_result = MagicMock()
         mock_scalars = MagicMock()
@@ -124,7 +124,7 @@ class TestRoleDAOGetRoleByName:
 
     @pytest.mark.asyncio
     async def test_get_role_by_name_provider(self, mock_db_session):
-        """测试根据名称获取provider角色"""
+        """TestByName称GetproviderRole"""
         # Arrange
         mock_role = MagicMock()
         mock_role.id = 2
@@ -145,7 +145,7 @@ class TestRoleDAOGetRoleByName:
 
     @pytest.mark.asyncio
     async def test_get_role_by_name_admin(self, mock_db_session):
-        """测试根据名称获取admin角色"""
+        """TestByName称GetadminRole"""
         # Arrange
         mock_role = MagicMock()
         mock_role.id = 3
@@ -166,7 +166,7 @@ class TestRoleDAOGetRoleByName:
 
     @pytest.mark.asyncio
     async def test_get_role_by_name_case_sensitive(self, mock_db_session):
-        """测试角色名称区分大小写"""
+        """TestRoleName称Case Sensitive"""
         # Arrange
         mock_result = MagicMock()
         mock_scalars = MagicMock()
@@ -179,4 +179,4 @@ class TestRoleDAOGetRoleByName:
         result = await RoleDAO.get_role_by_name(mock_db_session, role_name="CUSTOMER")
 
         # Assert
-        assert result is None  # 因为应该是 "customer" 不是 "CUSTOMER"
+        assert result is None  # BecauseShould Be "customer" Not "CUSTOMER"

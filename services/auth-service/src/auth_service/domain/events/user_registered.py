@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class UserRegisteredEvent(BaseModel):
-    """用户注册事件"""
+    """User Registered Event"""
 
     user_id: int
     username: str

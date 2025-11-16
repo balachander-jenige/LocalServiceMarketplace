@@ -14,11 +14,11 @@ from auth_service.models.user import User
 
 
 class TestUserDAOCreate:
-    """测试 UserDAO.create_user"""
+    """Test UserDAO.create_user"""
 
     @pytest.mark.asyncio
     async def test_create_user_success(self, mock_db_session):
-        """测试创建用户成功"""
+        """TestCreate UserSuccess"""
         # Act
         user = await UserDAO.create_user(
             db=mock_db_session,
@@ -39,11 +39,11 @@ class TestUserDAOCreate:
 
     @pytest.mark.asyncio
     async def test_create_user_duplicate_email(self, mock_db_session):
-        """测试重复邮箱"""
-        # Mock commit抛出IntegrityError
+        """TestDuplicateEmail"""
+        # Mock commitThrowIntegrityError
         mock_db_session.commit.side_effect = IntegrityError(None, None, None)
 
-        # 验证抛出HTTPException
+        # VerifyThrowHTTPException
         with pytest.raises(HTTPException) as exc_info:
             await UserDAO.create_user(
                 db=mock_db_session,
@@ -59,11 +59,11 @@ class TestUserDAOCreate:
 
 
 class TestUserDAOGetByEmail:
-    """测试 UserDAO.get_user_by_email"""
+    """Test UserDAO.get_user_by_email"""
 
     @pytest.mark.asyncio
     async def test_get_user_by_email_found(self, mock_db_session):
-        """测试查询用户(存在)"""
+        """TestQueryUser(Exists)"""
         # Arrange
         mock_user = MagicMock()
         mock_user.email = "test@test.com"
@@ -83,8 +83,8 @@ class TestUserDAOGetByEmail:
 
     @pytest.mark.asyncio
     async def test_get_user_by_email_not_found(self, mock_db_session):
-        """测试查询用户(不存在)"""
-        # Mock返回None
+        """TestQueryUser(Does Not Exist)"""
+        # MockReturnNone
         mock_result = MagicMock()
         mock_result.scalars.return_value.first.return_value = None
         mock_db_session.execute.return_value = mock_result
@@ -97,11 +97,11 @@ class TestUserDAOGetByEmail:
 
 
 class TestUserDAOGetById:
-    """测试 UserDAO.get_user_by_id"""
+    """Test UserDAO.get_user_by_id"""
 
     @pytest.mark.asyncio
     async def test_get_user_by_id_found(self, mock_db_session):
-        """测试根据ID查询用户(存在)"""
+        """TestByIDQueryUser(Exists)"""
         mock_user = MagicMock()
         mock_user.id = 1
         mock_db_session.get.return_value = mock_user
@@ -114,7 +114,7 @@ class TestUserDAOGetById:
 
     @pytest.mark.asyncio
     async def test_get_user_by_id_not_found(self, mock_db_session):
-        """测试根据ID查询用户(不存在)"""
+        """TestByIDQueryUser(Does Not Exist)"""
         mock_db_session.get.return_value = None
 
         user = await UserDAO.get_user_by_id(mock_db_session, 999)
@@ -123,11 +123,11 @@ class TestUserDAOGetById:
 
 
 class TestUserDAOUpdate:
-    """测试 UserDAO.update_user"""
+    """Test UserDAO.update_user"""
 
     @pytest.mark.asyncio
     async def test_update_user_success(self, mock_db_session):
-        """测试更新用户成功"""
+        """TestUpdateUserSuccess"""
         # Arrange
         mock_user = MagicMock()
         mock_user.id = 1
@@ -147,7 +147,7 @@ class TestUserDAOUpdate:
 
     @pytest.mark.asyncio
     async def test_update_user_not_found(self, mock_db_session):
-        """测试更新不存在的用户"""
+        """TestUpdateDoes Not Exist的User"""
         mock_db_session.get.return_value = None
 
         result = await UserDAO.update_user(db=mock_db_session, user_id=999, username="newname")
@@ -156,7 +156,7 @@ class TestUserDAOUpdate:
 
     @pytest.mark.asyncio
     async def test_update_user_with_role_id(self, mock_db_session):
-        """测试更新用户角色"""
+        """TestUpdateUserRole"""
         # Arrange
         mock_user = MagicMock()
         mock_user.id = 1
@@ -172,7 +172,7 @@ class TestUserDAOUpdate:
 
     @pytest.mark.asyncio
     async def test_update_user_integrity_error(self, mock_db_session):
-        """测试更新用户时发生重复错误"""
+        """TestUpdateUserWhen发生DuplicateError"""
         # Arrange
         mock_user = MagicMock()
         mock_user.id = 1
@@ -188,11 +188,11 @@ class TestUserDAOUpdate:
 
 
 class TestUserDAOGetAllUsers:
-    """测试 UserDAO.get_all_users"""
+    """Test UserDAO.get_all_users"""
 
     @pytest.mark.asyncio
     async def test_get_all_users_success(self, mock_db_session):
-        """测试获取所有用户成功"""
+        """TestGetAllUserSuccess"""
         # Arrange
         mock_user1 = MagicMock()
         mock_user1.id = 1
@@ -220,7 +220,7 @@ class TestUserDAOGetAllUsers:
 
     @pytest.mark.asyncio
     async def test_get_all_users_with_role_filter(self, mock_db_session):
-        """测试按角色过滤获取用户"""
+        """TestByRoleFilterGetUser"""
         # Arrange
         mock_user = MagicMock()
         mock_user.id = 1
@@ -243,7 +243,7 @@ class TestUserDAOGetAllUsers:
 
     @pytest.mark.asyncio
     async def test_get_all_users_empty_list(self, mock_db_session):
-        """测试获取空用户列表"""
+        """TestGetEmptyUserList"""
         # Arrange
         mock_result = MagicMock()
         mock_scalars = MagicMock()
@@ -260,11 +260,11 @@ class TestUserDAOGetAllUsers:
 
 
 class TestUserDAODeleteUser:
-    """测试 UserDAO.delete_user"""
+    """Test UserDAO.delete_user"""
 
     @pytest.mark.asyncio
     async def test_delete_user_success(self, mock_db_session):
-        """测试删除用户成功"""
+        """TestDelete UserSuccess"""
         # Arrange
         mock_user = MagicMock()
         mock_user.id = 1
@@ -280,7 +280,7 @@ class TestUserDAODeleteUser:
 
     @pytest.mark.asyncio
     async def test_delete_user_not_found(self, mock_db_session):
-        """测试删除不存在的用户"""
+        """TestDeleteDoes Not Exist的User"""
         # Arrange
         mock_db_session.get.return_value = None
 
@@ -293,11 +293,11 @@ class TestUserDAODeleteUser:
 
 
 class TestUserDAODeleteByUsername:
-    """测试 UserDAO.delete_user_by_username"""
+    """Test UserDAO.delete_user_by_username"""
 
     @pytest.mark.asyncio
     async def test_delete_user_by_username_success(self, mock_db_session):
-        """测试根据用户名删除用户成功"""
+        """TestByUserNameDelete UserSuccess"""
         # Arrange
         mock_user = MagicMock()
         mock_user.id = 1
@@ -320,7 +320,7 @@ class TestUserDAODeleteByUsername:
 
     @pytest.mark.asyncio
     async def test_delete_user_by_username_not_found(self, mock_db_session):
-        """测试删除不存在的用户名"""
+        """TestDeleteDoes Not Exist的UserName"""
         # Arrange
         mock_result = MagicMock()
         mock_scalars = MagicMock()

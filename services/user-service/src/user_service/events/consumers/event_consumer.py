@@ -3,10 +3,10 @@ from ..handlers.user_registered_handler import handle_user_registered
 
 
 async def start_consuming():
-    """开始消费事件"""
+    """Start Consuming Events"""
     await rabbitmq_client.connect()
 
-    # 监听用户注册事件
+    # Listen ToUser Registered Event
     await rabbitmq_client.consume_events(
         exchange_name="user_events", routing_key="user.registered", callback=handle_user_registered
     )

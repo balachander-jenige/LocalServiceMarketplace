@@ -12,11 +12,11 @@ from ..models.order import LocationEnum, Order, OrderStatus, ServiceType
 
 
 class AdminOrderService:
-    """管理员订单服务"""
+    """Admin Order Service"""
 
     @staticmethod
     async def get_all_orders(db: AsyncSession, status_filter: Optional[str] = None) -> List[Order]:
-        """获取所有订单（可按状态过滤）"""
+        """Get All Orders（CanByStatusFilter）"""
         if status_filter:
             try:
                 status_enum = OrderStatus(status_filter)
@@ -27,14 +27,14 @@ class AdminOrderService:
 
     @staticmethod
     async def get_pending_review_orders(db: AsyncSession) -> List[Order]:
-        """获取所有待审核订单"""
+        """GetAll待审核Order"""
         return await OrderDAO.get_orders_by_status(db, OrderStatus.pending_review)
 
     @staticmethod
     async def approve_order(
         db: AsyncSession, order_id: int, approved: bool, reject_reason: Optional[str] = None
     ) -> Order:
-        """审批订单（批准或拒绝）"""
+        """审批Order（Approve或Reject）"""
         order = await OrderDAO.get_order_by_id(db, order_id)
 
         if not order:
@@ -46,15 +46,15 @@ class AdminOrderService:
             )
 
         if approved:
-            # 批准 -> 状态变为 pending
+            # Approve -> Status变为 pending
             updated_order = await OrderDAO.update_order_status(db, order_id, OrderStatus.pending)
 
-            # 发布订单批准事件
+            # Publish Order Approved Event
             event = OrderApprovedEvent(order_id=order_id, customer_id=order.customer_id, timestamp=datetime.now(UTC))
             await EventPublisher.publish_order_approved(event)
 
         else:
-            # 拒绝 -> 状态变为 cancelled
+            # Reject -> Status变为 cancelled
             if not reject_reason:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST, detail="Reject reason is required when rejecting an order"
@@ -62,7 +62,7 @@ class AdminOrderService:
 
             updated_order = await OrderDAO.update_order_status(db, order_id, OrderStatus.cancelled)
 
-            # 发布订单拒绝事件
+            # Publish Order Rejected Event
             event = OrderRejectedEvent(
                 order_id=order_id,
                 customer_id=order.customer_id,
@@ -87,13 +87,13 @@ class AdminOrderService:
         service_end_time: Optional[datetime] = None,
         order_status: Optional[str] = None,
     ) -> Order:
-        """更新订单信息（管理员权限）"""
+        """UpdateOrderInformation（AdminPermission）"""
         order = await OrderDAO.get_order_by_id(db, order_id)
 
         if not order:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
 
-        # 构建更新数据
+        # 构建UpdateData
         update_data = {}
         if title is not None:
             update_data["title"] = title
@@ -130,12 +130,12 @@ class AdminOrderService:
         if not update_data:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No valid fields to update")
 
-        # 执行更新
+        # ExecuteUpdate
         return await OrderDAO.update_order(db, order_id, **update_data)
 
     @staticmethod
     async def delete_order(db: AsyncSession, order_id: int) -> bool:
-        """删除订单（管理员权限）"""
+        """DeleteOrder（AdminPermission）"""
         order = await OrderDAO.get_order_by_id(db, order_id)
 
         if not order:
@@ -145,7 +145,7 @@ class AdminOrderService:
 
     @staticmethod
     async def get_order_detail(db: AsyncSession, order_id: int) -> Order:
-        """获取订单详情（管理员权限）"""
+        """Get Order Details（AdminPermission）"""
         order = await OrderDAO.get_order_by_id(db, order_id)
 
         if not order:

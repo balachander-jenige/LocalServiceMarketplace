@@ -11,7 +11,7 @@ import pytest
 
 @pytest.fixture
 def mock_mongo_db():
-    """Mock MongoDB数据库"""
+    """Mock MongoDBDatabase"""
     mock_db = MagicMock()
     return mock_db
 
@@ -48,7 +48,7 @@ def mock_event_publisher(mocker):
 
 @pytest.fixture
 def sample_customer_profile():
-    """标准客户Profile测试数据(Model对象)"""
+    """StandardCustomerProfileTestData(ModelObject)"""
     from user_service.models.customer_profile import CustomerProfile
 
     return CustomerProfile(
@@ -63,7 +63,7 @@ def sample_customer_profile():
 
 @pytest.fixture
 def sample_provider_profile():
-    """标准服务商Profile测试数据(Model对象)"""
+    """StandardProviderProfileTestData(ModelObject)"""
     from user_service.models.provider_profile import ProviderProfile
 
     return ProviderProfile(
@@ -82,7 +82,7 @@ def sample_provider_profile():
 
 @pytest.fixture
 def sample_auth_user():
-    """Auth Service返回的用户数据"""
+    """Auth ServiceReturn的UserData"""
     return {
         "id": 1,
         "username": "testuser",
@@ -108,7 +108,7 @@ def mock_httpx_client(mocker):
 
 @pytest.fixture
 def mock_customer_profile_model():
-    """Mock CustomerProfile对象"""
+    """Mock CustomerProfileObject"""
     from user_service.models.customer_profile import CustomerProfile, LocationEnum
 
     profile = CustomerProfile(
@@ -119,7 +119,7 @@ def mock_customer_profile_model():
 
 @pytest.fixture
 def mock_provider_profile_model():
-    """Mock ProviderProfile对象"""
+    """Mock ProviderProfileObject"""
     from user_service.models.provider_profile import ProviderProfile
 
     profile = ProviderProfile(

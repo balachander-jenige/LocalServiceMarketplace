@@ -8,7 +8,7 @@ security = HTTPBearer()
 
 
 async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)) -> int:
-    """通过调用 Auth Service 验证 Token 并获取用户 ID"""
+    """通过Call Auth Service Verify Token AndGetUser ID"""
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(

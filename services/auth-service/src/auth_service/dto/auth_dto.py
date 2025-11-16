@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 
 
 class RegisterRequest(BaseModel):
-    """注册请求"""
+    """Registration请求"""
 
     username: str
     email: EmailStr
@@ -11,7 +11,7 @@ class RegisterRequest(BaseModel):
 
 
 class RegisterResponse(BaseModel):
-    """注册响应"""
+    """Registration响应"""
 
     id: int
     username: str
@@ -22,7 +22,7 @@ class RegisterResponse(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    """登录请求"""
+    """Login请求"""
 
     email: EmailStr
     password: str

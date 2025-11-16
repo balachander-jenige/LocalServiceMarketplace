@@ -6,20 +6,20 @@ from ..core.config import settings
 
 
 class RabbitMQClient:
-    """RabbitMQ 客户端"""
+    """RabbitMQ Client"""
 
     def __init__(self):
         self.connection = None
         self.channel = None
 
     async def connect(self):
-        """连接到 RabbitMQ"""
+        """Connect to RabbitMQ"""
         self.connection = await aio_pika.connect_robust(settings.RABBITMQ_URL)
         self.channel = await self.connection.channel()
         print(f"✅ Connected to RabbitMQ: {settings.RABBITMQ_URL}")
 
     async def publish_event(self, exchange_name: str, routing_key: str, message: dict):
-        """发布事件"""
+        """Publish Event"""
         if not self.channel:
             await self.connect()
 
@@ -30,7 +30,7 @@ class RabbitMQClient:
         )
 
     async def consume_events(self, exchange_name: str, routing_key: str, callback):
-        """消费事件"""
+        """ConsumeEvent"""
         if not self.channel:
             await self.connect()
 
@@ -42,11 +42,11 @@ class RabbitMQClient:
         await queue.consume(callback)
 
     async def close(self):
-        """关闭连接"""
+        """Close Connection"""
         if self.connection:
             await self.connection.close()
             print("✅ Closed RabbitMQ connection")
 
 
-# 全局实例
+# Global Instance
 rabbitmq_client = RabbitMQClient()

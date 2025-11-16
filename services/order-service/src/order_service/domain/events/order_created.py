@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class OrderCreatedEvent(BaseModel):
-    """订单创建事件"""
+    """Order Created Event"""
 
     order_id: int
     customer_id: int

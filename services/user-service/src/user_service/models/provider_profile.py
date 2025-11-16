@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 
 class ProviderProfile(BaseModel):
-    """服务商资料 MongoDB 模型"""
+    """ProviderProfile MongoDB Model"""
 
     user_id: int = Field(..., description="用户 ID（来自 Auth Service）")
     skills: List[str] = Field(default_factory=list, description="技能列表")
@@ -13,7 +13,7 @@ class ProviderProfile(BaseModel):
     hourly_rate: float = Field(default=0.0)
     availability: Optional[str] = None
     portfolio: List[str] = Field(default_factory=list, description="作品集 URLs")
-    # total_earnings 字段已删除 - 第三阶段修改
+    # total_earnings Field Removed - Phase 3 Modification
     rating: float = Field(default=5.0, description="平均评分")
     total_reviews: int = Field(default=0, description="评价总数")
     created_at: datetime = Field(default_factory=datetime.utcnow)

@@ -12,11 +12,11 @@ from user_service.services.admin_user_service import AdminUserService
 
 
 class TestAdminUserServiceGetAllUsers:
-    """测试 AdminUserService.get_all_users"""
+    """Test AdminUserService.get_all_users"""
 
     @pytest.mark.asyncio
     async def test_get_all_users_success(self, mock_mongo_db, mocker):
-        """测试获取所有用户成功"""
+        """TestGetAllUserSuccess"""
         service = AdminUserService(mock_mongo_db)
 
         # Mock HTTP response
@@ -55,7 +55,7 @@ class TestAdminUserServiceGetAllUsers:
 
     @pytest.mark.asyncio
     async def test_get_all_users_with_role_filter(self, mock_mongo_db, mocker):
-        """测试按角色过滤用户"""
+        """TestByRoleFilterUser"""
         service = AdminUserService(mock_mongo_db)
 
         mock_users = [{"id": 1, "username": "user1", "email": "user1@test.com", "role_id": 1, "created_at": "2025-01-01"}]
@@ -79,13 +79,13 @@ class TestAdminUserServiceGetAllUsers:
 
         result = await service.get_all_users(role_filter=1)
 
-        # 验证params包含role_id
+        # VerifyparamsContainsrole_id
         call_kwargs = mock_client.get.call_args.kwargs
         assert call_kwargs["params"] == {"role_id": 1}
 
     @pytest.mark.asyncio
     async def test_get_all_users_auth_service_error(self, mock_mongo_db, mocker):
-        """测试Auth Service返回错误"""
+        """TestAuth ServiceReturnError"""
         service = AdminUserService(mock_mongo_db)
 
         mock_response = MagicMock()
@@ -105,11 +105,11 @@ class TestAdminUserServiceGetAllUsers:
 
 
 class TestAdminUserServiceGetUserDetail:
-    """测试 AdminUserService.get_user_detail"""
+    """Test AdminUserService.get_user_detail"""
 
     @pytest.mark.asyncio
     async def test_get_customer_detail_with_profile(self, mock_mongo_db, mocker):
-        """测试获取有Profile的客户详情"""
+        """TestGetWithProfile的CustomerDetails"""
         service = AdminUserService(mock_mongo_db)
 
         # Mock Auth Service response
@@ -152,7 +152,7 @@ class TestAdminUserServiceGetUserDetail:
 
     @pytest.mark.asyncio
     async def test_get_customer_detail_without_profile(self, mock_mongo_db, mocker):
-        """测试获取无Profile的客户详情(返回默认值)"""
+        """TestGetNoProfile的CustomerDetails(ReturnDefault Value)"""
         service = AdminUserService(mock_mongo_db)
 
         mock_user = {"id": 1, "username": "customer1", "email": "customer@test.com", "role_id": 1, "created_at": "2025-01-01"}
@@ -176,7 +176,7 @@ class TestAdminUserServiceGetUserDetail:
 
         result = await service.get_user_detail(user_id=1)
 
-        # 验证返回默认Profile
+        # VerifyReturn默认Profile
         assert result["profile"]["user_id"] == 1
         assert result["profile"]["location"] == "NORTH"
         assert result["profile"]["address"] is None
@@ -184,7 +184,7 @@ class TestAdminUserServiceGetUserDetail:
 
     @pytest.mark.asyncio
     async def test_get_provider_detail_with_profile(self, mock_mongo_db, mocker):
-        """测试获取有Profile的服务商详情"""
+        """TestGetWithProfile的ProviderDetails"""
         service = AdminUserService(mock_mongo_db)
 
         mock_user = {"id": 2, "username": "provider1", "email": "provider@test.com", "role_id": 2, "created_at": "2025-01-01"}
@@ -223,7 +223,7 @@ class TestAdminUserServiceGetUserDetail:
 
     @pytest.mark.asyncio
     async def test_get_provider_detail_without_profile(self, mock_mongo_db, mocker):
-        """测试获取无Profile的服务商详情(返回默认值)"""
+        """TestGetNoProfile的ProviderDetails(ReturnDefault Value)"""
         service = AdminUserService(mock_mongo_db)
 
         mock_user = {"id": 2, "username": "provider1", "email": "provider@test.com", "role_id": 2, "created_at": "2025-01-01"}
@@ -247,7 +247,7 @@ class TestAdminUserServiceGetUserDetail:
 
         result = await service.get_user_detail(user_id=2)
 
-        # 验证返回默认Provider Profile
+        # VerifyReturn默认Provider Profile
         assert result["profile"]["skills"] == []
         assert result["profile"]["experience_years"] == 0
         assert result["profile"]["rating"] == 5.0
@@ -255,7 +255,7 @@ class TestAdminUserServiceGetUserDetail:
 
     @pytest.mark.asyncio
     async def test_get_user_detail_not_found(self, mock_mongo_db, mocker):
-        """测试获取不存在的用户"""
+        """TestGetDoes Not Exist的User"""
         service = AdminUserService(mock_mongo_db)
 
         mock_response = MagicMock()

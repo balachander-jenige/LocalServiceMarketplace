@@ -13,12 +13,12 @@ from ..models.transaction import TransactionType
 
 
 class RefundService:
-    """退款服务（简化版 - 不涉及余额）"""
+    """Refund Service（简化版 - 不涉及余额）"""
 
     @staticmethod
     async def process_refund(db: AsyncSession, user_id: int, order_id: int, reason: str = None) -> dict:
-        """处理退款（简化版，不返还余额）"""
-        # 获取支付记录
+        """Process Refund（简化版，不返还余额）"""
+        # GetPayment记录
         payment = await PaymentDAO.get_payment_by_order_id(db, order_id)
 
         if not payment:
@@ -27,12 +27,12 @@ class RefundService:
         if payment.customer_id != user_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied")
 
-        # 检查是否已退款
+        # Check是否AlreadyRefund
         existing_refund = await RefundDAO.get_refund_by_order_id(db, order_id)
         if existing_refund:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Refund already processed")
 
-        # 创建退款记录
+        # Create Refund记录
         refund = await RefundDAO.create_refund(
             db=db,
             payment_id=payment.id,
@@ -42,7 +42,7 @@ class RefundService:
             reason=reason,
         )
 
-        # 创建交易记录（不含余额信息）
+        # CreateTransaction记录（不含余额Information）
         await TransactionDAO.create_transaction(
             db=db,
             user_id=user_id,
@@ -52,10 +52,10 @@ class RefundService:
             description=f"订单 {order_id} 退款（模拟）",
         )
 
-        # 更新退款状态为已完成
+        # UpdateRefundStatus为AlreadyComplete
         await RefundDAO.update_refund_status(db, refund.id, RefundStatus.completed)
 
-        # 发布退款处理完成事件
+        # PublishRefundHandleCompleteEvent
         await EventPublisher.publish_refund_processed(
             RefundProcessedEvent(
                 refund_id=refund.id,
